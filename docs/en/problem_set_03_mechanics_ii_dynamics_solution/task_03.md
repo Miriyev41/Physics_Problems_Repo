@@ -1,4 +1,4 @@
-# Task 03 – Work of a Variable Force
+# Task 03 – Work of a variable force
 
 ## Problem Statement
 
@@ -8,27 +8,30 @@ $$
 F(x) = -kx
 $$
 
-* Write down the equation of motion and solve it.
-* Calculate the work done during the displacement from $0$ to $x_0$.
-* Interpret the result as potential energy.
-* Verify the relationship $F = -\frac{dU}{dx}$.
-* Draw the graph of $F(x)$ and $U(x)$.
+The required operations are:
+1. Write down the equation of motion and solve it.
+2. Calculate the work done during the displacement from $0$ to $x_0$.
+3. Interpret the result as potential energy.
+4. Verify the relationship $F = -\frac{dU}{dx}$.
+5. Draw the graph of $F(x)$ and $U(x)$.
 
 ## Theory
 
-When a force depends on the position of an object, it is a variable force. The work done by such a force is calculated using integration over the path of motion:
+Newton's Second Law for a one-dimensional system is $F = m\ddot{x}$. When the force depends on the position $x$, the equation of motion becomes a differential equation. Specifically, $F(x) = -kx$ describes a linear restoring force, characteristic of a **Hookean spring**.
+
+Work $W$ done by a variable force over a path from $x_1$ to $x_2$ is defined by the integral:
 
 $$
 W = \int_{x_1}^{x_2} F(x) \, dx
 $$
 
-According to Newton's Second Law, the equation of motion is $m\ddot{x} = F(x)$. For a conservative force, the work done by the force is equal to the negative change in potential energy $U$:
+In a conservative force field, the work done by an external agent against the field is stored as potential energy $U$. The change in potential energy is defined as the negative of the work done by the conservative force:
 
 $$
-W = -\Delta U = -(U(x_2) - U(x_1))
+\Delta U = -W_{field} = -\int_{x_1}^{x_2} F(x) \, dx
 $$
 
-This leads to the fundamental differential relationship between force and potential:
+This leads to the fundamental relationship between force and potential:
 
 $$
 F(x) = -\frac{dU}{dx}
@@ -36,77 +39,95 @@ $$
 
 ## Step-by-Step Solution
 
-### 1. Equation of Motion
+### 1. Write and solve the equation of motion
 
-Substituting the force law $F(x) = -kx$ into Newton's Second Law:
+**Step 1: Set up the differential equation**
+
+Substitute $F = -kx$ into Newton's Second Law $m\frac{d^2x}{dt^2} = F$:
 
 $$
-m \frac{d^2x}{dt^2} = -kx
+m\frac{d^2x}{dt^2} = -kx
 $$
 
-Rearranging into the standard form of a linear homogeneous differential equation:
+Rearrange into the standard form of a second-order linear homogeneous ODE:
 
 $$
 \frac{d^2x}{dt^2} + \frac{k}{m}x = 0
 $$
 
-Defining the natural frequency $\omega^2 = \frac{k}{m}$, the general solution is harmonic:
+**Step 2: Define the natural frequency**
+
+Let $\omega^2 = \frac{k}{m}$. The equation becomes:
 
 $$
-x(t) = A \cos(\omega t + \phi)
+\ddot{x} + \omega^2 x = 0
 $$
 
-### 2. Calculation of Work
+**Step 3: Provide the general solution**
 
-The work done by the force as the body moves from $x = 0$ to $x = x_0$ is:
-
-$$
-W = \int_{0}^{x_0} (-kx) \, dx
-$$
+This is the equation for Simple Harmonic Motion (SHM). The general solution is:
 
 $$
-W = -k \left[ \frac{1}{2}x^2 \right]_{0}^{x_0}
+x(t) = A\cos(\omega t + \phi)
+$$
+
+where $A$ is the amplitude and $\phi$ is the phase constant.
+
+### 2. Calculate the work done from $0$ to $x_0$
+
+Calculate the integral of the force $F(x) = -kx$ over the interval $[0, x_0]$:
+
+$$
+\begin{align}
+W &= \int_{0}^{x_0} (-kx) \, dx \\
+  &= -k \int_{0}^{x_0} x \, dx \\
+  &= -k \left[ \frac{1}{2}x^2 \right]_0^{x_0} \\
+  &= -k \left( \frac{1}{2}x_0^2 - 0 \right)
+\end{align}
 $$
 
 $$
 W = -\frac{1}{2}kx_0^2
 $$
 
-### 3. Potential Energy Interpretation
+### 3. Interpret the result as potential energy
 
-Since $W = -\Delta U$ and defining $U(0) = 0$:
+The work done *by the force* is negative because the force (pointing toward the origin) opposes the displacement (pointing away from the origin). The potential energy $U(x)$ is defined as the work required by an *external agent* to move the body, which is $-W$:
 
 $$
--\frac{1}{2}kx_0^2 = -(U(x_0) - U(0))
+U(x_0) = -W = \frac{1}{2}kx_0^2
 $$
 
-The potential energy of the system at position $x$ is:
+Assuming $U(0) = 0$, the potential energy function is:
 
 $$
 U(x) = \frac{1}{2}kx^2
 $$
 
-### 4. Verification of the Force-Potential Relationship
+### 4. Verify the relationship $F = -dU/dx$
 
-To verify the relationship, we take the negative derivative of the potential energy function:
-
-$$
--\frac{dU}{dx} = -\frac{d}{dt} \left( \frac{1}{2}kx^2 \right)
-$$
+Take the negative derivative of the potential energy function $U(x) = \frac{1}{2}kx^2$ with respect to $x$:
 
 $$
--\frac{dU}{dx} = - \left( \frac{1}{2}k \cdot 2x \right) = -kx
+\begin{align}
+-\frac{dU}{dx} &= -\frac{d}{dx} \left( \frac{1}{2}kx^2 \right) \\
+               &= -\frac{1}{2}k (2x) \\
+               &= -kx
+\end{align}
 $$
 
-This matches the original expression for $F(x)$, confirming the force is conservative.
+Since $-kx$ is exactly the original force $F(x)$, the relationship is verified.
 
 ## Final Result
 
-* **Equation of Motion**: $\ddot{x} + \frac{k}{m}x = 0$
-* **Work Done**: $W = -\frac{1}{2}kx_0^2$
-* **Potential Energy**: $U(x) = \frac{1}{2}kx^2$
-* **Derivative Check**: $-\frac{dU}{dx} = -kx = F$
+* Equation of motion: $m\ddot{x} + kx = 0$
+* General solution: $x(t) = A\cos(\sqrt{\frac{k}{m}}t + \phi)$
+* Work done by the force: $W = -\frac{1}{2}kx_0^2$
+* Potential energy: $U(x) = \frac{1}{2}kx^2$
+* Verification: $-\frac{dU}{dx} = -kx = F(x)$
 
 ## Interpretation
 
-The negative sign in the work calculation indicates that the force acts in the opposite direction of the displacement (a restoring force). The energy is not "lost" but is stored as elastic potential energy in the system. The quadratic nature of the potential energy $U(x)$ creates a "potential well," which explains why the resulting motion is oscillatory around the equilibrium point $x=0$.
+
+
+The linear restoring force $F(x) = -kx$ leads to a quadratic potential energy $U(x) = \frac{1}{2}kx^2$, often called a **potential well**. In this well, the origin $x=0$ is a point of stable equilibrium because it represents the minimum of the potential energy. If the particle is displaced, the force always acts to push it back toward this minimum. The negative work calculated indicates that as the particle moves away from equilibrium, kinetic energy is being converted into stored potential energy.

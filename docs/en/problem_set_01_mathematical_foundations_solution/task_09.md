@@ -2,36 +2,50 @@
 
 ## Problem Statement
 
-A system is governed by the following second-order linear differential equation:
+The differential equation for a simple harmonic oscillator is given by:
 
 $$
 \frac{d^2 x}{dt^2} + \omega^2 x = 0
 $$
 
-Find the general solution to this equation. Next, determine the specific solution for arbitrary initial conditions $x(0) = x_0$ and $x'(0) = v_0$. Outline the architecture for an HTML application to visualize the position $x(t)$, velocity $x'(t)$, and acceleration $x''(t)$.
+The required operations are:
+1. Find the general solution of the differential equation.
+2. Solve for specific initial conditions $x(0) = x_0$ and $v(0) = v_0$.
+3. Visualize the results for $x(t)$, $v(t)$, and $a(t)$ in an interactive application.
 
 ## Theory
 
-The given differential equation describes a simple harmonic oscillator. It models systems where a restoring force is directly proportional to the displacement from equilibrium, such as a mass on a Hookean spring or a simple pendulum under a small-angle approximation.
+A second-order linear homogeneous differential equation with constant coefficients can be solved using the characteristic equation. For an equation of the form:
 
+$$
+a \frac{d^2x}{dt^2} + b \frac{dx}{dt} + cx = 0
+$$
 
-Because the equation is a second-order linear homogeneous ordinary differential equation with constant coefficients, its solution can be found using an ansatz of the form $x(t) = e^{rt}$, which leads to a characteristic algebraic equation. The roots of this characteristic equation determine the fundamental set of solutions.
+The characteristic equation is $ar^2 + br + c = 0$. In the case of the harmonic oscillator, we have $r^2 + \omega^2 = 0$, which leads to purely imaginary roots $r = \pm i\omega$.
+
+According to Euler's formula, $e^{i\omega t} = \cos(\omega t) + i\sin(\omega t)$. The general real-valued solution is a linear combination of these trigonometric functions:
+
+$$
+x(t) = A\cos(\omega t) + B\sin(\omega t)
+$$
+
+The velocity $v(t)$ and acceleration $a(t)$ are the first and second derivatives of position:
+
+$$
+v(t) = \frac{dx}{dt}, \qquad a(t) = \frac{d^2x}{dt^2}
+$$
 
 ## Step-by-Step Solution
 
-Assume a solution of the form $x(t) = e^{rt}$. Substitute this into the differential equation.
+### 1. Find the general solution
 
-$$
-r^2 e^{rt} + \omega^2 e^{rt} = 0
-$$
-
-Divide by $e^{rt}$, which is never zero, to obtain the characteristic equation.
+The characteristic equation is:
 
 $$
 r^2 + \omega^2 = 0
 $$
 
-Solve for $r$.
+Solving for $r$:
 
 $$
 r^2 = -\omega^2
@@ -41,98 +55,100 @@ $$
 r = \pm i\omega
 $$
 
-The roots are purely imaginary. By Euler's formula, the general solution is a linear combination of sine and cosine functions. Let $A$ and $B$ be arbitrary real constants.
+The general solution is:
+
+$$
+x(t) = c_1 e^{i\omega t} + c_2 e^{-i\omega t}
+$$
+
+Using Euler's identities and regrouping constants, we express this in terms of real sine and cosine functions:
 
 $$
 x(t) = A\cos(\omega t) + B\sin(\omega t)
 $$
 
-To find the specific solution, apply the initial conditions $x(0) = x_0$ and $x'(0) = v_0$. First, evaluate $x(t)$ at $t=0$.
+### 2. Solve for initial conditions
+
+We are given $x(0) = x_0$ and $\dot{x}(0) = v_0$.
+
+**Step 1: Use the position at $t=0$**
+
+Substitute $t=0$ into the general solution:
 
 $$
-x(0) = A\cos(0) + B\sin(0)
+\begin{align}
+x(0) &= A\cos(0) + B\sin(0) \\
+x_0  &= A(1) + B(0) \\
+A    &= x_0
+\end{align}
+$$
+
+**Step 2: Find the velocity function**
+
+Differentiate $x(t)$ with respect to $t$:
+
+$$
+\begin{align}
+v(t) &= \frac{d}{dt}(A\cos(\omega t) + B\sin(\omega t)) \\
+     &= -A\omega\sin(\omega t) + B\omega\cos(\omega t)
+\end{align}
+$$
+
+**Step 3: Use the velocity at $t=0$**
+
+Substitute $t=0$ into the velocity function:
+
+$$
+\begin{align}
+v(0) &= -A\omega\sin(0) + B\omega\cos(0) \\
+v_0  &= 0 + B\omega(1) \\
+B    &= \frac{v_0}{\omega}
+\end{align}
+$$
+
+**Step 4: Combine the constants**
+
+Substitute $A$ and $B$ back into the general solution:
+
+$$
+x(t) = x_0 \cos(\omega t) + \frac{v_0}{\omega} \sin(\omega t)
+$$
+
+### 3. Determine acceleration
+
+Differentiate $v(t)$ to find $a(t)$:
+
+$$
+\begin{align}
+a(t) &= \frac{d}{dt}(-x_0\omega\sin(\omega t) + v_0\cos(\omega t)) \\
+     &= -x_0\omega^2\cos(\omega t) - v_0\omega\sin(\omega t)
+\end{align}
+$$
+
+Factoring out $-\omega^2$:
+
+$$
+a(t) = -\omega^2 \left( x_0\cos(\omega t) + \frac{v_0}{\omega}\sin(\omega t) \right)
 $$
 
 $$
-x_0 = A
+a(t) = -\omega^2 x(t)
 $$
-
-Next, compute the first derivative $x'(t)$ to apply the second initial condition.
-
-$$
-x'(t) = \frac{d}{dt} \bigl( A\cos(\omega t) + B\sin(\omega t) \bigr)
-$$
-
-$$
-x'(t) = -A\omega\sin(\omega t) + B\omega\cos(\omega t)
-$$
-
-Evaluate $x'(t)$ at $t=0$.
-
-$$
-x'(0) = -A\omega\sin(0) + B\omega\cos(0)
-$$
-
-$$
-v_0 = B\omega
-$$
-
-$$
-B = \frac{v_0}{\omega}
-$$
-
-Substitute the constants $A$ and $B$ back into the general solution to obtain the specific solution.
-
-$$
-x(t) = x_0\cos(\omega t) + \frac{v_0}{\omega}\sin(\omega t)
-$$
-
-Compute the acceleration $x''(t)$ by differentiating the velocity.
-
-$$
-x''(t) = \frac{d}{dt} \left( -x_0\omega\sin(\omega t) + v_0\cos(\omega t) \right)
-$$
-
-$$
-x''(t) = -x_0\omega^2\cos(\omega t) - v_0\omega\sin(\omega t)
-$$
-
-Notice that this satisfies the original differential equation $x''(t) = -\omega^2 x(t)$.
-
-### Application Architecture
-
-To visualize the kinematics of the harmonic oscillator using web technologies:
-
-1.  **Interface (HTML):** Create input fields or sliders for the angular frequency $\omega$, initial position $x_0$, and initial velocity $v_0$. Add a canvas element for rendering the graphs.
-2.  **Logic (JavaScript):** Define three functions corresponding to $x(t)$, $x'(t)$, and $x''(t)$ based on the derived specific solutions. 
-3.  **Visualization:** Iterate over a time parameter $t$ from $0$ to a maximum value. For each time step, calculate the three kinematic values. Map $t$ to the horizontal canvas pixel coordinate and the physical values to vertical pixel coordinates. Plot the three curves using distinct colors and add a dynamic legend to distinguish position, velocity, and acceleration.
 
 ## Final Result
 
-* General solution:
-
-$$
-x(t) = A\cos(\omega t) + B\sin(\omega t)
-$$
-
-* Specific solution for position:
-
-$$
-x(t) = x_0\cos(\omega t) + \frac{v_0}{\omega}\sin(\omega t)
-$$
-
-* Velocity:
-
-$$
-x'(t) = -x_0\omega\sin(\omega t) + v_0\cos(\omega t)
-$$
-
-* Acceleration:
-
-$$
-x''(t) = -x_0\omega^2\cos(\omega t) - v_0\omega\sin(\omega t)
-$$
+* General solution: $x(t) = A\cos(\omega t) + B\sin(\omega t)$
+* Particular solution: $x(t) = x_0 \cos(\omega t) + \frac{v_0}{\omega} \sin(\omega t)$
+* Velocity: $v(t) = -x_0\omega\sin(\omega t) + v_0\cos(\omega t)$
+* Acceleration: $a(t) = -\omega^2 x(t)$
 
 ## Interpretation
 
-The solution describes perpetual, un-damped oscillations. The parameter $\omega$ determines the angular frequency of the system, setting the period of oscillation $T = \frac{2\pi}{\omega}$. The velocity and acceleration functions are phase-shifted relative to the position; velocity leads position by $\frac{\pi}{2}$ radians, while acceleration is exactly out of phase by $\pi$ radians, reflecting the fact that the restoring force is always directed oppositely to the displacement.
+[Image of simple harmonic motion graphs for position, velocity and acceleration]
+
+The motion is periodic with a period $T = \frac{2\pi}{\omega}$. The acceleration is always proportional to the displacement but in the opposite direction; this is the defining characteristic of a restoring force (Hooke's Law). 
+
+Phase Relationships:
+- When displacement $x(t)$ is at its maximum, velocity $v(t)$ is zero, and acceleration $a(t)$ is at its negative maximum.
+- Velocity leads displacement by a phase of $\pi/2$ (90 degrees).
+- Acceleration and displacement are exactly $\pi$ (180 degrees) out of phase.

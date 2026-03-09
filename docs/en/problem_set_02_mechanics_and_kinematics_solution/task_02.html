@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Task 02 - Projectile Motion Animation</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; background: #f0f0f0; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; }
+        canvas { border: 1px solid #333; background: #fff; display: block; margin: 10px auto; }
+        .controls { display: flex; gap: 20px; justify-content: center; margin-bottom: 10px; }
+        .slider-group { display: flex; flex-direction: column; align-items: center; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Projectile Motion Simulator</h1>
+    <div class="controls">
+        <div class="slider-group">
+            <label>Angle: <span id="angleVal">45</span>°</label>
+            <input type="range" id="angleInput" min="0" max="90" value="45">
+        </div>
+        <div class="slider-group">
+            <label>Velocity: <span id="v0Val">50</span> m/s</label>
+            <input type="range" id="v0Input" min="10" max="100" value="50">
+        </div>
+        <button onclick="startAnimation()">Fire</button>
+    </div>
+    <canvas id="simCanvas" width="700" height="400"></canvas>
+</div>
+
+<script>
+    const canvas = document.getElementById('simCanvas');
+    const ctx = canvas.getContext('2d');
+    const g = 9.81;
+    const scale = 5; // Pixels per meter
+
+    let t = 0;
+    let animationId = null;
+
+    function startAnimation() {
+        if (animationId) cancelAnimationFrame(animationId);
+        t = 0;
+        animate();
+    }
+
+    function animate() {
+        const v0 = parseFloat(document.getElementById('v0Input').value);
+        const alpha = parseFloat(document.getElementById('angleInput').value) * Math.PI / 180;
+        
+        const x = v0 * Math.cos(alpha) * t;
+        const y = v0 * Math.sin(alpha) * t - 0.5 * g * t * t;
+
+        if (y < 0 && t > 0) {
+            cancelAnimationFrame(animationId);
+            return;
+        }
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw Ground
+        ctx.beginPath();
+        ctx.moveTo(0, canvas.height - 10);
+        ctx.lineTo(canvas.width, canvas.height - 10);
+        ctx.stroke();
+
+        // Draw Projectile
+        ctx.beginPath();
+        ctx.arc(x * scale, (canvas.height - 10) - (y * scale), 5, 0, Math.PI * 2);
+        ctx.fillStyle = "red";
+        ctx.fill();
+
+        t += 0.05;
+        animationId = requestAnimationFrame(animate);
+    }
+
+    document.getElementById('angleInput').oninput = function() { document.getElementById('angleVal').innerText = this.value; };
+    document.getElementById('v0Input').oninput = function() { document.getElementById('v0Val').innerText = this.value; };
+</script>
+</body>
+</html>

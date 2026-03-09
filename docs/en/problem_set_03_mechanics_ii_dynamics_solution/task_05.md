@@ -1,103 +1,160 @@
-# Task 05 – Momentum and One-Dimensional Head-on Collision
+# Task 05 – Power and efficiency
 
 ## Problem Statement
 
-Two bodies with masses $m_1, m_2$ move along a single straight line. The collision is elastic.
+A body of mass $m = 10\ \text{kg}$ is pulled up an inclined plane with an angle $\alpha = 30^\circ$ at a constant velocity $v = 2\ \text{m/s}$. The coefficient of kinetic friction is $\mu = 0.2$.
 
-* Write down the principles of conservation of momentum and energy.
-* Determine the velocities after the collision.
-* Consider the case $m_1 = m_2$.
-* Consider the limit $m_2 \gg m_1$.
-* Interpret the results physically.
+The required operations are:
+1. Determine the pulling force $F$ required to maintain constant velocity.
+2. Calculate the power $P$ developed by the pulling force.
+3. Calculate the rate of energy dissipation due to friction ($P_{friction}$).
+4. Determine the efficiency $\eta$ of the process.
+5. Analyze how the efficiency changes with the angle $\alpha$.
 
 ## Theory
 
-In a one-dimensional elastic collision, two fundamental conservation laws apply:
-1.  **Conservation of Linear Momentum:** The total momentum of the system remains constant if no external forces act on it.
-2.  **Conservation of Kinetic Energy:** In an elastic collision, the total kinetic energy is conserved, meaning no energy is dissipated as heat or sound.
+Power $P$ is the rate at which work is done or energy is transferred. For a constant force $\vec F$ acting on an object moving with velocity $\vec v$, the instantaneous power is given by the dot product:
 
-Let $u_1, u_2$ be the initial velocities and $v_1, v_2$ be the final velocities.
+$$
+P = \vec F \cdot \vec v
+$$
 
+If the force and velocity are parallel, this simplifies to $P = Fv$.
 
+Efficiency $\eta$ is the ratio of useful power output ($P_{out}$) to the total power input ($P_{in}$):
+
+$$
+\eta = \frac{P_{out}}{P_{in}}
+$$
+
+In this context, the "useful" work is the increase in gravitational potential energy, while the "input" is the work done by the pulling force. The difference between the two is the power dissipated as heat due to friction.
+
+Newton's First Law states that for an object moving at a constant velocity, the net force acting on it must be zero ($\sum \vec F = 0$).
 
 ## Step-by-Step Solution
 
-### 1. Conservation Equations
+### 1. Determine the pulling force $F$
 
-**Momentum:**
+We define a coordinate system where the $x$-axis points up the incline. Since the velocity is constant, the acceleration is zero ($a = 0$).
 
-$$
-m_1 u_1 + m_2 u_2 = m_1 v_1 + m_2 v_2
-$$
-
-**Kinetic Energy:**
+**Step 1: Identify forces in the y-direction (perpendicular to the plane)**
 
 $$
-\frac{1}{2} m_1 u_1^2 + \frac{1}{2} m_2 u_2^2 = \frac{1}{2} m_1 v_1^2 + \frac{1}{2} m_2 v_2^2
+\begin{align}
+\sum F_y &= N - mg \cos \alpha = 0 \\
+N &= mg \cos \alpha
+\end{align}
 $$
 
-### 2. Solving for Final Velocities
+**Step 2: Identify forces in the x-direction (parallel to the plane)**
 
-Rearranging the momentum equation:
-
-$$
-m_1(u_1 - v_1) = m_2(v_2 - u_2)
-$$
-
-Rearranging the energy equation (using $a^2 - b^2 = (a-b)(a+b)$):
+The forces acting along the incline are the pulling force $F$ (up), the component of gravity $mg \sin \alpha$ (down), and the friction force $F_f = \mu N$ (down).
 
 $$
-m_1(u_1 - v_1)(u_1 + v_1) = m_2(v_2 - u_2)(v_2 + u_2)
+\begin{align}
+\sum F_x &= F - mg \sin \alpha - F_f = 0 \\
+F &= mg \sin \alpha + \mu (mg \cos \alpha) \\
+F &= mg (\sin \alpha + \mu \cos \alpha)
+\end{align}
 $$
 
-Dividing the energy result by the momentum result yields the velocity relationship:
+**Step 3: Calculate the numerical value**
+Using $g \approx 9.81\ \text{m/s}^2$:
 
 $$
-u_1 + v_1 = v_2 + u_2 \implies v_2 - v_1 = u_1 - u_2
+\begin{align}
+F &= 10 \cdot 9.81 \cdot (\sin 30^\circ + 0.2 \cdot \cos 30^\circ) \\
+  &= 98.1 \cdot (0.5 + 0.2 \cdot 0.866) \\
+  &= 98.1 \cdot (0.5 + 0.1732) \\
+  &= 98.1 \cdot 0.6732 \\
+  &\approx 66.04\ \text{N}
+\end{align}
 $$
 
-Combining this with the momentum equation leads to the general solutions:
+### 2. Calculate the input power $P_{in}$
+
+The power developed by the pulling force $F$ moving at velocity $v$:
 
 $$
-v_1 = \frac{m_1 - m_2}{m_1 + m_2}u_1 + \frac{2m_2}{m_1 + m_2}u_2
+\begin{align}
+P_{in} &= F \cdot v \\
+       &= 66.04 \cdot 2 \\
+       &= 132.08\ \text{W}
+\end{align}
 $$
 
-$$
-v_2 = \frac{2m_1}{m_1 + m_2}u_1 + \frac{m_2 - m_1}{m_1 + m_2}u_2
-$$
+### 3. Calculate the power dissipated by friction $P_{friction}$
 
-### 3. Case: $m_1 = m_2$
-
-If the masses are equal, the coefficients simplify significantly:
+The friction force is $F_f = \mu mg \cos \alpha$:
 
 $$
-v_1 = \frac{0}{2m}u_1 + \frac{2m}{2m}u_2 = u_2
+\begin{align}
+F_f &= 0.2 \cdot 10 \cdot 9.81 \cdot \cos 30^\circ \\
+    &= 19.62 \cdot 0.866 \\
+    &\approx 16.99\ \text{N}
+\end{align}
 $$
 
-$$
-v_2 = \frac{2m}{2m}u_1 + \frac{0}{2m}u_2 = u_1
-$$
-
-### 4. Limit: $m_2 \gg m_1$ (Stationary Target $u_2 = 0$)
-
-If the second mass is much larger (like a ball hitting a wall):
+The power dissipated as heat:
 
 $$
-v_1 \approx \frac{-m_2}{m_2}u_1 = -u_1
+\begin{align}
+P_{friction} &= F_f \cdot v \\
+             &= 16.99 \cdot 2 \\
+             &= 33.98\ \text{W}
+\end{align}
 $$
 
+### 4. Determine the efficiency $\eta$
+
+Useful power ($P_{out}$) is the rate of change of potential energy:
+
 $$
-v_2 \approx \frac{2m_1}{m_2}u_1 \approx 0
+\begin{align}
+P_{out} &= \frac{d}{dt}(mgh) = mg \frac{dh}{dt} \\
+        &= mg (v \sin \alpha) \\
+        &= 10 \cdot 9.81 \cdot (2 \cdot 0.5) \\
+        &= 98.1\ \text{W}
+\end{align}
+$$
+
+Calculate efficiency:
+
+$$
+\begin{align}
+\eta &= \frac{P_{out}}{P_{in}} \\
+     &= \frac{98.1}{132.08} \\
+     &\approx 0.7427 \text{ or } 74.3\%
+\end{align}
+$$
+
+### 5. Efficiency as a function of $\alpha$
+
+Express efficiency using the formulas derived:
+
+$$
+\begin{align}
+\eta &= \frac{mgv \sin \alpha}{mg(\sin \alpha + \mu \cos \alpha)v} \\
+     &= \frac{\sin \alpha}{\sin \alpha + \mu \cos \alpha}
+\end{align}
+$$
+
+Divide numerator and denominator by $\cos \alpha$:
+
+$$
+\eta(\alpha) = \frac{\tan \alpha}{\tan \alpha + \mu}
 $$
 
 ## Final Result
 
-* **General Velocities**: 
-  $v_1 = \frac{(m_1-m_2)u_1 + 2m_2u_2}{m_1+m_2}$
-  $v_2 = \frac{2m_1u_1 + (m_2-m_1)u_2}{m_1+m_2}$
-* **Equal Masses**: The bodies exchange velocities.
-* **Massive Target**: The light body bounces back with the same speed; the heavy body remains nearly stationary.
+* Pulling force: $F \approx 66.04\ \text{N}$
+* Input Power: $P_{in} \approx 132.08\ \text{W}$
+* Dissipated Power: $P_{friction} \approx 33.98\ \text{W}$
+* Efficiency: $\eta \approx 74.3\%$
+* Efficiency Formula: $\eta = \frac{\tan \alpha}{\tan \alpha + \mu}$
 
 ## Interpretation
 
-The case of equal masses shows a perfect "transfer" of state, common in billiards. The limit $m_2 \gg m_1$ illustrates why a light object cannot significantly move a much heavier one; instead, the momentum of the light object is reversed, resulting in a nearly $2u_1$ change in velocity, while the heavy object absorbs the momentum with negligible speed change.
+
+
+The efficiency of pulling an object up an incline depends heavily on the steepness. As the angle $\alpha$ increases, the term $\tan \alpha$ grows, causing the efficiency to approach $1$ (100%). This is because at steeper angles, the normal force (and thus friction) decreases while the useful work (lifting against gravity) increases. Conversely, at very shallow angles, most of the input work is wasted overcoming friction rather than gaining height, leading to low efficiency.

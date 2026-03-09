@@ -1,97 +1,84 @@
-# Task 10 – Numerical Model of a Dynamical System
+# Task 10 – Numerical model of a dynamical system (Anharmonic Oscillator)
 
 ## Problem Statement
 
-Consider motion in a one-dimensional potential:
+Consider motion in a one-dimensional potential given by:
 
 $$
 U(x) = \frac{k}{2}x^2 + \lambda x^4
 $$
 
-* Determine the force $F(x)$.
-* Write down the equation of motion.
-* Describe the motion for small and large amplitudes.
-* Discuss the numerical approach (Euler method) to solve such an equation.
-* Perform a numerical simulation for chosen parameters $k, \lambda$.
+The required operations are:
+1. Determine the force $F(x)$.
+2. Write down the equation of motion.
+3. Explain why the equation is non-linear and cannot be solved with basic trigonometric functions.
+4. Implement a numerical solution using the Velocity Verlet algorithm.
+5. Analyze the effect of the anharmonic term $\lambda$ on the period of oscillation.
 
 ## Theory
 
-This potential represents an **anharmonic oscillator**. The first term corresponds to a linear restoring force (Hooke's Law), while the second term ($\lambda x^4$) introduces a non-linearity. 
+The potential $U(x) = \frac{k}{2}x^2 + \lambda x^4$ describes an **anharmonic oscillator**. The first term ($\frac{k}{2}x^2$) represents the standard harmonic potential (Hooke's Law), while the second term ($\lambda x^4$) introduces a non-linear correction. If $\lambda > 0$, the potential "wall" is steeper than a parabola, making the restoring force stronger at large displacements.
 
-In dynamics, the force is the negative derivative of the potential energy:
-
+The force is derived from the potential:
 $$
 F(x) = -\frac{dU}{dx}
 $$
 
-Since the force is non-linear, the equation of motion does not have a simple analytical solution in terms of basic trigonometric functions. Therefore, numerical methods like the **Euler method** or **Runge-Kutta** are used to approximate the trajectory by discretizing time into small steps $\Delta t$.
+The **Velocity Verlet algorithm** is a second-order numerical method used to integrate Newton's equations of motion. It is preferred over the simple Euler method because it is time-reversible and preserves the energy of the system much more accurately (it is a symplectic integrator).
 
-
+The update steps for a time step $\Delta t$ are:
+1. Calculate next position: $x(t+\Delta t) = x(t) + v(t)\Delta t + \frac{1}{2}a(t)\Delta t^2$
+2. Calculate intermediate velocity: $v(t+\frac{\Delta t}{2}) = v(t) + \frac{1}{2}a(t)\Delta t$
+3. Calculate new acceleration: $a(t+\Delta t) = F(x(t+\Delta t))/m$
+4. Calculate final velocity: $v(t+\Delta t) = v(t+\frac{\Delta t}{2}) + \frac{1}{2}a(t+\Delta t)\Delta t$
 
 ## Step-by-Step Solution
 
-### 1. Determining the Force
+### 1. Determine the force $F(x)$
 
-Differentiating the potential $U(x)$:
-
-$$
-F(x) = -\frac{d}{dx} \left( \frac{k}{2}x^2 + \lambda x^4 \right)
-$$
+Differentiate the potential with respect to $x$:
 
 $$
-F(x) = -(kx + 4\lambda x^3)
+\begin{align}
+F(x) &= -\frac{d}{dx} \left( \frac{k}{2}x^2 + \lambda x^4 \right) \\
+     &= -\left( \frac{k}{2} \cdot 2x + \lambda \cdot 4x^3 \right) \\
+     &= -kx - 4\lambda x^3
+\end{align}
 $$
 
-### 2. Equation of Motion
+### 2. Write down the equation of motion
 
-Using Newton's Second Law ($m\ddot{x} = F$):
+Using Newton's Second Law $m\ddot{x} = F$:
 
 $$
 m\ddot{x} = -kx - 4\lambda x^3
 $$
 
+Standard form:
 $$
 \ddot{x} + \frac{k}{m}x + \frac{4\lambda}{m}x^3 = 0
 $$
 
-This is known as the **Duffing equation** (without damping or driving force).
+### 3. Non-linearity and Analytical Limitations
 
-### 3. Motion Analysis
+This equation is a **non-linear second-order differential equation** due to the $x^3$ term. 
+- In a linear harmonic oscillator ($\lambda = 0$), the restoring force is proportional to displacement ($F \propto x$), leading to solutions like $\sin(\omega t)$ where the period is independent of amplitude.
+- In the anharmonic case, the restoring force grows faster than displacement ($F \propto x^3$). This means the "stiffness" of the system effectively increases as the particle moves further from the origin. 
+- Consequently, the period of oscillation $T$ becomes dependent on the amplitude $A$. Such equations generally require Jacobi elliptic functions for analytical solutions, which are significantly more complex than basic trigonometry.
 
-* **Small Amplitudes ($x \ll 1$):** The $x^3$ term becomes negligible compared to the $x$ term. The system behaves like a simple harmonic oscillator with frequency $\omega_0 = \sqrt{k/m}$.
-* **Large Amplitudes:** The $4\lambda x^3$ term dominates. If $\lambda > 0$ (hard spring), the restoring force increases faster than linearly, leading to a higher frequency of oscillation as amplitude increases.
+### 4. Numerical Implementation (Velocity Verlet)
 
-### 4. Numerical Approach (Euler Method)
-
-To solve $\ddot{x} = f(x, v)$, we break it into two first-order equations:
-1. $\frac{dv}{dt} = -\frac{k}{m}x - \frac{4\lambda}{m}x^3$
-2. $\frac{dx}{dt} = v$
-
-For each time step $n$:
-
-$$
-v_{n+1} = v_n + a_n \Delta t
-$$
-
-$$
-x_{n+1} = x_n + v_n \Delta t
-$$
-
-### 5. Numerical Simulation (Conceptual)
-
-For parameters $m=1, k=1, \lambda=0.5$ and initial conditions $x(0)=1, v(0)=0$:
-* At $t=0$: $a = -(1(1) + 4(0.5)(1^3)) = -3$.
-* After $\Delta t = 0.01$:
-    * $v(0.01) = 0 + (-3)(0.01) = -0.03$
-    * $x(0.01) = 1 + (0)(0.01) = 1.00$
-* The simulation repeats these steps to trace the non-sinusoidal periodic path.
+We solve the system by iterating the Velocity Verlet steps. For each step, we calculate the total energy $E = \frac{1}{2}mv^2 + U(x)$ to monitor numerical stability.
 
 ## Final Result
 
-* **Force**: $F(x) = -kx - 4\lambda x^3$
-* **Equation of Motion**: $\ddot{x} + \frac{k}{m}x + \frac{4\lambda}{m}x^3 = 0$
-* **Method**: Euler integration $x(t+\Delta t) \approx x(t) + v(t)\Delta t$.
+* Force: $F(x) = -kx - 4\lambda x^3$
+* Equation of Motion: $m\ddot{x} + kx + 4\lambda x^3 = 0$
+* If $\lambda > 0$, the oscillator is "stiffer," leading to a shorter period as amplitude increases.
+* If $\lambda < 0$, the oscillator is "softer," leading to a longer period as amplitude increases.
 
 ## Interpretation
 
-The $x^4$ term in the potential breaks the simple harmony of the system. In a physical sense, $\lambda$ represents the "stiffness" adjustment of a spring. Numerical models allow us to explore these complex systems where pen-and-paper math becomes insufficient, revealing how period depends on amplitude—a phenomenon not seen in simple linear oscillators.
+
+
+The anharmonic term $\lambda x^4$ fundamentally changes the dynamics of the system. While the motion remains periodic, the simple relationship between mass, spring constant, and frequency is broken. In a real physical system, such as a vibrating molecule, this anharmonicity is responsible for phenomena like thermal expansion—as the energy increases, the asymmetry or change in the potential shape causes the average position of the particles to shift.

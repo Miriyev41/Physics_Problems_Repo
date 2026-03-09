@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 09 - Harmonic Oscillator Visualization</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f9; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; background: #eef2f7; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .input-group { display: flex; flex-direction: column; }
+        label { font-weight: bold; margin-bottom: 5px; font-size: 0.9em; }
+        input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        button { grid-column: 1 / -1; padding: 12px; background: #2c3e50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1em; }
+        button:hover { background: #34495e; }
+        canvas { max-height: 500px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Harmonic Oscillator Dynamics</h1>
+    <div class="controls">
+        <div class="input-group">
+            <label>Initial Position x₀</label>
+            <input type="number" id="x0" value="1" step="0.1">
+        </div>
+        <div class="input-group">
+            <label>Initial Velocity v₀</label>
+            <input type="number" id="v0" value="0" step="0.1">
+        </div>
+        <div class="input-group">
+            <label>Angular Freq ω</label>
+            <input type="number" id="omega" value="2" step="0.1">
+        </div>
+        <div class="input-group">
+            <label>Time Duration (s)</label>
+            <input type="number" id="tmax" value="10" step="1">
+        </div>
+        <button onclick="update()">Simulate Motion</button>
+    </div>
+    <canvas id="oscillatorChart"></canvas>
+</div>
+
+<script>
+    let chart = null;
+
+    function update() {
+        const x0 = parseFloat(document.getElementById('x0').value);
+        const v0 = parseFloat(document.getElementById('v0').value);
+        const w = parseFloat(document.getElementById('omega').value);
+        const tmax = parseFloat(document.getElementById('tmax').value);
+
+        const tValues = [];
+        const xValues = [];
+        const vValues = [];
+        const aValues = [];
+
+        for (let t = 0; t <= tmax; t += tmax/200) {
+            const x = x0 * Math.cos(w * t) + (v0 / w) * Math.sin(w * t);
+            const v = -x0 * w * Math.sin(w * t) + v0 * Math.cos(w * t);
+            const a = -w * w * x;
+            
+            tValues.push(t.toFixed(2));
+            xValues.push(x);
+            vValues.push(v);
+            aValues.push(a);
+        }
+
+        const ctx = document.getElementById('oscillatorChart').getContext('2d');
+        if (chart) chart.destroy();
+
+        chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: tValues,
+                datasets: [
+                    { label: 'Position x(t)', data: xValues, borderColor: '#3498db', tension: 0.3, pointRadius: 0 },
+                    { label: 'Velocity v(t)', data: vValues, borderColor: '#e67e22', tension: 0.3, pointRadius: 0 },
+                    { label: 'Acceleration a(t)', data: aValues, borderColor: '#e74c3c', tension: 0.3, borderDash: [5, 5], pointRadius: 0 }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { title: { display: true, text: 'Time (s)' } },
+                    y: { title: { display: true, text: 'Magnitude' } }
+                }
+            }
+        });
+    }
+
+    window.onload = update;
+</script>
+</body>
+</html>

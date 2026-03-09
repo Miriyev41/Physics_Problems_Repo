@@ -1,118 +1,178 @@
-# Task 02 – Inclined Plane with Friction
+# Task 02 – Inclined plane with friction
 
 ## Problem Statement
 
-A body of mass $m$ slides down an inclined plane with an angle $\alpha$. The coefficient of kinetic friction is $\mu$.
+A body of mass $m$ slides down an inclined plane with an angle $\alpha$. The coefficient of kinetic friction between the body and the plane is $\mu$.
 
-* Determine all forces acting on the body.
-* Derive the acceleration $\vec{a}$.
-* Calculate the time of descent from height $h$.
-* Determine the final velocity $\vec{v}$.
-* Check if the result is consistent with the energy balance.
+The required operations are:
+1. Determine all forces acting on the body.
+2. Derive the acceleration $\vec a$.
+3. Calculate the time of descent $t$ from a height $h$.
+4. Determine the final velocity $\vec v$ at the bottom of the plane.
+5. Check if the result is consistent with the energy balance.
 
 ## Theory
 
-The motion of an object on an inclined plane is governed by the decomposition of gravitational force into components relative to the plane's surface. According to Newton's Second Law, the net force in any direction is equal to the mass times the acceleration in that direction.
+To analyze motion on an inclined plane, we define a coordinate system where the $x$-axis is parallel to the plane (pointing downwards) and the $y$-axis is perpendicular to the plane.
 
-The forces involved are:
-1.  **Gravity ($F_g = mg$):** Directed vertically downward.
-2.  **Normal Force ($N$):** Exerted by the surface perpendicular to the plane.
-3.  **Kinetic Friction ($f_k = \mu N$):** Opposes the direction of motion along the plane.
+The gravitational force $\vec F_g = mg$ must be decomposed into these components:
+- $F_{gx} = mg \sin \alpha$ (driving the motion)
+- $F_{gy} = -mg \cos \alpha$ (pressing the body against the plane)
 
+The normal force $\vec N$ acts perpendicular to the surface, and the kinetic friction force $\vec F_f$ acts opposite to the direction of motion. The magnitude of friction is proportional to the normal force:
 
+$$
+F_f = \mu N
+$$
+
+The work-energy theorem states that the change in mechanical energy is equal to the work done by non-conservative forces (friction):
+
+$$
+\Delta E = W_{friction}
+$$
 
 ## Step-by-Step Solution
 
-### 1. Force Decomposition
+### 1. Determine all forces acting on the body
 
-We establish a coordinate system where the $x$-axis is parallel to the inclined plane (pointing downwards) and the $y$-axis is perpendicular to it.
+There are three primary forces acting on the mass:
+1. **Gravity ($m\vec g$):** Points vertically downward.
+2. **Normal Force ($\vec N$):** Points perpendicular to the plane.
+3. **Friction Force ($\vec F_f$):** Points up the plane (opposite to motion).
 
-**Gravity components:**
-* $F_{gx} = mg \sin(\alpha)$
-* $F_{gy} = mg \cos(\alpha)$
 
-**Equations of Equilibrium and Motion:**
-* **Vertical ($y$):** Since there is no motion perpendicular to the plane, $N - mg \cos(\alpha) = 0 \implies N = mg \cos(\alpha)$.
-* **Horizontal ($x$):** The net force is the difference between the driving gravitational component and friction.
 
-$$
-F_{net} = mg \sin(\alpha) - f_k
-$$
+### 2. Derive the acceleration $\vec a$
 
-### 2. Deriving Acceleration
+**Step 1: Analyze the y-direction (equilibrium)**
 
-Substituting $f_k = \mu N = \mu mg \cos(\alpha)$ into the net force equation:
+There is no motion perpendicular to the plane, so the net force in $y$ is zero:
 
 $$
-ma = mg \sin(\alpha) - \mu mg \cos(\alpha)
+\begin{align}
+\sum F_y &= N - mg \cos \alpha = 0 \\
+N &= mg \cos \alpha
+\end{align}
 $$
 
-Dividing by $m$:
+**Step 2: Analyze the x-direction (motion)**
+
+Using Newton's Second Law for the $x$-axis:
 
 $$
-a = g(\sin(\alpha) - \mu \cos(\alpha))
+\sum F_x = mg \sin \alpha - F_f = ma
 $$
 
-### 3. Time of Descent
-
-The distance $L$ along the plane corresponding to height $h$ is:
+Substitute the friction law $F_f = \mu N$:
 
 $$
-L = \frac{h}{\sin(\alpha)}
+\begin{align}
+ma &= mg \sin \alpha - \mu (mg \cos \alpha) \\
+ma &= mg (\sin \alpha - \mu \cos \alpha)
+\end{align}
 $$
 
-Using the kinematic equation for constant acceleration starting from rest ($x = \frac{1}{2}at^2$):
+Divide by $m$ to find the acceleration:
 
 $$
-\frac{h}{\sin(\alpha)} = \frac{1}{2} g(\sin(\alpha) - \mu \cos(\alpha)) t^2
+a = g (\sin \alpha - \mu \cos \alpha)
 $$
 
-$$
-t = \sqrt{\frac{2h}{g \sin(\alpha)(\sin(\alpha) - \mu \cos(\alpha))}}
-$$
+### 3. Calculate the time of descent from height $h$
 
-### 4. Final Velocity
+**Step 1: Find the length of the plane $L$**
 
-Using the relation $v^2 = 2aL$:
+Using trigonometry, the relation between height $h$ and the length of the incline $L$ is:
 
 $$
-v = \sqrt{2 g(\sin(\alpha) - \mu \cos(\alpha)) \frac{h}{\sin(\alpha)}}
+\sin \alpha = \frac{h}{L} \implies L = \frac{h}{\sin \alpha}
 $$
 
-$$
-v = \sqrt{2gh \left( 1 - \mu \cot(\alpha) \right)}
-$$
+**Step 2: Solve for time $t$**
 
-### 5. Energy Balance Verification
-
-The work-energy theorem states that the change in mechanical energy equals the work done by non-conservative forces (friction).
-
-**Initial Energy:** $E_i = mgh$ (Potential Energy)
-**Final Energy:** $E_f = \frac{1}{2}mv^2$ (Kinetic Energy)
-**Work of Friction:** $W_f = -f_k \cdot L = -(\mu mg \cos\alpha) \cdot \frac{h}{\sin\alpha} = -\mu mgh \cot\alpha$
-
-**Verification:**
+Assuming the body starts from rest ($v_0 = 0$), the kinematic equation for position is:
 
 $$
-E_f - E_i = W_f
+L = \frac{1}{2} a t^2
 $$
 
+Substitute $L$ and $a$:
+
 $$
-\frac{1}{2}m [2gh(1 - \mu \cot\alpha)] - mgh = -\mu mgh \cot\alpha
+\frac{h}{\sin \alpha} = \frac{1}{2} \bigl[ g (\sin \alpha - \mu \cos \alpha) \bigr] t^2
+$$
+
+Solve for $t$:
+
+$$
+t^2 = \frac{2h}{g \sin \alpha (\sin \alpha - \mu \cos \alpha)}
 $$
 
 $$
-mgh - \mu mgh \cot\alpha - mgh = -\mu mgh \cot\alpha
+t = \sqrt{\frac{2h}{g \sin \alpha (\sin \alpha - \mu \cos \alpha)}}
 $$
 
-The energy balance is consistent.
+### 4. Determine the final velocity $v$
+
+Using the kinematic relation $v^2 = v_0^2 + 2aL$:
+
+$$
+\begin{align}
+v^2 &= 0 + 2 \bigl[ g (\sin \alpha - \mu \cos \alpha) \bigr] \left( \frac{h}{\sin \alpha} \right) \\
+v^2 &= \frac{2gh (\sin \alpha - \mu \cos \alpha)}{\sin \alpha} \\
+v^2 &= 2gh \left( 1 - \mu \cot \alpha \right)
+\end{align}
+$$
+
+The final velocity is:
+
+$$
+v = \sqrt{2gh (1 - \mu \cot \alpha)}
+$$
+
+### 5. Check consistency with energy balance
+
+**Step 1: Energy at the top ($E_1$)**
+
+$$
+E_1 = U + K = mgh + 0 = mgh
+$$
+
+**Step 2: Energy at the bottom ($E_2$)**
+
+$$
+E_2 = \frac{1}{2} mv^2 = \frac{1}{2} m \bigl[ 2gh (1 - \mu \cot \alpha) \bigr] = mgh (1 - \mu \cot \alpha)
+$$
+
+**Step 3: Work done by friction ($W_f$)**
+
+$$
+\begin{align}
+W_f &= -F_f \cdot L \\
+    &= -(\mu mg \cos \alpha) \cdot \left( \frac{h}{\sin \alpha} \right) \\
+    &= -\mu mgh \cot \alpha
+\end{align}
+$$
+
+**Step 4: Verify $\Delta E = W_f$**
+
+$$
+\begin{align}
+E_2 - E_1 &= mgh (1 - \mu \cot \alpha) - mgh \\
+          &= mgh - \mu mgh \cot \alpha - mgh \\
+          &= -\mu mgh \cot \alpha
+\end{align}
+$$
+
+The result matches the work done by friction, so the energy balance is consistent.
 
 ## Final Result
 
-* **Acceleration**: $a = g(\sin\alpha - \mu \cos\alpha)$
-* **Final Velocity**: $v = \sqrt{2gh(1 - \mu \cot\alpha)}$
-* **Time of Descent**: $t = \sqrt{\frac{2h}{g(\sin^2\alpha - \mu \sin\alpha \cos\alpha)}}$
+* Acceleration: $a = g(\sin \alpha - \mu \cos \alpha)$
+* Time of descent: $t = \sqrt{\frac{2h}{g \sin \alpha (\sin \alpha - \mu \cos \alpha)}}$
+* Final velocity: $v = \sqrt{2gh (1 - \mu \cot \alpha)}$
+* Energy balance verified: $E_{bottom} - E_{top} = W_{friction}$
 
 ## Interpretation
 
-Motion only occurs if $\tan(\alpha) > \mu$; otherwise, the static friction would prevent the body from sliding. The final velocity is always less than $\sqrt{2gh}$ (the speed of a free-falling body) because a portion of the initial potential energy is dissipated as heat due to the work of friction.
+The motion only occurs if $\sin \alpha > \mu \cos \alpha$ (or $\tan \alpha > \mu$). If the friction is too high, the acceleration becomes zero or negative, meaning the body remains at rest. The final velocity is always less than the vacuum fall velocity ($v < \sqrt{2gh}$) because some of the initial potential energy is dissipated as heat due to the work done by the friction force.

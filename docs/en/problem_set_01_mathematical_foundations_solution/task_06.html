@@ -1,199 +1,187 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Curve Length and Numerical Integration</title>
-<style>
-  body { 
-    font-family: sans-serif; 
-    display: flex; 
-    flex-direction: column; 
-    margin: 20px; 
-    background-color: #f4f4f9;
-  }
-  .container { 
-    display: flex; 
-    gap: 20px; 
-    margin-bottom: 20px; 
-  }
-  .panel { 
-    border: 1px solid #ccc; 
-    padding: 15px; 
-    flex: 1; 
-    background: #fff; 
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  }
-  canvas { 
-    background: #fff; 
-    border: 1px solid #ddd; 
-    width: 100%; 
-    height: 300px; 
-    border-radius: 4px;
-  }
-  .controls { 
-    margin-bottom: 15px; 
-    padding: 15px;
-    background: #fff;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  }
-  input[type="number"] { 
-    width: 80px; 
-    padding: 5px;
-    font-size: 16px;
-  }
-  button {
-    padding: 6px 12px;
-    font-size: 16px;
-    cursor: pointer;
-    background-color: #007acc;
-    color: white;
-    border: none;
-    border-radius: 4px;
-  }
-  button:hover {
-    background-color: #005f9e;
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 06 - Arc Length & Numerical Integration</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1, h2 { color: #333; }
+        .control-panel { margin-bottom: 20px; padding: 15px; background-color: #eef; border-radius: 6px; }
+        label { font-weight: bold; margin-right: 10px; }
+        input[type="number"] { padding: 5px; width: 80px; }
+        button { padding: 8px 15px; background-color: #0056b3; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #004494; }
+        .results { margin-top: 15px; padding: 15px; background-color: #f4f4f4; border-left: 4px solid #0056b3; }
+        .chart-container { display: flex; flex-direction: column; gap: 30px; margin-top: 20px; }
+        canvas { max-height: 400px; }
+    </style>
 </head>
 <body>
 
-<div class="controls">
-  <label for="nInput"><strong>Number of divisions (N): </strong></label>
-  <input type="number" id="nInput" value="10" min="1" step="1">
-  <button onclick="updateCalculations()">Calculate</button>
-</div>
-
 <div class="container">
-  <div class="panel">
-    <h2>Trajectory: y = x²</h2>
-    <canvas id="trajCanvas"></canvas>
-  </div>
-  <div class="panel">
-    <h2>Error vs. N</h2>
-    <canvas id="errorCanvas"></canvas>
-  </div>
-</div>
+    <h1>Numerical Arc Length Calculator</h1>
+    <p>Trajectory: <strong>x(t) = t, y(t) = t²</strong> for t ∈ [0, 1]</p>
+    
+    <div class="control-panel">
+        <label for="n-input">Divisions (N) for Trapezoidal Rule:</label>
+        <input type="number" id="n-input" value="10" min="1" max="10000">
+        <button onclick="runAnalysis()">Calculate & Plot</button>
+    </div>
 
-<div class="panel">
-  <h3>Integration Results</h3>
-  <p><strong>Analytical Length:</strong> <span id="analyticalVal"></span></p>
-  <p><strong>Numerical Length (Trapezoidal):</strong> <span id="numericalVal"></span></p>
-  <p><strong>Absolute Error:</strong> <span id="errorVal" style="color: #d9534f; font-weight: bold;"></span></p>
+    <div class="results" id="results-box">
+        </div>
+
+    <div class="chart-container">
+        <div>
+            <h2>Trajectory Plot</h2>
+            <canvas id="trajectoryChart"></canvas>
+        </div>
+        <div>
+            <h2>Error Convergence (Error vs. N)</h2>
+            <canvas id="errorChart"></canvas>
+        </div>
+    </div>
 </div>
 
 <script>
-  // Analytical exact length calculation
-  const exactLength = Math.sqrt(5) / 2 + 0.25 * Math.log(2 + Math.sqrt(5));
-  document.getElementById('analyticalVal').innerText = exactLength.toFixed(7);
+    // Exact analytical value calculated in the derivations
+    const EXACT_LENGTH = Math.sqrt(5)/2 + 0.25 * Math.log(2 + Math.sqrt(5));
 
-  // Velocity magnitude function |v(t)| = sqrt(1 + 4t^2)
-  function speed(t) {
-    return Math.sqrt(1 + 4 * t * t);
-  }
-
-  // Trapezoidal Rule Implementation
-  function trapezoidalRule(N) {
-    let h = 1.0 / N;
-    let sum = 0.5 * (speed(0) + speed(1));
-    for (let i = 1; i < N; i++) {
-      sum += speed(i * h);
-    }
-    return sum * h;
-  }
-
-  function drawTrajectory() {
-    const canvas = document.getElementById('trajCanvas');
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    const margin = 40;
-    const scaleX = canvas.width - 2 * margin;
-    const scaleY = canvas.height - 2 * margin;
-
-    // Draw axes
-    ctx.beginPath();
-    ctx.moveTo(margin, margin);
-    ctx.lineTo(margin, canvas.height - margin);
-    ctx.lineTo(canvas.width - margin, canvas.height - margin);
-    ctx.strokeStyle = '#aaa';
-    ctx.stroke();
-
-    // Draw trajectory curve
-    ctx.beginPath();
-    for (let t = 0; t <= 1; t += 0.01) {
-      let px = margin + t * scaleX;
-      let py = (canvas.height - margin) - (t * t) * scaleY;
-      if (t === 0) ctx.moveTo(px, py);
-      else ctx.lineTo(px, py);
-    }
-    ctx.strokeStyle = '#007acc';
-    ctx.lineWidth = 3;
-    ctx.stroke();
-  }
-
-  function drawErrorPlot(currentN) {
-    const canvas = document.getElementById('errorCanvas');
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    const margin = 40;
-    const width = canvas.width - 2 * margin;
-    const height = canvas.height - 2 * margin;
-
-    // Calculate errors up to currentN or a minimum of 50 to show the trend
-    let points = [];
-    let maxN = Math.max(currentN, 50);
-    let maxError = 0;
-
-    for (let n = 1; n <= maxN; n += Math.ceil(maxN/50)) {
-      let err = Math.abs(exactLength - trapezoidalRule(n));
-      points.push({n: n, err: err});
-      if (err > maxError) maxError = err;
+    // The function to integrate: f(t) = |v(t)| = sqrt(1 + 4t^2)
+    function speedMagnitude(t) {
+        return Math.sqrt(1 + 4 * t * t);
     }
 
-    // Draw axes
-    ctx.beginPath();
-    ctx.moveTo(margin, margin);
-    ctx.lineTo(margin, canvas.height - margin);
-    ctx.lineTo(canvas.width - margin, canvas.height - margin);
-    ctx.strokeStyle = '#aaa';
-    ctx.stroke();
-
-    // Plot errors
-    ctx.beginPath();
-    points.forEach((pt, index) => {
-      let px = margin + (pt.n / maxN) * width;
-      let py = (canvas.height - margin) - (pt.err / maxError) * height;
-      if (index === 0) ctx.moveTo(px, py);
-      else ctx.lineTo(px, py);
-    });
-    ctx.strokeStyle = '#d9534f';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-  }
-
-  function updateCalculations() {
-    let N = parseInt(document.getElementById('nInput').value);
-    if (isNaN(N) || N < 1) {
-        N = 1;
-        document.getElementById('nInput').value = 1;
+    // Trapezoidal rule implementation
+    function trapezoidalRule(N) {
+        const a = 0;
+        const b = 1;
+        const dt = (b - a) / N;
+        let sum = (speedMagnitude(a) + speedMagnitude(b)) / 2;
+        
+        for (let i = 1; i < N; i++) {
+            sum += speedMagnitude(a + i * dt);
+        }
+        
+        return sum * dt;
     }
-    
-    let numericalLength = trapezoidalRule(N);
-    let error = Math.abs(exactLength - numericalLength);
-    
-    document.getElementById('numericalVal').innerText = numericalLength.toFixed(7);
-    document.getElementById('errorVal').innerText = error.toExponential(4);
 
-    drawTrajectory();
-    drawErrorPlot(N);
-  }
+    // Trajectory coordinates
+    function generateTrajectoryData() {
+        const data = [];
+        for (let t = 0; t <= 1; t += 0.05) {
+            data.push({ x: t, y: t * t });
+        }
+        return data;
+    }
 
-  // Initialize view
-  updateCalculations();
+    // Chart instances
+    let trajChartInstance = null;
+    let errChartInstance = null;
+
+    function initCharts() {
+        // Plot Trajectory (Static)
+        const trajCtx = document.getElementById('trajectoryChart').getContext('2d');
+        trajChartInstance = new Chart(trajCtx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'y = x²',
+                    data: generateTrajectoryData(),
+                    borderColor: '#ff6384',
+                    backgroundColor: '#ff6384',
+                    showLine: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                scales: {
+                    x: { title: { display: true, text: 'x(t)' } },
+                    y: { title: { display: true, text: 'y(t)' } }
+                }
+            }
+        });
+    }
+
+    function runAnalysis() {
+        const maxN = parseInt(document.getElementById('n-input').value);
+        if (isNaN(maxN) || maxN < 1) {
+            alert("Please enter a valid number for N.");
+            return;
+        }
+
+        // 1. Calculate Single Result for requested N
+        const numResult = trapezoidalRule(maxN);
+        const errorVal = Math.abs(numResult - EXACT_LENGTH);
+
+        // Update Results Box
+        document.getElementById('results-box').innerHTML = `
+            <p><strong>Exact Analytical Length:</strong> ${EXACT_LENGTH.toFixed(10)}</p>
+            <p><strong>Numerical Length (N=${maxN}):</strong> ${numResult.toFixed(10)}</p>
+            <p><strong>Absolute Error:</strong> ${errorVal.toExponential(4)}</p>
+        `;
+
+        // 2. Generate Data for Error Convergence Chart
+        // We will test several values of N up to maxN to show the curve
+        const nValues = [];
+        const errorData = [];
+        
+        // Define step size to avoid plotting too many points if maxN is huge
+        let step = Math.max(1, Math.floor(maxN / 50)); 
+
+        for (let n = 1; n <= maxN; n += step) {
+            let res = trapezoidalRule(n);
+            let err = Math.abs(res - EXACT_LENGTH);
+            nValues.push(n);
+            errorData.push(err);
+        }
+
+        // Add the final point if not included
+        if (nValues[nValues.length - 1] !== maxN) {
+            nValues.push(maxN);
+            errorData.push(errorVal);
+        }
+
+        // Update Error Chart
+        const errCtx = document.getElementById('errorChart').getContext('2d');
+        
+        if (errChartInstance) {
+            errChartInstance.destroy();
+        }
+
+        errChartInstance = new Chart(errCtx, {
+            type: 'line',
+            data: {
+                labels: nValues,
+                datasets: [{
+                    label: 'Absolute Error',
+                    data: errorData,
+                    borderColor: '#36a2eb',
+                    backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                    fill: true,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                scales: {
+                    x: { title: { display: true, text: 'Number of Divisions (N)' } },
+                    y: { 
+                        type: 'logarithmic', // Log scale shows power-law convergence clearly
+                        title: { display: true, text: 'Log Absolute Error' } 
+                    }
+                }
+            }
+        });
+    }
+
+    // Initialize on load
+    window.onload = () => {
+        initCharts();
+        runAnalysis();
+    };
 </script>
 
 </body>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Task 07 - Vertical Throw Simulation</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: sans-serif; margin: 20px; background: #f9f9f9; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .controls { display: flex; gap: 15px; margin-bottom: 20px; background: #eee; padding: 15px; border-radius: 5px; }
+        input { width: 60px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Vertical Throw: Analytical vs Numerical</h1>
+    <div class="controls">
+        <label>v₀ (m/s): <input type="number" id="v0" value="30"></label>
+        <label>k (kg/s): <input type="number" id="k" value="0.2" step="0.1"></label>
+        <label>m (kg): <input type="number" id="m" value="1"></label>
+        <button onclick="run()">Simulate</button>
+    </div>
+    <canvas id="compChart"></canvas>
+</div>
+
+<script>
+    let chart = null;
+
+    function run() {
+        const v0 = parseFloat(document.getElementById('v0').value);
+        const k = parseFloat(document.getElementById('k').value);
+        const m = parseFloat(document.getElementById('m').value);
+        const g = 9.81;
+        const dt = 0.05;
+
+        const analyticalData = [];
+        const numericalData = [];
+
+        // 1. Numerical (Euler)
+        let v_num = v0;
+        let y_num = 0;
+        let t = 0;
+        while (y_num >= 0 && t < 15) {
+            numericalData.push({x: t, y: y_num});
+            let dv = (-g - (k/m)*v_num) * dt;
+            y_num += v_num * dt;
+            v_num += dv;
+            t += dt;
+        }
+
+        // 2. Analytical
+        for (let i = 0; i < numericalData.length; i++) {
+            let curT = numericalData[i].x;
+            let y_ana = (m/k)*(v0 + (m*g/k))*(1 - Math.exp(-k*curT/m)) - (m*g*curT/k);
+            analyticalData.push({x: curT, y: y_ana});
+        }
+
+        const ctx = document.getElementById('compChart').getContext('2d');
+        if (chart) chart.destroy();
+        chart = new Chart(ctx, {
+            type: 'scatter',
+            data: {
+                datasets: [
+                    { label: 'Numerical (Euler)', data: numericalData, borderColor: 'red', showLine: true, pointRadius: 0 },
+                    { label: 'Analytical', data: analyticalData, borderColor: 'blue', borderDash: [5,5], showLine: true, pointRadius: 0 }
+                ]
+            },
+            options: { scales: { x: {title: {display:true, text:'Time (s)'}}, y: {title: {display:true, text:'Height (m)'}} } }
+        });
+    }
+    window.onload = run;
+</script>
+</body>
+</html>

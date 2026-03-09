@@ -1,113 +1,166 @@
-# Task 08 – Harmonic Oscillator (Formal Dynamics)
+# Task 08 – Harmonic oscillator (formal dynamics)
 
 ## Problem Statement
 
-The equation of motion for a simple harmonic oscillator is given by:
+The differential equation of motion for a harmonic oscillator is given by:
 
 $$
-m\ddot{x} + kx = 0
+m\ddot x + kx = 0
 $$
 
-* Solve the differential equation.
-* Determine the natural frequency $\omega_0$.
-* Write down the total energy as a function of time.
-* Show that the total energy is conserved.
-* Interpret the motion in phase space.
+The required operations are:
+1. Solve the differential equation.
+2. Determine the natural frequency $\omega_0$.
+3. Write down the total energy $E$ as a function of time.
+4. Show that the total energy is conserved ($dE/dt = 0$).
+5. Interpret the motion in phase space $(x, v)$.
 
 ## Theory
 
-A simple harmonic oscillator represents a system where a restoring force is directly proportional to the displacement from equilibrium. This is the dynamical basis for springs, pendulums (at small angles), and molecular vibrations.
+A harmonic oscillator is a system where a particle is subject to a linear restoring force $F = -kx$. According to Newton's Second Law:
 
-The dynamics are governed by a linear second-order homogeneous differential equation. Because the force is conservative, the sum of kinetic and potential energy remains constant throughout the motion.
+$$
+m\vec a = \vec F \implies m\ddot x = -kx
+$$
 
+This is a second-order, linear, homogeneous ordinary differential equation. The solution is periodic, representing an oscillation around the equilibrium point $x=0$.
 
+The total mechanical energy $E$ is the sum of kinetic energy $K$ and potential energy $U$:
+
+$$
+E = \frac{1}{2}m\dot x^2 + \frac{1}{2}kx^2
+$$
+
+Phase space is a multidimensional space in which all possible states of a system are represented, with each possible state corresponding to one unique point. For a 1D oscillator, the phase space is a 2D plane with axes representing position $x$ and velocity $v$ (or momentum $p$).
 
 ## Step-by-Step Solution
 
-### 1. Solving the Equation of Motion
+### 1. Solve the differential equation
 
-Dividing the original equation by $m$:
+**Step 1: Standard form**
 
-$$
-\ddot{x} + \frac{k}{m}x = 0
-$$
-
-We define the natural frequency squared as $\omega_0^2 = \frac{k}{m}$. The equation becomes:
+Divide the equation $m\ddot x + kx = 0$ by $m$:
 
 $$
-\ddot{x} + \omega_0^2 x = 0
+\ddot x + \frac{k}{m}x = 0
 $$
 
-The general solution for this differential equation is:
+**Step 2: Identify the natural frequency**
+
+We define the square of the natural angular frequency as:
 
 $$
-x(t) = A \cos(\omega_0 t + \phi)
+\omega_0^2 = \frac{k}{m} \implies \omega_0 = \sqrt{\frac{k}{m}}
 $$
 
-Where $A$ is the amplitude and $\phi$ is the initial phase constant.
+**Step 3: General solution**
 
-### 2. Velocity and Natural Frequency
-
-The velocity $v(t)$ is the first derivative of position:
+The characteristic equation is $r^2 + \omega_0^2 = 0$, giving $r = \pm i\omega_0$. The general real solution is:
 
 $$
-v(t) = \dot{x}(t) = -A\omega_0 \sin(\omega_0 t + \phi)
+x(t) = A\cos(\omega_0 t + \phi)
 $$
 
-The natural frequency is:
+where $A$ is the amplitude and $\phi$ is the initial phase.
+
+### 2. Determine velocity and energy as functions of time
+
+**Step 1: Velocity $v(t)$**
+
+Differentiate position with respect to time:
 
 $$
-\omega_0 = \sqrt{\frac{k}{m}}
+v(t) = \dot x(t) = -A\omega_0 \sin(\omega_0 t + \phi)
 $$
 
-### 3. Energy as a Function of Time
+**Step 2: Total Energy $E(t)$**
 
-The total energy $E$ is the sum of kinetic energy ($K$) and potential energy ($U$).
-
-**Kinetic Energy:**
+Substitute $x(t)$ and $v(t)$ into the energy equation:
 
 $$
-K(t) = \frac{1}{2}m v(t)^2 = \frac{1}{2}m (A^2 \omega_0^2 \sin^2(\omega_0 t + \phi))
-$$
-
-Since $\omega_0^2 = k/m$, then $m\omega_0^2 = k$:
-
-$$
-K(t) = \frac{1}{2} k A^2 \sin^2(\omega_0 t + \phi)
-$$
-
-**Potential Energy:**
-
-$$
-U(t) = \frac{1}{2} k x(t)^2 = \frac{1}{2} k A^2 \cos^2(\omega_0 t + \phi)
-$$
-
-### 4. Proof of Energy Conservation
-
-Total Energy $E(t) = K(t) + U(t)$:
-
-$$
-E(t) = \frac{1}{2} k A^2 \sin^2(\omega_0 t + \phi) + \frac{1}{2} k A^2 \cos^2(\omega_0 t + \phi)
+E(t) = \frac{1}{2}m \bigl[ -A\omega_0 \sin(\omega_0 t + \phi) \bigr]^2 + \frac{1}{2}k \bigl[ A\cos(\omega_0 t + \phi) \bigr]^2
 $$
 
 $$
-E(t) = \frac{1}{2} k A^2 \left[ \sin^2(\omega_0 t + \phi) + \cos^2(\omega_0 t + \phi) \right]
+E(t) = \frac{1}{2}m A^2 \omega_0^2 \sin^2(\omega_0 t + \phi) + \frac{1}{2}k A^2 \cos^2(\omega_0 t + \phi)
 $$
 
-Using the trigonometric identity $\sin^2\theta + \cos^2\theta = 1$:
+Since $m\omega_0^2 = k$:
 
 $$
-E = \frac{1}{2} k A^2
+E(t) = \frac{1}{2}k A^2 \sin^2(\omega_0 t + \phi) + \frac{1}{2}k A^2 \cos^2(\omega_0 t + \phi)
 $$
 
-Since $E$ is independent of time $t$, the energy is conserved.
+**Step 3: Simplify**
+
+$$
+E(t) = \frac{1}{2}k A^2 \bigl[ \sin^2(\omega_0 t + \phi) + \cos^2(\omega_0 t + \phi) \bigr]
+$$
+
+Using the identity $\sin^2\theta + \cos^2\theta = 1$:
+
+$$
+E = \frac{1}{2}k A^2
+$$
+
+### 3. Show that energy is conserved
+
+To prove conservation, we show the time derivative of $E$ is zero:
+
+$$
+\frac{dE}{dt} = \frac{d}{dt} \left( \frac{1}{2}m\dot x^2 + \frac{1}{2}kx^2 \right)
+$$
+
+Using the chain rule:
+
+$$
+\frac{dE}{dt} = m\dot x \ddot x + kx \dot x
+$$
+
+Factor out $\dot x$:
+
+$$
+\frac{dE}{dt} = \dot x (m\ddot x + kx)
+$$
+
+From the original equation of motion, $m\ddot x + kx = 0$. Therefore:
+
+$$
+\frac{dE}{dt} = \dot x (0) = 0
+$$
+
+The total energy is constant over time.
+
+### 4. Interpret motion in phase space
+
+The state of the system is defined by $(x, v)$. From our energy conservation:
+
+$$
+\frac{1}{2}mv^2 + \frac{1}{2}kx^2 = E
+$$
+
+Divide by $E$:
+
+$$
+\frac{mv^2}{2E} + \frac{kx^2}{2E} = 1
+$$
+
+Rearrange into the standard form of an ellipse:
+
+$$
+\frac{x^2}{(2E/k)} + \frac{v^2}{(2E/m)} = 1
+$$
 
 ## Final Result
 
-* **Solution**: $x(t) = A \cos(\omega_0 t + \phi)$
-* **Natural Frequency**: $\omega_0 = \sqrt{k/m}$
-* **Total Energy**: $E = \frac{1}{2} k A^2$ (Constant)
+* Natural frequency: $\omega_0 = \sqrt{k/m}$
+* Position: $x(t) = A\cos(\omega_0 t + \phi)$
+* Total Energy: $E = \frac{1}{2}kA^2$ (Constant)
+* Conservation: $dE/dt = 0$ because work is done by a conservative force.
+* Phase space: The trajectory is an **ellipse**.
 
 ## Interpretation
 
-In phase space (a plot of velocity $v$ vs position $x$), the motion of a harmonic oscillator traces an ellipse. This closed loop signifies periodic motion where energy is continuously traded between kinetic and potential forms without loss. The area of the ellipse is proportional to the total energy of the system.
+
+
+The elliptical trajectory in phase space represents the continuous exchange between potential and kinetic energy. When the displacement $x$ is maximum (at the vertices of the ellipse on the x-axis), the velocity $v$ is zero; all energy is potential. When the particle passes through equilibrium $x=0$, the velocity is maximum; all energy is kinetic. Because there is no friction to dissipate energy, the particle stays on the same elliptical path forever, encircling the stable equilibrium point at the origin.

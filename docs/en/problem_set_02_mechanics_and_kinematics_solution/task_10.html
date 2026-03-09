@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Task 09 - Heliocentric vs Geocentric Motion</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; background: #050505; color: white; }
+        .flex-container { display: flex; justify-content: center; gap: 20px; padding: 20px; }
+        canvas { border: 1px solid #444; background: black; }
+        .controls { margin-bottom: 20px; background: #222; padding: 15px; display: inline-block; border-radius: 8px; }
+        h2 { margin-bottom: 5px; font-size: 1.2em; color: #aaa; }
+    </style>
+</head>
+<body>
+    <h1>Planetary Motion Reference Frames</h1>
+    <div class="controls">
+        <button onclick="reset()">Restart Animation</button>
+        <p>Blue = Earth | Red = Mars | Yellow = Sun</p>
+    </div>
+    <div class="flex-container">
+        <div>
+            <h2>Heliocentric (Sun-Centered)</h2>
+            <canvas id="helioCanvas" width="400" height="400"></canvas>
+        </div>
+        <div>
+            <h2>Geocentric (Earth-Centered)</h2>
+            <canvas id="geoCanvas" width="400" height="400"></canvas>
+        </div>
+    </div>
+
+<script>
+    const helioCtx = document.getElementById('helioCanvas').getContext('2d');
+    const geoCtx = document.getElementById('geoCanvas').getContext('2d');
+
+    // Parameters
+    const Rz = 60, Rm = 110;
+    const wz = 0.05, wm = 0.026; // Earth is faster (~1.88x)
+    let t = 0;
+    let geoPath = [];
+
+    function draw() {
+        t += 1;
+        
+        // Calculate positions
+        const xz = Rz * Math.cos(wz * t * 0.1);
+        const yz = Rz * Math.sin(wz * t * 0.1);
+        const xm = Rm * Math.cos(wm * t * 0.1);
+        const ym = Rm * Math.sin(wm * t * 0.1);
+
+        // Geocentric coordinates (Mars relative to Earth)
+        const relX = xm - xz;
+        const relY = ym - yz;
+        geoPath.push({x: relX, y: relY});
+        if (geoPath.length > 500) geoPath.shift();
+
+        // Clear
+        helioCtx.clearRect(0, 0, 400, 400);
+        geoCtx.clearRect(0, 0, 400, 400);
+
+        // Draw Heliocentric
+        const center = 200;
+        // Sun
+        drawCircle(helioCtx, center, center, 8, 'yellow');
+        // Orbits
+        drawOrbit(helioCtx, center, center, Rz);
+        drawOrbit(helioCtx, center, center, Rm);
+        // Planets
+        drawCircle(helioCtx, center + xz, center + yz, 5, '#3498db');
+        drawCircle(helioCtx, center + xm, center + ym, 4, '#e74c3c');
+
+        // Draw Geocentric
+        // Earth (Origin)
+        drawCircle(geoCtx, center, center, 6, '#3498db');
+        // Trace
+        geoCtx.beginPath();
+        geoCtx.strokeStyle = 'rgba(231, 76, 60, 0.5)';
+        geoPath.forEach((p, i) => {
+            if(i===0) geoCtx.moveTo(center + p.x, center + p.y);
+            else geoCtx.lineTo(center + p.x, center + p.y);
+        });
+        geoCtx.stroke();
+        // Mars
+        drawCircle(geoCtx, center + relX, center + relY, 4, '#e74c3c');
+
+        requestAnimationFrame(draw);
+    }
+
+    function drawCircle(ctx, x, y, r, color) {
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI*2);
+        ctx.fill();
+    }
+
+    function drawOrbit(ctx, x, y, r) {
+        ctx.strokeStyle = '#333';
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI*2);
+        ctx.stroke();
+    }
+
+    function reset() { t = 0; geoPath = []; }
+    draw();
+</script>
+</body>
+</html>

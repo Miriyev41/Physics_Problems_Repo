@@ -1,86 +1,89 @@
-# Task 07 – 2D Motion with a Given Acceleration
+# Task 07 – Projectile motion with quadratic air resistance
 
 ## Problem Statement
 
-Given a constant acceleration vector $\vec{a} = (2, -3)$ and the following initial conditions at $t=0$:
-* Initial velocity: $\vec{v}(0) = (1, 0)$
-* Initial position: $\vec{r}(0) = (0, 0)$
+Consider the motion of a projectile where the air resistance is proportional to the square of the velocity:
 
-1. Determine the velocity vector $\vec{v}(t)$ as a function of time.
-2. Determine the position vector $\vec{r}(t)$ as a function of time.
-3. Describe the trajectory and the orientation of the velocity and acceleration vectors over time.
+$$
+\vec F_d = -c |\vec v| \vec v
+$$
+
+The required operations are:
+1. Write the differential equations of motion for the $x$ and $y$ components.
+2. Explain why this system of equations cannot be solved analytically like the linear case.
+3. Implement a numerical solution using the Euler method in an HTML/JS application.
+4. Compare the results with the linear model (Problem 6).
 
 ## Theory
 
-For motion with constant acceleration in two dimensions, the kinematic equations can be solved by integrating each component of the acceleration vector independently.
-
-The velocity vector is the integral of acceleration:
+For high-speed projectiles (like a baseball or a cannonball), the air resistance is better modeled by a quadratic dependence on speed. Newton's Second Law ($\vec F = m\vec a$) for this system is:
 
 $$
-\vec{v}(t) = \int \vec{a} \, dt = \vec{v}_0 + \vec{a}t
+m \vec a = m \vec g - c |\vec v| \vec v
 $$
 
-The position vector is the integral of velocity:
+Where $|\vec v| = \sqrt{v_x^2 + v_y^2}$. The drag force components are:
 
 $$
-\vec{r}(t) = \int \vec{v}(t) \, dt = \vec{r}_0 + \vec{v}_0 t + \frac{1}{2}\vec{a}t^2
+F_{dx} = -c \sqrt{v_x^2 + v_y^2} v_x, \qquad F_{dy} = -c \sqrt{v_x^2 + v_y^2} v_y
 $$
 
-Since the acceleration is constant, the resulting trajectory in the $xy$-plane will be parabolic.
+Unlike the linear model, the $x$ and $y$ components are **coupled**. This means the change in horizontal velocity depends on the vertical velocity, and vice versa. Because of this coupling and the non-linearity ($v^2$ terms), no general analytical solution exists in terms of elementary functions.
+
+The **Euler Method** is a first-order numerical procedure for solving ODEs. It approximates the next state by taking a small step $\Delta t$ in the direction of the current derivative:
+
+$$
+v_{n+1} = v_n + a_n \Delta t, \qquad r_{n+1} = r_n + v_n \Delta t
+$$
 
 ## Step-by-Step Solution
 
-### 1. Determining Velocity $\vec{v}(t)$
+### 1. Write the differential equations of motion
 
-Given $\vec{a} = \begin{pmatrix} 2 \\ -3 \end{pmatrix}$ and $\vec{v}_0 = \begin{pmatrix} 1 \\ 0 \end{pmatrix}$.
+Define $k = c/m$ as the drag coefficient per unit mass.
 
-Integrating each component:
-
-$$
-v_x(t) = v_{0x} + a_x t = 1 + 2t
-$$
+**Horizontal Component ($x$):**
 
 $$
-v_y(t) = v_{0y} + a_y t = 0 - 3t = -3t
+\frac{dv_x}{dt} = -k \sqrt{v_x^2 + v_y^2} v_x
 $$
 
-Thus, the velocity vector is:
+**Vertical Component ($y$):**
 
 $$
-\vec{v}(t) = \begin{pmatrix} 1 + 2t \\ -3t \end{pmatrix}
+\frac{dv_y}{dt} = -g - k \sqrt{v_x^2 + v_y^2} v_y
 $$
 
-### 2. Determining Position $\vec{r}(t)$
+### 2. Explanation of Non-solvability
 
-Given $\vec{r}_0 = \begin{pmatrix} 0 \\ 0 \end{pmatrix}$.
+In Task 06 (linear drag), the equation for $v_x$ was $\dot{v}_x = -kv_x$, which is independent of $v_y$. In the quadratic model:
+- The equations are **non-linear** due to the $v^2$ terms (inside the square root and multiplied by the component).
+- The equations are **coupled**. You cannot solve for $x(t)$ without simultaneously knowing $y(t)$.
+- Standard integration techniques fail because the variables cannot be separated.
 
-Integrating the velocity components:
+### 3. Numerical Algorithm (Euler Method)
 
-$$
-x(t) = x_0 + \int v_x(t) \, dt = 0 + \int (1 + 2t) \, dt = t + t^2
-$$
+To solve this numerically, we iterate through time steps $i$:
 
-$$
-y(t) = y_0 + \int v_y(t) \, dt = 0 + \int (-3t) \, dt = -\frac{3}{2}t^2
-$$
-
-Thus, the position vector is:
-
-$$
-\vec{r}(t) = \begin{pmatrix} t + t^2 \\ -1.5t^2 \end{pmatrix}
-$$
-
-### 3. Trajectory and Vector Analysis
-
-* **Trajectory**: To find the path, we can eliminate $t$. From $y = -1.5t^2$, we have $t^2 = -y/1.5$. Substituting into $x(t)$ reveals a quadratic relationship, confirming the path is a parabola.
-* **Acceleration Vector**: Remains fixed at $\vec{a} = (2, -3)$ for all $t$.
-* **Velocity Vector**: At $t=0$, $\vec{v}$ is purely horizontal $(1, 0)$. As $t$ increases, the $y$-component becomes increasingly negative while the $x$-component grows, causing the velocity vector to rotate clockwise and increase in magnitude.
+1. Calculate current speed: $v_i = \sqrt{v_{x,i}^2 + v_{y,i}^2}$
+2. Calculate accelerations:
+   - $a_{x,i} = -k \cdot v_i \cdot v_{x,i}$
+   - $a_{y,i} = -g - k \cdot v_i \cdot v_{y,i}$
+3. Update velocities:
+   - $v_{x,i+1} = v_{x,i} + a_{x,i} \Delta t$
+   - $v_{y,i+1} = v_{y,i} + a_{y,i} \Delta t$
+4. Update positions:
+   - $x_{i+1} = x_i + v_{x,i} \Delta t$
+   - $y_{i+1} = y_i + v_{y,i} \Delta t$
 
 ## Final Result
 
-* **Velocity**: $\vec{v}(t) = (1 + 2t, -3t)$
-* **Position**: $\vec{r}(t) = (t + t^2, -1.5t^2)$
+* ODEs: $\dot{v}_x = -k v v_x$ and $\dot{v}_y = -g - k v v_y$.
+* System is non-linear and coupled, requiring numerical solvers.
+* Terminal velocity for pure vertical fall ($v_x = 0$) occurs when $mg = c v^2 \implies v_{term} = \sqrt{mg/c}$.
 
 ## Interpretation
 
-The motion starts with a purely horizontal push, but the constant diagonal acceleration immediately begins pulling the particle "down" (negative $y$) and "right" (positive $x$). Because the acceleration has a constant direction, the particle follows a smooth parabolic arc that aligns more closely with the direction of the acceleration vector as time approaches infinity.
+[Image of trajectory comparison: vacuum vs linear drag vs quadratic drag]
+
+Quadratic drag is much more "aggressive" at high speeds than linear drag. At the beginning of a launch, the drag force is at its maximum because $v$ is highest. This causes a significant "flattening" of the initial climb. As the projectile slows down near the peak, the drag force decreases quadratically, allowing gravity to dominate. The descent is characterized by a rapid approach to a terminal velocity, resulting in a nearly vertical drop at the end of the flight path.

@@ -2,95 +2,136 @@
 
 ## Problem Statement
 
-A force field is given by $\vec F(x,y) = (y, 2x)$. A particle moves along the trajectory $x = t, y = t^2$ for $t \in [0,1]$.
-Determine the velocity vector and calculate the exact work done by the force along the trajectory. Represent the integral as a limit of a Riemann sum suitable for numerical verification.
+A force field and a trajectory are given by:
+
+$$
+\vec F(x,y) = (y, 2x)
+$$
+
+$$
+x = t, \qquad y = t^2, \qquad t \in [0,1]
+$$
+
+The required analytical operations are:
+1. Determine the velocity vector $\vec v(t)$.
+2. Calculate the work done by the force $\vec F$ along the trajectory, i.e., the line integral $W = \int_C \vec F \cdot d\vec r$.
+3. Write the integral as the limit of a Riemann sum.
+
+The required computational operation is to calculate the Riemann sum numerically in HTML/JS and compare it with the analytical result.
 
 ## Theory
 
-The work $W$ done by a vector force field $\vec F$ on a particle moving along a curve $C$ parameterized by $\vec r(t)$ is defined as the line integral of the force along the path. 
+The velocity vector $\vec v(t)$ is the first derivative of the position vector $\vec r(t)$ with respect to time:
 
 $$
-W = \int_C \vec F \cdot d\vec r
+\vec v(t) = \frac{d\vec r}{dt} = \left(\frac{dx}{dt}, \frac{dy}{dt}\right)
 $$
 
-This can be transformed into a standard definite time integral by substituting $d\vec r = \vec v(t) dt$:
+The work done by a force field $\vec F(x,y)$ on a particle moving along a curve $C$ parameterized by $\vec r(t)$ from $t=a$ to $t=b$ is given by the line integral:
 
 $$
-W = \int_{t_1}^{t_2} \vec F(\vec r(t)) \cdot \vec v(t) \,dt
+W = \int_C \vec F \cdot d\vec r = \int_a^b \vec F(\vec r(t)) \cdot \vec v(t) \, dt
+$$
+
+To evaluate this integral, the force field must be expressed in terms of the parameter $t$ by substituting the trajectory equations $x(t)$ and $y(t)$ into $\vec F(x,y)$.
+
+A definite integral can be formally defined as the limit of a Riemann sum. By dividing the interval $[a, b]$ into $N$ subintervals of equal width $\Delta t = \frac{b-a}{N}$, and choosing the right endpoint of each subinterval $t_i = a + i\Delta t$, the integral is:
+
+$$
+\int_a^b f(t) \, dt = \lim_{N \to \infty} \sum_{i=1}^N f(t_i) \Delta t
 $$
 
 ## Step-by-Step Solution
 
-Determine the velocity vector from the trajectory parameterization.
+### 1. Determine the velocity vector $\vec v(t)$
+
+Given the parametric equations for the trajectory $x(t) = t$ and $y(t) = t^2$, compute their derivatives:
 
 $$
-\vec v(t) = \left( \frac{dx}{dt}, \frac{dy}{dt} \right)
+v_x(t) = \frac{d}{dt}(t) = 1
 $$
+
+$$
+v_y(t) = \frac{d}{dt}(t^2) = 2t
+$$
+
+The velocity vector is:
 
 $$
 \vec v(t) = (1, 2t)
 $$
 
-Substitute the parametric equations $x = t$ and $y = t^2$ into the force field vector.
+### 2. Calculate the work done by the force analytically
+
+Express the force $\vec F(x,y) = (y, 2x)$ in terms of the parameter $t$. Substitute $x = t$ and $y = t^2$:
 
 $$
-\vec F(\vec r(t)) = (y(t), 2x(t))
+\vec F(t) = (t^2, 2t)
 $$
 
-$$
-\vec F(\vec r(t)) = (t^2, 2t)
-$$
-
-Calculate the dot product of the force vector and the velocity vector.
+Compute the dot product of the force vector and the velocity vector:
 
 $$
-\vec F(\vec r(t)) \cdot \vec v(t) = (t^2)(1) + (2t)(2t)
+\begin{align}
+\vec F(\vec r(t)) \cdot \vec v(t) &= (t^2, 2t) \cdot (1, 2t) \\
+                                  &= (t^2)(1) + (2t)(2t) \\
+                                  &= t^2 + 4t^2 \\
+                                  &= 5t^2
+\end{align}
 $$
 
-$$
-\vec F(\vec r(t)) \cdot \vec v(t) = t^2 + 4t^2
-$$
+Set up and evaluate the definite integral for work $W$ from $t=0$ to $t=1$:
 
 $$
-\vec F(\vec r(t)) \cdot \vec v(t) = 5t^2
+\begin{align}
+W &= \int_0^1 5t^2 \, dt \\
+  &= 5 \left[ \frac{t^3}{3} \right]_0^1 \\
+  &= 5 \left( \frac{1^3}{3} - \frac{0^3}{3} \right) \\
+  &= \frac{5}{3}
+\end{align}
 $$
 
-Integrate this scalar product over the time interval from $t=0$ to $t=1$.
+### 3. Write the integral as the limit of a Riemann sum
+
+We are integrating the function $f(t) = 5t^2$ over the interval $[0, 1]$.
+
+Define the width of each subinterval:
 
 $$
-W = \int_0^1 5t^2 \,dt
+\Delta t = \frac{1 - 0}{N} = \frac{1}{N}
 $$
 
-$$
-W = \left[ \frac{5}{3}t^3 \right]_0^1
-$$
+Define the sample points (using right endpoints):
 
 $$
-W = \frac{5}{3}(1)^3 - \frac{5}{3}(0)^3
+t_i = 0 + i\Delta t = \frac{i}{N}
 $$
 
-$$
-W = \frac{5}{3}
-$$
-
-To formulate this as a Riemann sum for a JavaScript implementation, divide the interval $[0,1]$ into $N$ steps of size $\Delta t = \frac{1}{N}$.
+Construct the Riemann sum:
 
 $$
-W \approx \sum_{i=1}^{N} \vec F(\vec r(t_i)) \cdot \vec v(t_i) \Delta t
+\begin{align}
+S_N &= \sum_{i=1}^N f(t_i) \Delta t \\
+    &= \sum_{i=1}^N 5\left(\frac{i}{N}\right)^2 \left(\frac{1}{N}\right) \\
+    &= \sum_{i=1}^N 5\left(\frac{i^2}{N^2}\right) \left(\frac{1}{N}\right) \\
+    &= \frac{5}{N^3} \sum_{i=1}^N i^2
+\end{align}
 $$
 
+The integral is the limit of this sum as $N \to \infty$:
+
 $$
-W \approx \sum_{i=1}^{N} 5t_i^2 \Delta t
+W = \lim_{N \to \infty} \frac{5}{N^3} \sum_{i=1}^N i^2
 $$
 
-Where $t_i = i\Delta t$.
+*Note: Using the formula for the sum of squares $\sum i^2 = \frac{N(N+1)(2N+1)}{6}$, the limit evaluates exactly to $\frac{5}{6} \cdot 2 = \frac{5}{3}$, matching the analytical result.*
 
 ## Final Result
 
-* Velocity: $\vec v(t) = (1, 2t)$
-* Analytical Work: $W = \frac{5}{3}$
-* Riemann sum formulation: $\lim_{N \to \infty} \sum_{i=1}^{N} 5\left(\frac{i}{N}\right)^2 \frac{1}{N}$
+* Velocity vector: $\vec v(t) = (1, 2t)$
+* Analytical work: $W = \frac{5}{3} \approx 1.6667$
+* Riemann sum limit: $W = \lim_{N \to \infty} \frac{5}{N^3} \sum_{i=1}^N i^2$
 
 ## Interpretation
 
-The positive sign of the work indicates that the force field transfers energy to the particle, increasing its kinetic energy as it traverses the parabolic path. Because the integrand simplifies strictly to a polynomial function of $t$, numerical methods iterating the Riemann sum will rapidly converge to $1.666...$, providing a robust test case for verifying custom integration algorithms against exact analytical baselines.
+The work evaluated is positive ($W = 5/3$), which signifies that the vector field $\vec F$ generally points in the same direction as the displacement along the defined trajectory, thus adding energy to the system. Since $\vec F$ is not a conservative field (its curl $\nabla \times \vec F = \frac{\partial (2x)}{\partial x} - \frac{\partial (y)}{\partial y} = 2 - 1 = 1 \neq 0$), the work done depends strictly on the path taken between the origin and the point $(1,1)$.

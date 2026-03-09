@@ -1,78 +1,122 @@
-# Task 08 – Relative Motion
+# Task 08 – Motion in different reference frames
 
 ## Problem Statement
 
-Two bodies move in a two-dimensional plane. Body A moves with velocity $\vec{v}_A = (3, 1)$, and body B moves with velocity $\vec{v}_B = (1, -2)$.
+Two bodies, A and B, move in the $xy$ plane with constant velocities:
 
-1. Determine the relative velocity $\vec{v}_{A/B}$ (velocity of A as seen by B).
-2. Determine the direction of the relative motion.
-3. Describe the visualization of the motion in:
-    - The laboratory reference frame (fixed origin).
+$$
+\vec v_A = (v_{Ax}, v_{Ay}), \qquad \vec v_B = (v_{Bx}, v_{By})
+$$
+
+Their initial positions at $t=0$ are $\vec r_A(0)$ and $\vec r_B(0)$.
+
+The required operations are:
+1. Write the equations of motion $\vec r_A(t)$ and $\vec r_B(t)$ in the laboratory reference frame (origin of the coordinate system).
+2. Determine the relative position vector of body B with respect to body A: $\vec r_{B/A}(t) = \vec r_B(t) - \vec r_A(t)$.
+3. Determine the relative velocity $\vec v_{B/A}$.
+4. Visualize the trajectories from three perspectives:
+    - The laboratory reference frame.
     - The reference frame attached to body A.
     - The reference frame attached to body B.
 
 ## Theory
 
-Relative velocity is the velocity of an object as observed from a particular reference frame. If two objects $A$ and $B$ have velocities $\vec{v}_A$ and $\vec{v}_B$ relative to a common stationary origin (the laboratory frame), the velocity of $A$ relative to $B$ is given by the vector difference:
+The position of a particle moving with constant velocity is given by the linear equation:
 
 $$
-\vec{v}_{A/B} = \vec{v}_A - \vec{v}_B
+\vec r(t) = \vec r(0) + \vec v t
 $$
 
-Similarly, the velocity of $B$ relative to $A$ is:
+In classical mechanics, specifically Galilean relativity, the position of an object B relative to an observer A is found by vector subtraction. If $\vec r_A$ and $\vec r_B$ are positions relative to a fixed laboratory origin $O$, then:
 
 $$
-\vec{v}_{B/A} = \vec{v}_B - \vec{v}_A = -\vec{v}_{A/B}
+\vec r_{B/A} = \vec r_B - \vec r_A
 $$
 
-The direction of the relative motion is the angle $\theta$ that the relative velocity vector makes with the positive x-axis.
+The velocity of B relative to A is the time derivative of the relative position:
 
+$$
+\vec v_{B/A} = \frac{d}{dt} (\vec r_B - \vec r_A) = \vec v_B - \vec v_A
+$$
 
+In the reference frame attached to body A, body A is always at the origin $(0,0)$, and all other objects move with their relative velocities.
 
 ## Step-by-Step Solution
 
-### 1. Calculation of Relative Velocity
+### 1. Equations of motion in the Lab Frame
 
-Given:
-$\vec{v}_A = \begin{pmatrix} 3 \\ 1 \end{pmatrix}$
-$\vec{v}_B = \begin{pmatrix} 1 \\ -2 \end{pmatrix}$
-
-The relative velocity $\vec{v}_{A/B}$ is:
+For body A:
 
 $$
-\vec{v}_{A/B} = \vec{v}_A - \vec{v}_B = \begin{pmatrix} 3 \\ 1 \end{pmatrix} - \begin{pmatrix} 1 \\ -2 \end{pmatrix}
+x_A(t) = x_A(0) + v_{Ax} t
 $$
 
 $$
-\vec{v}_{A/B} = \begin{pmatrix} 3 - 1 \\ 1 - (-2) \end{pmatrix} = \begin{pmatrix} 2 \\ 3 \end{pmatrix}
+y_A(t) = y_A(0) + v_{Ay} t
 $$
 
-### 2. Direction of Relative Motion
-
-The direction $\theta$ is found using the arctangent of the vector components:
+For body B:
 
 $$
-\theta = \arctan\left( \frac{v_{y, A/B}}{v_{x, A/B}} \right) = \arctan\left( \frac{3}{2} \right)
+x_B(t) = x_B(0) + v_{Bx} t
 $$
 
 $$
-\theta \approx 56.31^\circ
+y_B(t) = y_B(0) + v_{By} t
 $$
 
-The motion of A as seen by B is directed toward the first quadrant.
+In vector form:
 
-### 3. Comparison of Reference Frames
+$$
+\vec r_A(t) = \vec r_A(0) + \vec v_A t, \qquad \vec r_B(t) = \vec r_B(0) + \vec v_B t
+$$
 
-* **Laboratory Frame**: Both bodies are seen moving from the origin. A moves "right and slightly up," while B moves "right and down."
-* **Frame of Body A**: In this frame, A is stationary at the origin. Body B appears to move with velocity $\vec{v}_{B/A} = (-2, -3)$, which is "left and down."
-* **Frame of Body B**: In this frame, B is stationary at the origin. Body A appears to move with velocity $\vec{v}_{A/B} = (2, 3)$, which is "right and up."
+### 2. Determine relative position $\vec r_{B/A}(t)$
+
+Subtract the position vector of A from the position vector of B:
+
+$$
+\begin{align}
+\vec r_{B/A}(t) &= \vec r_B(t) - \vec r_A(t) \\
+                &= [\vec r_B(0) + \vec v_B t] - [\vec r_A(0) + \vec v_A t] \\
+                &= [\vec r_B(0) - \vec r_A(0)] + (\vec v_B - \vec v_A)t
+\end{align}
+$$
+
+Let $\vec r_{rel, 0} = \vec r_B(0) - \vec r_A(0)$ be the initial relative separation.
+
+### 3. Determine relative velocity $\vec v_{B/A}$
+
+The relative velocity is the coefficient of $t$ in the relative position equation:
+
+$$
+\vec v_{B/A} = \vec v_B - \vec v_A
+$$
+
+Component-wise:
+
+$$
+v_{rel, x} = v_{Bx} - v_{Ax}
+$$
+
+$$
+v_{rel, y} = v_{By} - v_{Ay}
+$$
+
+### 4. Interpretation of Frames
+
+- **Lab Frame:** Both A and B are seen moving along straight lines from their respective starting points.
+- **Frame A:** Body A sits at $(0,0)$. Body B moves in a straight line starting from $\vec r_{rel, 0}$ with velocity $\vec v_{B/A}$.
+- **Frame B:** Body B sits at $(0,0)$. Body A moves in a straight line starting from $-\vec r_{rel, 0}$ with velocity $\vec v_{A/B} = \vec v_A - \vec v_B$.
 
 ## Final Result
 
-* **Relative Velocity $\vec{v}_{A/B}$**: $(2, 3)$
-* **Relative Velocity $\vec{v}_{B/A}$**: $(-2, -3)$
-* **Direction of $\vec{v}_{A/B}$**: $56.31^\circ$ relative to the x-axis.
+* Lab positions: $\vec r_A(t) = \vec r_A(0) + \vec v_A t$, $\vec r_B(t) = \vec r_B(0) + \vec v_B t$
+* Relative position (B relative to A): $\vec r_{B/A}(t) = (\vec r_B(0) - \vec r_A(0)) + (\vec v_B - \vec v_A)t$
+* Relative velocity: $\vec v_{B/A} = \vec v_B - \vec v_A$
 
 ## Interpretation
 
-Relative motion allows us to simplify complex systems by "fixing" one object at the origin. While both bodies are moving relative to the ground, an observer on body B would perceive themselves as stationary while body A recedes away at a speed of $|\vec{v}_{A/B}| = \sqrt{2^2 + 3^2} = \sqrt{13} \approx 3.61$.
+[Image of relative velocity vector addition diagram]
+
+The principle of Galilean relativity shows that the laws of constant velocity motion are preserved across inertial frames. While the individual trajectories look different depending on who is watching (e.g., body A sees body B moving at a different speed than the lab observer does), the relative velocity remains a constant vector. This is a fundamental concept for understanding collisions, navigation, and the transition from geocentric to heliocentric models of the solar system.

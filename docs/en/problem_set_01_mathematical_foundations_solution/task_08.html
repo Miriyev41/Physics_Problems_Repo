@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 08 - First-Order ODE Solution Visualization</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1, h2 { color: #333; }
+        .control-panel { display: flex; gap: 20px; margin-bottom: 20px; padding: 15px; background-color: #eef; border-radius: 6px; align-items: center; }
+        .input-group { display: flex; flex-direction: column; }
+        label { font-weight: bold; margin-bottom: 5px; }
+        input[type="number"] { padding: 8px; width: 120px; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 10px 20px; background-color: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        button:hover { background-color: #138496; }
+        .chart-container { margin-top: 20px; }
+        canvas { max-height: 500px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>First-Order ODE: Exponential Process</h1>
+    <p>Differential Equation: <strong>dy/dt = -k y</strong></p>
+    <p>Analytical Solution: <strong>y(t) = y(0) * e<sup>-kt</sup></strong></p>
+    
+    <div class="control-panel">
+        <div class="input-group">
+            <label for="y0-input">Initial Condition y(0):</label>
+            <input type="number" id="y0-input" value="10" step="1">
+        </div>
+        <div class="input-group">
+            <label for="k-input">Parameter k:</label>
+            <input type="number" id="k-input" value="0.5" step="0.1">
+        </div>
+        <button onclick="updatePlot()">Plot Solution</button>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="solutionChart"></canvas>
+    </div>
+</div>
+
+<script>
+    let chartInstance = null;
+
+    // Mathematical solution: y(t) = y(0) * exp(-kt)
+    function calculateTrajectory(y0, k, tMax) {
+        const dataPoints = [];
+        const dt = tMax / 100; // 100 points for smooth curve
+        
+        for (let t = 0; t <= tMax; t += dt) {
+            let y = y0 * Math.exp(-k * t);
+            dataPoints.push({ x: t, y: y });
+        }
+        return dataPoints;
+    }
+
+    function updatePlot() {
+        const y0 = parseFloat(document.getElementById('y0-input').value);
+        const k = parseFloat(document.getElementById('k-input').value);
+
+        if (isNaN(y0) || isNaN(k)) {
+            alert("Please enter valid numbers for y(0) and k.");
+            return;
+        }
+
+        // Determine a reasonable time span based on k
+        // If k=0, it's constant, just plot up to t=10
+        // If k is positive (decay), plot until it decays significantly (e.g., 5 time constants = 5/k)
+        // If k is negative (growth), plot a short time to prevent huge numbers
+        let tMax = 10; 
+        if (k > 0) {
+            tMax = Math.min(50, 5 / k); // Cap at 50 to keep the axis readable
+        } else if (k < 0) {
+            tMax = Math.min(10, Math.abs(2 / k)); 
+        }
+
+        const plotData = calculateTrajectory(y0, k, tMax);
+
+        const ctx = document.getElementById('solutionChart').getContext('2d');
+
+        if (chartInstance) {
+            chartInstance.destroy();
+        }
+
+        let labelText = `y(t) with y(0)=${y0}, k=${k}`;
+        let lineColor = k >= 0 ? '#28a745' : '#dc3545'; // Green for decay/constant, red for growth
+
+        chartInstance = new Chart(ctx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: labelText,
+                    data: plotData,
+                    borderColor: lineColor,
+                    backgroundColor: lineColor,
+                    showLine: true,
+                    tension: 0.1,
+                    pointRadius: 0 // Hide individual points, just show the line
+                }]
+            },
+            options: {
+                scales: {
+                    x: { 
+                        type: 'linear',
+                        title: { display: true, text: 'Time (t)' } 
+                    },
+                    y: { 
+                        title: { display: true, text: 'y(t)' } 
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `t = ${context.parsed.x.toFixed(2)}, y = ${context.parsed.y.toFixed(2)}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Initialize plot on page load
+    window.onload = () => {
+        updatePlot();
+    };
+</script>
+
+</body>
+</html>

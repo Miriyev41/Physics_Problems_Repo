@@ -1,141 +1,168 @@
-# Task 06 – Cycloid: Trajectory of a Point on a Rolling Circle
+# Task 06 – Projectile motion with air resistance (linear model)
 
 ## Problem Statement
 
-A circle of radius $R$ rolls without slipping along the $x$-axis. A point on the rim of the circle traces a cycloid: 
+A body is thrown with an initial velocity $\vec v_0 = (v_{0x}, v_{0y})$. In addition to gravity, a linear air resistance force $\vec F_d = -b\vec v$ acts on the body.
 
-$$
-x(t) = R(\omega t - \sin(\omega t)), \qquad y(t) = R(1 - \cos(\omega t))
-$$
-
-1. Determine the velocity vector $\vec{v}(t)$ and the acceleration $\vec{a}(t)$.
-2. Calculate $|\vec{v}(t)|$ and indicate the moments when the point temporarily "stops" relative to the ground.
-3. Determine the maximum values of $|\vec{v}|$ and $|\vec{a}|$.
-4. Create an HTML animation description (conceptual).
-5. Compare the cycloid with circular motion in a reference frame attached to the circle.
+The required operations are:
+1. Write the differential equations of motion for the $x$ and $y$ components.
+2. Solve these equations to find $v_x(t)$ and $v_y(t)$.
+3. Determine the terminal velocity $v_{term}$ in the vertical direction.
+4. Integrate the velocity to find the position equations $x(t)$ and $y(t)$.
+5. Compare the trajectory with the case without air resistance (Problem 2).
 
 ## Theory
 
-The cycloid is the curve traced by a point on the circumference of a circle as it rolls along a straight line without slipping. The condition of "rolling without slipping" implies that the distance the center of the circle moves ($R\omega t$) is equal to the arc length subtended by the rotation.
+According to Newton's Second Law, the net force on an object is equal to the mass times its acceleration ($\vec F = m\vec a$). In this model, two forces act on the projectile:
+- **Gravity:** $\vec F_g = (0, -mg)$
+- **Linear Air Resistance:** $\vec F_d = -b\vec v = (-bv_x, -bv_y)$
 
-Kinematically, the motion is the superposition of:
-1.  **Translation**: The center moves at constant velocity $v_c = R\omega$.
-2.  **Rotation**: The point rotates around the center with angular velocity $\omega$.
+The total force is:
 
+$$
+m\vec a = \vec F_g + \vec F_d
+$$
 
+This leads to a system of coupled first-order linear differential equations for the velocity components. The parameter $k = b/m$ is often used to simplify the equations, representing the resistance coefficient per unit mass.
 
 ## Step-by-Step Solution
 
-### 1. Velocity and Acceleration Vectors
+### 1. Write the differential equations of motion
 
-**Position vector:**
-
-$$
-\vec{r}(t) = \begin{pmatrix} R(\omega t - \sin(\omega t)) \\ R(1 - \cos(\omega t)) \end{pmatrix}
-$$
-
-**Velocity vector $\vec{v}(t)$:**
-Differentiating $\vec{r}(t)$ with respect to $t$:
+**Horizontal direction ($x$):**
 
 $$
-v_x(t) = \frac{dx}{dt} = R(\omega - \omega \cos(\omega t)) = R\omega(1 - \cos(\omega t))
+m \frac{dv_x}{dt} = -bv_x
 $$
 
-$$
-v_y(t) = \frac{dy}{dt} = R(0 - (-\omega \sin(\omega t))) = R\omega \sin(\omega t)
-$$
+Divide by $m$ and let $k = b/m$:
 
 $$
-\vec{v}(t) = \begin{pmatrix} R\omega(1 - \cos(\omega t)) \\ R\omega \sin(\omega t) \end{pmatrix}
+\frac{dv_x}{dt} = -kv_x
 $$
 
-**Acceleration vector $\vec{a}(t)$:**
-Differentiating $\vec{v}(t)$ with respect to $t$:
+**Vertical direction ($y$):**
 
 $$
-a_x(t) = \frac{dv_x}{dt} = R\omega(0 - (-\omega \sin(\omega t))) = R\omega^2 \sin(\omega t)
+m \frac{dv_y}{dt} = -mg - bv_y
 $$
 
-$$
-a_y(t) = \frac{dv_y}{dt} = R\omega(\omega \cos(\omega t)) = R\omega^2 \cos(\omega t)
-$$
+Divide by $m$:
 
 $$
-\vec{a}(t) = \begin{pmatrix} R\omega^2 \sin(\omega t) \\ R\omega^2 \cos(\omega t) \end{pmatrix}
+\frac{dv_y}{dt} = -g - kv_y
 $$
 
-### 2. Velocity Magnitude and Stopping Points
+### 2. Solve for $v_x(t)$ and $v_y(t)$
 
-**Magnitude of Velocity:**
-
-$$
-|\vec{v}(t)| = \sqrt{[R\omega(1 - \cos(\omega t))]^2 + [R\omega \sin(\omega t)]^2}
-$$
+**Solving for $v_x(t)$:**
+This is a separable equation:
 
 $$
-|\vec{v}(t)| = R\omega \sqrt{1 - 2\cos(\omega t) + \cos^2(\omega t) + \sin^2(\omega t)}
+\frac{dv_x}{v_x} = -k\, dt
 $$
 
-$$
-|\vec{v}(t)| = R\omega \sqrt{2 - 2\cos(\omega t)} = R\omega \sqrt{2(1 - \cos(\omega t))}
-$$
-
-Using the identity $1 - \cos\theta = 2\sin^2(\theta/2)$:
+Integrate both sides:
 
 $$
-|\vec{v}(t)| = R\omega \sqrt{4\sin^2\left(\frac{\omega t}{2}\right)} = 2R\omega \left| \sin\left(\frac{\omega t}{2}\right) \right|
+\ln v_x = -kt + C
 $$
 
-**Stopping Points:**
-The point "stops" ($|\vec{v}| = 0$) when $\sin(\frac{\omega t}{2}) = 0$. This occurs at:
+Apply the initial condition $v_x(0) = v_{0x}$:
 
 $$
-\frac{\omega t}{2} = k\pi \implies \omega t = 2k\pi \quad (k = 0, 1, 2, \dots)
+v_x(t) = v_{0x} e^{-kt}
 $$
 
-At these moments, the point is in contact with the $x$-axis (the ground).
-
-### 3. Maximum Values
-
-**Maximum Velocity:**
-$|\vec{v}|$ is maximum when $\sin(\frac{\omega t}{2}) = 1$:
+**Solving for $v_y(t)$:**
+Rearrange the equation:
 
 $$
-|\vec{v}|_{max} = 2R\omega
+\frac{dv_y}{dt} + kv_y = -g
 $$
 
-This occurs at the top of the arch ($y = 2R$).
-
-**Maximum Acceleration:**
+This is a first-order linear ODE. Using an integrating factor $e^{kt}$:
 
 $$
-|\vec{a}(t)| = \sqrt{(R\omega^2 \sin(\omega t))^2 + (R\omega^2 \cos(\omega t))^2} = R\omega^2 \sqrt{\sin^2(\omega t) + \cos^2(\omega t)}
+\frac{d}{dt}(e^{kt}v_y) = -ge^{kt}
+$$
+
+Integrate both sides:
+
+$$
+e^{kt}v_y = -\frac{g}{k}e^{kt} + C
 $$
 
 $$
-|\vec{a}|_{max} = R\omega^2
+v_y(t) = -\frac{g}{k} + Ce^{-kt}
 $$
 
-The magnitude of acceleration is constant.
+Apply initial condition $v_y(0) = v_{0y}$:
 
-### 4. Comparison with Circular Motion
+$$
+v_{0y} = -\frac{g}{k} + C \implies C = v_{0y} + \frac{g}{k}
+$$
 
-In a reference frame attached to the **center of the circle**:
-* The motion is simple uniform circular motion.
-* The velocity is constant in magnitude ($R\omega$) and always tangent to the circle.
-* The acceleration is constant in magnitude ($R\omega^2$) and always centripetal.
+The velocity solution is:
 
-In the **laboratory frame** (the ground):
-* The velocity changes in both magnitude and direction.
-* The acceleration magnitude remains $R\omega^2$, identical to the circular motion, but its direction relative to the path changes.
+$$
+v_y(t) = \left(v_{0y} + \frac{g}{k}\right)e^{-kt} - \frac{g}{k}
+$$
+
+### 3. Determine terminal velocity $v_{term}$
+
+Terminal velocity occurs when acceleration becomes zero, meaning the drag force perfectly balances gravity. Mathematically, this is the limit as $t \to \infty$:
+
+$$
+\begin{align}
+v_{term} &= \lim_{t \to \infty} v_y(t) \\
+         &= \lim_{t \to \infty} \left[ \left(v_{0y} + \frac{g}{k}\right)e^{-kt} - \frac{g}{k} \right] \\
+         &= 0 - \frac{g}{k}
+\end{align}
+$$
+
+The terminal speed is $g/k = mg/b$.
+
+### 4. Determine position equations $x(t)$ and $y(t)$
+
+Integrate the velocity functions (assuming $x(0)=0$ and $y(0)=0$):
+
+**Horizontal Position:**
+
+$$
+\begin{align}
+x(t) &= \int_0^t v_{0x} e^{-k\tau} \, d\tau \\
+     &= \left[ -\frac{v_{0x}}{k} e^{-k\tau} \right]_0^t \\
+     &= \frac{v_{0x}}{k} (1 - e^{-kt})
+\end{align}
+$$
+
+**Vertical Position:**
+
+$$
+\begin{align}
+y(t) &= \int_0^t \left[ \left(v_{0y} + \frac{g}{k}\right)e^{-k\tau} - \frac{g}{k} \right] \, d\tau \\
+     &= \left[ -\frac{1}{k}\left(v_{0y} + \frac{g}{k}\right)e^{-k\tau} - \frac{g}{k}\tau \right]_0^t \\
+     &= \frac{1}{k}\left(v_{0y} + \frac{g}{k}\right)(1 - e^{-kt}) - \frac{g}{k}t
+\end{align}
+$$
 
 ## Final Result
 
-* **Velocity**: $\vec{v}(t) = (R\omega(1 - \cos \omega t), R\omega \sin \omega t)$
-* **Acceleration**: $\vec{a}(t) = (R\omega^2 \sin \omega t, R\omega^2 \cos \omega t)$
-* **Max Velocity**: $2R\omega$ (at the peak)
-* **Max Acceleration**: $R\omega^2$ (constant magnitude)
+* Velocity $x$: $v_x(t) = v_{0x} e^{-kt}$
+* Velocity $y$: $v_y(t) = (v_{0y} + g/k)e^{-kt} - g/k$
+* Terminal speed: $v_{term} = g/k$
+* Position $x$: $x(t) = \frac{v_{0x}}{k} (1 - e^{-kt})$
+* Position $y$: $y(t) = \frac{1}{k}(v_{0y} + g/k)(1 - e^{-kt}) - \frac{gt}{k}$
 
 ## Interpretation
 
-The cycloid demonstrates that a point on a rolling wheel has a variable speed relative to the ground, even if the wheel rotates at a constant rate. At the point of contact with the ground, the point has zero instantaneous velocity, which is the fundamental condition for "rolling without slipping."
+
+
+The presence of air resistance fundamentally changes the symmetry of the trajectory. 
+
+1. **Horizontal Limit:** In a vacuum, $x$ increases linearly forever. With air resistance, as $t \to \infty$, $x(t)$ approaches a finite value $x_{max} = v_{0x}/k$. This is the "impact wall" beyond which the projectile cannot pass.
+2. **Asymmetry:** The trajectory is no longer a parabola. It is steeper on the way down than on the way up.
+3. **Terminal Velocity:** Unlike the vacuum case where vertical speed increases indefinitely, the resistance force limits the fall speed to a constant value $v_{term}$. 
+
+This model is more realistic for small, slow-moving objects (like a grain of sand in water) where "Stokes' Law" (linear drag) is applicable.
