@@ -3,185 +3,289 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task 06 - Arc Length & Numerical Integration</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Task 06 - Arc Length and Numerical Integration</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        h1, h2 { color: #333; }
-        .control-panel { margin-bottom: 20px; padding: 15px; background-color: #eef; border-radius: 6px; }
-        label { font-weight: bold; margin-right: 10px; }
-        input[type="number"] { padding: 5px; width: 80px; }
-        button { padding: 8px 15px; background-color: #0056b3; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        button:hover { background-color: #004494; }
-        .results { margin-top: 15px; padding: 15px; background-color: #f4f4f4; border-left: 4px solid #0056b3; }
-        .chart-container { display: flex; flex-direction: column; gap: 30px; margin-top: 20px; }
-        canvas { max-height: 400px; }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 20px;
+            background-color: #f9fafb;
+            color: #1f2937;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1, h2 { color: #111827; }
+        .canvas-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .canvas-box {
+            flex: 1;
+            min-width: 300px;
+            background: #f3f4f6;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        canvas {
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+        }
+        .controls {
+            margin: 20px 0;
+            padding: 15px;
+            background: #eff6ff;
+            border-radius: 6px;
+            border-left: 4px solid #3b82f6;
+        }
+        input[type="number"] {
+            padding: 6px;
+            width: 80px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 8px 16px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { background: #2563eb; }
+        .results {
+            font-family: monospace;
+            background: #1f2937;
+            color: #10b981;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Numerical Arc Length Calculator</h1>
-    <p>Trajectory: <strong>x(t) = t, y(t) = t²</strong> for t ∈ [0, 1]</p>
-    
-    <div class="control-panel">
-        <label for="n-input">Divisions (N) for Trapezoidal Rule:</label>
-        <input type="number" id="n-input" value="10" min="1" max="10000">
-        <button onclick="runAnalysis()">Calculate & Plot</button>
+    <h1>Numerical Integration: Arc Length</h1>
+    <p>Calculating the arc length of the parabola <strong>x(t) = t, y(t) = t²</strong> for t ∈ [0, 1].</p>
+
+    <div class="controls">
+        <label for="divisions">Number of divisions (N): </label>
+        <input type="number" id="divisions" value="10" min="1" max="1000">
+        <button onclick="calculateAndDraw()">Calculate</button>
     </div>
 
-    <div class="results" id="results-box">
+    <div class="results" id="results">
         </div>
 
-    <div class="chart-container">
-        <div>
-            <h2>Trajectory Plot</h2>
-            <canvas id="trajectoryChart"></canvas>
+    <div class="canvas-container">
+        <div class="canvas-box">
+            <h3>Trajectory Visualization</h3>
+            <canvas id="trajCanvas" width="400" height="400"></canvas>
+            <p style="font-size: 0.9em; color: #4b5563;">Blue curve: Exact trajectory. Red lines: Trapezoidal segments.</p>
         </div>
-        <div>
-            <h2>Error Convergence (Error vs. N)</h2>
-            <canvas id="errorChart"></canvas>
+        <div class="canvas-box">
+            <h3>Convergence (Error vs N)</h3>
+            <canvas id="errorCanvas" width="400" height="400"></canvas>
+            <p style="font-size: 0.9em; color: #4b5563;">Log-Log plot of integration error as N increases.</p>
         </div>
     </div>
 </div>
 
 <script>
-    // Exact analytical value calculated in the derivations
-    const EXACT_LENGTH = Math.sqrt(5)/2 + 0.25 * Math.log(2 + Math.sqrt(5));
+    // Analytical value calculated previously
+    const ANALYTICAL_VALUE = (Math.sqrt(5) / 2) + (0.25 * Math.log(Math.sqrt(5) + 2));
 
-    // The function to integrate: f(t) = |v(t)| = sqrt(1 + 4t^2)
-    function speedMagnitude(t) {
+    // Function to integrate: speed |v(t)| = sqrt(1 + 4t^2)
+    function speed(t) {
         return Math.sqrt(1 + 4 * t * t);
     }
 
     // Trapezoidal rule implementation
     function trapezoidalRule(N) {
-        const a = 0;
-        const b = 1;
-        const dt = (b - a) / N;
-        let sum = (speedMagnitude(a) + speedMagnitude(b)) / 2;
+        let a = 0;
+        let b = 1;
+        let h = (b - a) / N;
+        let sum = 0.5 * (speed(a) + speed(b));
         
         for (let i = 1; i < N; i++) {
-            sum += speedMagnitude(a + i * dt);
+            sum += speed(a + i * h);
         }
         
-        return sum * dt;
+        return sum * h;
     }
 
-    // Trajectory coordinates
-    function generateTrajectoryData() {
-        const data = [];
-        for (let t = 0; t <= 1; t += 0.05) {
-            data.push({ x: t, y: t * t });
+    // Draw the parametric trajectory x=t, y=t^2
+    function drawTrajectory(N) {
+        const canvas = document.getElementById('trajCanvas');
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const margin = 40;
+        const width = canvas.width - 2 * margin;
+        const height = canvas.height - 2 * margin;
+
+        // Transform coordinates to fit canvas (origin at bottom-left)
+        function mapX(x) { return margin + x * width; }
+        function mapY(y) { return canvas.height - margin - y * height; }
+
+        // Draw axes
+        ctx.beginPath();
+        ctx.strokeStyle = '#9ca3af';
+        ctx.moveTo(mapX(0), mapY(0)); ctx.lineTo(mapX(1.1), mapY(0));
+        ctx.moveTo(mapX(0), mapY(0)); ctx.lineTo(mapX(0), mapY(1.1));
+        ctx.stroke();
+
+        // Draw true smooth curve
+        ctx.beginPath();
+        ctx.strokeStyle = '#3b82f6'; // Blue
+        ctx.lineWidth = 3;
+        for(let t = 0; t <= 1; t += 0.01) {
+            let x = t;
+            let y = t * t;
+            if(t === 0) ctx.moveTo(mapX(x), mapY(y));
+            else ctx.lineTo(mapX(x), mapY(y));
         }
-        return data;
-    }
+        ctx.stroke();
 
-    // Chart instances
-    let trajChartInstance = null;
-    let errChartInstance = null;
+        // Draw segmented approximation (Trapezoidal visual representation)
+        ctx.beginPath();
+        ctx.strokeStyle = '#ef4444'; // Red
+        ctx.lineWidth = 1.5;
+        let h = 1 / N;
+        for(let i = 0; i <= N; i++) {
+            let t = i * h;
+            let x = t;
+            let y = t * t;
+            
+            // Draw segment points
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath();
+            ctx.arc(mapX(x), mapY(y), 3, 0, Math.PI*2);
+            ctx.fill();
 
-    function initCharts() {
-        // Plot Trajectory (Static)
-        const trajCtx = document.getElementById('trajectoryChart').getContext('2d');
-        trajChartInstance = new Chart(trajCtx, {
-            type: 'scatter',
-            data: {
-                datasets: [{
-                    label: 'y = x²',
-                    data: generateTrajectoryData(),
-                    borderColor: '#ff6384',
-                    backgroundColor: '#ff6384',
-                    showLine: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                scales: {
-                    x: { title: { display: true, text: 'x(t)' } },
-                    y: { title: { display: true, text: 'y(t)' } }
-                }
+            // Draw line connecting segments
+            if(i === 0) {
+                ctx.beginPath();
+                ctx.moveTo(mapX(x), mapY(y));
+            } else {
+                ctx.lineTo(mapX(x), mapY(y));
             }
-        });
+        }
+        ctx.stroke();
     }
 
-    function runAnalysis() {
-        const maxN = parseInt(document.getElementById('n-input').value);
-        if (isNaN(maxN) || maxN < 1) {
-            alert("Please enter a valid number for N.");
-            return;
+    // Draw the Error vs N convergence plot
+    function drawErrorPlot(currentN) {
+        const canvas = document.getElementById('errorCanvas');
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const margin = 50;
+        const width = canvas.width - margin - 20;
+        const height = canvas.height - margin - 20;
+
+        // Collect data points for varying N
+        let points = [];
+        let maxError = 0;
+        let minError = 1;
+        let testNs = [1, 2, 4, 8, 10, 16, 32, 50, 64, 100, 128, 200, 256, currentN].sort((a,b)=>a-b);
+        testNs = [...new Set(testNs)]; // Remove duplicates
+
+        for(let n of testNs) {
+            let numResult = trapezoidalRule(n);
+            let err = Math.abs(ANALYTICAL_VALUE - numResult);
+            if(err > maxError) maxError = err;
+            if(err < minError && err > 0) minError = err;
+            points.push({n: n, err: err});
         }
 
-        // 1. Calculate Single Result for requested N
-        const numResult = trapezoidalRule(maxN);
-        const errorVal = Math.abs(numResult - EXACT_LENGTH);
+        // Setup log scales roughly
+        let logMaxN = Math.log10(300);
+        let logMaxErr = Math.log10(maxError);
+        let logMinErr = Math.log10(Math.max(minError, 1e-7)); // floor to prevent -infinity
 
-        // Update Results Box
-        document.getElementById('results-box').innerHTML = `
-            <p><strong>Exact Analytical Length:</strong> ${EXACT_LENGTH.toFixed(10)}</p>
-            <p><strong>Numerical Length (N=${maxN}):</strong> ${numResult.toFixed(10)}</p>
-            <p><strong>Absolute Error:</strong> ${errorVal.toExponential(4)}</p>
+        function mapLogX(n) {
+            return margin + (Math.log10(n) / logMaxN) * width;
+        }
+        function mapLogY(err) {
+            let logErr = Math.log10(Math.max(err, 1e-7));
+            let ratio = (logErr - logMinErr) / (logMaxErr - logMinErr);
+            return canvas.height - margin - ratio * height;
+        }
+
+        // Draw axes
+        ctx.beginPath();
+        ctx.strokeStyle = '#9ca3af';
+        ctx.moveTo(margin, canvas.height - margin); ctx.lineTo(canvas.width - 20, canvas.height - margin);
+        ctx.moveTo(margin, canvas.height - margin); ctx.lineTo(margin, 20);
+        ctx.stroke();
+        
+        // Axis labels
+        ctx.fillStyle = 'black';
+        ctx.font = '12px sans-serif';
+        ctx.fillText('N (log scale)', canvas.width / 2, canvas.height - 10);
+        
+        ctx.save();
+        ctx.translate(15, canvas.height / 2 + 40);
+        ctx.rotate(-Math.PI / 2);
+        ctx.fillText('Absolute Error (log scale)', 0, 0);
+        ctx.restore();
+
+        // Draw Error Line
+        ctx.beginPath();
+        ctx.strokeStyle = '#10b981'; // Green
+        ctx.lineWidth = 2;
+        for(let i = 0; i < points.length; i++) {
+            let px = mapLogX(points[i].n);
+            let py = mapLogY(points[i].err);
+            if(i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+
+        // Draw points and highlight current N
+        for(let p of points) {
+            let px = mapLogX(p.n);
+            let py = mapLogY(p.err);
+            ctx.beginPath();
+            ctx.fillStyle = p.n === currentN ? '#ef4444' : '#10b981';
+            let radius = p.n === currentN ? 6 : 3;
+            ctx.arc(px, py, radius, 0, Math.PI*2);
+            ctx.fill();
+        }
+    }
+
+    function calculateAndDraw() {
+        let nInput = document.getElementById('divisions').value;
+        let N = parseInt(nInput);
+        if(isNaN(N) || N < 1) N = 10;
+
+        let numericalValue = trapezoidalRule(N);
+        let error = Math.abs(ANALYTICAL_VALUE - numericalValue);
+
+        document.getElementById('results').innerHTML = `
+            <div>Analytical Arc Length : ${ANALYTICAL_VALUE.toFixed(8)}</div>
+            <div>Numerical Integration : ${numericalValue.toFixed(8)}</div>
+            <div>Absolute Error        : ${error.toExponential(4)}</div>
         `;
 
-        // 2. Generate Data for Error Convergence Chart
-        // We will test several values of N up to maxN to show the curve
-        const nValues = [];
-        const errorData = [];
-        
-        // Define step size to avoid plotting too many points if maxN is huge
-        let step = Math.max(1, Math.floor(maxN / 50)); 
-
-        for (let n = 1; n <= maxN; n += step) {
-            let res = trapezoidalRule(n);
-            let err = Math.abs(res - EXACT_LENGTH);
-            nValues.push(n);
-            errorData.push(err);
-        }
-
-        // Add the final point if not included
-        if (nValues[nValues.length - 1] !== maxN) {
-            nValues.push(maxN);
-            errorData.push(errorVal);
-        }
-
-        // Update Error Chart
-        const errCtx = document.getElementById('errorChart').getContext('2d');
-        
-        if (errChartInstance) {
-            errChartInstance.destroy();
-        }
-
-        errChartInstance = new Chart(errCtx, {
-            type: 'line',
-            data: {
-                labels: nValues,
-                datasets: [{
-                    label: 'Absolute Error',
-                    data: errorData,
-                    borderColor: '#36a2eb',
-                    backgroundColor: 'rgba(54, 162, 235, 0.1)',
-                    fill: true,
-                    tension: 0.1
-                }]
-            },
-            options: {
-                scales: {
-                    x: { title: { display: true, text: 'Number of Divisions (N)' } },
-                    y: { 
-                        type: 'logarithmic', // Log scale shows power-law convergence clearly
-                        title: { display: true, text: 'Log Absolute Error' } 
-                    }
-                }
-            }
-        });
+        drawTrajectory(N);
+        drawErrorPlot(N);
     }
 
-    // Initialize on load
-    window.onload = () => {
-        initCharts();
-        runAnalysis();
-    };
+    // Initial draw
+    window.onload = calculateAndDraw;
 </script>
 
 </body>

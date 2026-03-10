@@ -4,142 +4,143 @@
 
 A body falls from a height $h$ without air resistance.
 
-The required operations are:
-1. Write down the total mechanical energy $E(h) = T(h) + U(h)$.
-2. Determine the velocity as a function of height $v(h)$.
-3. Compare the result with the solution derived from Newton's second law.
-4. Determine at what height the kinetic energy accounts for 75% of the total energy.
+1. Write down the total energy $E(y) = T(y) + U(y)$.
+2. Determine the velocity as a function of height $v(y)$.
+3. Compare with the solution from Newton's second law.
+4. At what height does the kinetic energy account for 75% of the total energy?
+
+*(Note: We will use $y$ as the variable representing the current height, and $h$ as the initial drop height).*
 
 ## Theory
 
-The Principle of Conservation of Mechanical Energy states that in the absence of non-conservative forces (like friction or air resistance), the total mechanical energy $E$ of a system remains constant. Total energy is the sum of kinetic energy $T$ and potential energy $U$:
+The principle of conservation of mechanical energy states that in the absence of non-conservative forces (like air resistance or friction), the total mechanical energy of a system remains constant throughout the motion. The total mechanical energy $E$ is the sum of kinetic energy $T$ and potential energy $U$.
 
-$$
-E = T + U
-$$
+For a body in free fall near the Earth's surface:
+- Kinetic energy is given by $T = \frac{1}{2}mv^2$.
+- Gravitational potential energy is given by $U = mgy$, where $y$ is the height above a chosen reference level (usually the ground).
 
-Kinetic energy is defined as:
-
-$$
-T = \frac{1}{2} mv^2
-$$
-
-Gravitational potential energy near the Earth's surface is defined as:
-
-$$
-U = mgy
-$$
-
-where $y$ is the height above a chosen reference level ($y=0$). For a body falling from rest at height $h$, the initial energy is purely potential. As it falls, potential energy is converted into kinetic energy, but their sum remains $mgh$ at every point in the trajectory.
+Alternatively, the motion can be analyzed using kinematics and Newton's Second Law, which relates the constant gravitational force to a constant downward acceleration. Both approaches must yield identical results.
 
 ## Step-by-Step Solution
 
-### 1. Write down the total energy $E(h)$
+### 1. Total energy $E(y) = T(y) + U(y)$
 
-Consider the body at its starting point (height $h$) and at an arbitrary height $y$ during the fall.
-
-At the starting point ($y = h$):
-- Velocity $v = 0$, so $T = 0$.
-- Potential energy $U = mgh$.
-- Total energy $E = mgh$.
-
-At an arbitrary height $y$:
+Let the body be released from rest at an initial height $y = h$. At this moment, the velocity is zero, so the kinetic energy is zero ($T = 0$). The total initial energy is purely potential:
 
 $$
-E(y) = T(y) + U(y) = \frac{1}{2}mv(y)^2 + mgy
+E_{initial} = mgh
 $$
 
-Since energy is conserved, $E(y) = E(h)$ for all $y \in [0, h]$:
+By the conservation of energy, the total energy at any arbitrary height $y$ (where $0 \le y \le h$) must equal this initial energy:
 
 $$
-E = mgh
+E(y) = T(y) + U(y) = mgh
 $$
 
-### 2. Determine velocity as a function of height $v(h)$
-
-Using the conservation equation $E(y) = E(h)$:
+Substituting the explicit forms for kinetic and potential energy:
 
 $$
-\frac{1}{2}mv^2 + mgy = mgh
+\frac{1}{2}mv(y)^2 + mgy = mgh
 $$
 
-Isolate the kinetic energy term:
+### 2. Determine velocity as a function of height $v(y)$
+
+Starting from the energy conservation equation:
 
 $$
-\frac{1}{2}mv^2 = mgh - mgy
+\frac{1}{2}mv(y)^2 + mgy = mgh
 $$
 
-Divide by $m$ and factor out $g$:
+Subtract $mgy$ from both sides:
 
 $$
-\frac{1}{2}v^2 = g(h - y)
+\frac{1}{2}mv(y)^2 = mg(h - y)
 $$
 
-Solve for $v$:
+Divide both sides by the mass $m$ (which cancels out) and multiply by 2:
+
+$$
+v(y)^2 = 2g(h - y)
+$$
+
+Taking the square root gives the magnitude of the velocity (speed) at height $y$:
 
 $$
 v(y) = \sqrt{2g(h - y)}
 $$
 
-Here, $(h - y)$ represents the distance fallen.
+### 3. Compare with the solution from Newton's second law
 
-### 3. Compare with Newton's second law
-
-According to Newton's Second Law, a falling body has constant acceleration $a = g$. Using the kinematic equation (Torricelli's equation) for constant acceleration:
+Using Newton's Second Law, the only force acting on the body is gravity:
 
 $$
-v^2 = v_0^2 + 2a\Delta y
+\sum F_y = -mg
 $$
 
-Substituting $v_0 = 0$, $a = g$, and displacement $\Delta y = h - y$:
-
 $$
-v^2 = 2g(h - y) \implies v = \sqrt{2g(h - y)}
+ma_y = -mg \implies a_y = -g
 $$
 
-The results are identical. The energy approach is often simpler because it relates states (initial and final) without requiring integration of the equations of motion over time.
+Since the acceleration is constant, we can use the time-independent kinematic equation (Torricelli's equation):
+
+$$
+v_f^2 = v_i^2 + 2a_y \Delta y
+$$
+
+Substitute the known values:
+- Initial velocity $v_i = 0$
+- Acceleration $a_y = -g$
+- Displacement $\Delta y = y - h$ (final height minus initial height)
+
+$$
+\begin{align}
+v(y)^2 &= 0 + 2(-g)(y - h) \\
+v(y)^2 &= -2g(y - h) \\
+v(y)^2 &= 2g(h - y)
+\end{align}
+$$
+
+Taking the square root yields:
+
+$$
+v(y) = \sqrt{2g(h - y)}
+$$
+
+This result perfectly matches the one derived from the conservation of energy.
 
 ### 4. Height where kinetic energy is 75% of total energy
 
-We are looking for the height $y^*$ where:
+We are looking for the height $y$ at which the kinetic energy $T(y)$ is exactly $75\%$ (or $\frac{3}{4}$) of the total energy $E$:
 
 $$
-T(y^*) = 0.75 E
+T(y) = 0.75 E
 $$
 
-Substitute the expressions for $T$ and $E$:
+Since $E = T(y) + U(y)$, this implies that the remaining $25\%$ must be potential energy:
 
 $$
-mgh - mgy^* = 0.75 (mgh)
+U(y) = 0.25 E = \frac{1}{4} E
 $$
 
-Divide by $mgh$:
+Substitute $U(y) = mgy$ and $E = mgh$:
 
 $$
-1 - \frac{y^*}{h} = 0.75
+mgy = \frac{1}{4} mgh
 $$
 
-Solve for $y^*$:
+Divide both sides by $mg$:
 
 $$
-\frac{y^*}{h} = 1 - 0.75 = 0.25
+y = \frac{1}{4} h
 $$
-
-$$
-y^* = 0.25h
-$$
-
-The kinetic energy reaches 75% of the total energy when the body has fallen 75% of the way, which occurs at a height of one-quarter of the original height.
 
 ## Final Result
 
-* Total energy: $E = mgh$
-* Velocity function: $v(y) = \sqrt{2g(h-y)}$
-* Newton's Law comparison: Both yield $v^2 = 2g\Delta y$
-* Specific height: $y = 0.25h$
+- **Total Energy:** $E(y) = \frac{1}{2}mv(y)^2 + mgy = mgh$
+- **Velocity function:** $v(y) = \sqrt{2g(h - y)}$
+- **Comparison:** Newton's second law yields $v_f^2 = v_i^2 + 2a\Delta y \implies v(y) = \sqrt{2g(h-y)}$, which matches exactly.
+- **75% Kinetic Energy Height:** $y = \frac{h}{4}$
 
 ## Interpretation
 
-
-
-In free fall, the transformation of energy is perfectly linear with respect to height. Because potential energy depends linearly on $y$ ($U = mgy$), every meter descended converts a fixed amount of potential energy into kinetic energy. This explains why the "75% kinetic energy" mark occurs exactly at the point where 75% of the potential energy has been lost. Note that while energy is linear with height, velocity is not; the velocity increases following a square-root curve, meaning the body gains speed more rapidly at the beginning of the fall than at the end.
+The principle of conservation of energy provides a powerful scalar method to solve motion problems without needing to integrate vectors or track time. As the body falls, its potential energy linearly decreases while its kinetic energy linearly increases by the exact same amount. Because potential energy is directly proportional to height, when the body has lost 75% of its potential energy (converting it into kinetic energy), it must have fallen 75% of the way down, placing it at exactly one-quarter ($h/4$) of its original height.

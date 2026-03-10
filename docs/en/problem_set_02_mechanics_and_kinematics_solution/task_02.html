@@ -2,79 +2,284 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Task 02 - Projectile Motion Animation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 02 - Projectile Motion</title>
     <style>
-        body { font-family: sans-serif; margin: 20px; background: #f0f0f0; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; }
-        canvas { border: 1px solid #333; background: #fff; display: block; margin: 10px auto; }
-        .controls { display: flex; gap: 20px; justify-content: center; margin-bottom: 10px; }
-        .slider-group { display: flex; flex-direction: column; align-items: center; }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 20px;
+            background-color: #f9fafb;
+            color: #1f2937;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1, h2 { color: #111827; }
+        .controls {
+            margin: 20px 0;
+            padding: 15px;
+            background: #eff6ff;
+            border-radius: 6px;
+            border-left: 4px solid #3b82f6;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        label {
+            font-weight: bold;
+            min-width: 140px;
+        }
+        input[type="range"] {
+            flex-grow: 1;
+        }
+        span.value-display {
+            min-width: 50px;
+            text-align: right;
+            font-family: monospace;
+            font-size: 1.1em;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            grid-column: span 2;
+        }
+        button:hover { background-color: #2563eb; }
+        canvas {
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .stats {
+            margin-top: 15px;
+            padding: 15px;
+            background: #1f2937;
+            color: #10b981;
+            border-radius: 6px;
+            font-family: monospace;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
+
 <div class="container">
-    <h1>Projectile Motion Simulator</h1>
+    <h1>Projectile Motion Animation</h1>
+    <p>Visualizing the trajectory of a body in Earth's gravitational field.</p>
+
     <div class="controls">
-        <div class="slider-group">
-            <label>Angle: <span id="angleVal">45</span>°</label>
-            <input type="range" id="angleInput" min="0" max="90" value="45">
+        <div class="control-group">
+            <label for="v0Slider">Initial Velocity (v₀):</label>
+            <input type="range" id="v0Slider" min="10" max="100" step="1" value="50">
+            <span class="value-display" id="v0Value">50 m/s</span>
         </div>
-        <div class="slider-group">
-            <label>Velocity: <span id="v0Val">50</span> m/s</label>
-            <input type="range" id="v0Input" min="10" max="100" value="50">
+        <div class="control-group">
+            <label for="alphaSlider">Launch Angle (α):</label>
+            <input type="range" id="alphaSlider" min="5" max="85" step="1" value="45">
+            <span class="value-display" id="alphaValue">45°</span>
         </div>
-        <button onclick="startAnimation()">Fire</button>
+        <button id="animateBtn">Animate Trajectory</button>
     </div>
-    <canvas id="simCanvas" width="700" height="400"></canvas>
+
+    <div class="stats" id="statsDisplay">
+        <div id="flightTimeStat">Time: 0.00 s</div>
+        <div id="maxHeightStat">Max Height: 0.00 m</div>
+        <div id="rangeStat">Range: 0.00 m</div>
+    </div>
+
+    <canvas id="plotCanvas" width="800" height="400"></canvas>
 </div>
 
 <script>
-    const canvas = document.getElementById('simCanvas');
+    const canvas = document.getElementById('plotCanvas');
     const ctx = canvas.getContext('2d');
-    const g = 9.81;
-    const scale = 5; // Pixels per meter
+    
+    const v0Slider = document.getElementById('v0Slider');
+    const alphaSlider = document.getElementById('alphaSlider');
+    const v0Value = document.getElementById('v0Value');
+    const alphaValue = document.getElementById('alphaValue');
+    const animateBtn = document.getElementById('animateBtn');
+    
+    const flightTimeStat = document.getElementById('flightTimeStat');
+    const maxHeightStat = document.getElementById('maxHeightStat');
+    const rangeStat = document.getElementById('rangeStat');
 
-    let t = 0;
+    const g = 9.81;
     let animationId = null;
+    let trajectories = []; // store past trajectories for comparison
+
+    function calculateMetrics(v0, alpha) {
+        const rad = alpha * Math.PI / 180;
+        const t_f = (2 * v0 * Math.sin(rad)) / g;
+        const H = (v0 * v0 * Math.sin(rad) * Math.sin(rad)) / (2 * g);
+        const R = (v0 * v0 * Math.sin(2 * rad)) / g;
+        return { t_f, H, R, rad };
+    }
+
+    function updateLabels() {
+        const v0 = parseFloat(v0Slider.value);
+        const alpha = parseFloat(alphaSlider.value);
+        v0Value.innerText = v0 + " m/s";
+        alphaValue.innerText = alpha + "°";
+        
+        const { t_f, H, R } = calculateMetrics(v0, alpha);
+        flightTimeStat.innerText = `Time: ${t_f.toFixed(2)} s`;
+        maxHeightStat.innerText = `Max Height: ${H.toFixed(2)} m`;
+        rangeStat.innerText = `Range: ${R.toFixed(2)} m`;
+        
+        drawStatic();
+    }
+
+    function drawStatic() {
+        if (animationId) return; // don't draw static if animating
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawGrid();
+        drawPastTrajectories();
+        
+        const v0 = parseFloat(v0Slider.value);
+        const alpha = parseFloat(alphaSlider.value);
+        const { t_f, rad } = calculateMetrics(v0, alpha);
+        
+        drawTrajectory(v0, rad, t_f, '#3b82f6', true);
+    }
+
+    function drawGrid() {
+        const marginX = 40;
+        const marginY = 30;
+        const width = canvas.width - marginX * 2;
+        const height = canvas.height - marginY * 2;
+        
+        // Use fixed scaling to compare different shots
+        const maxRange = (100 * 100) / g; // max v0 is 100
+        const maxHeight = (100 * 100) / (2 * g);
+        
+        window.mapX = function(x) { return marginX + (x / maxRange) * width; };
+        window.mapY = function(y) { return canvas.height - marginY - (y / maxHeight) * height; };
+
+        ctx.strokeStyle = '#e5e7eb';
+        ctx.lineWidth = 1;
+
+        // Ground line
+        ctx.beginPath();
+        ctx.moveTo(mapX(0), mapY(0));
+        ctx.lineTo(mapX(maxRange), mapY(0));
+        ctx.stroke();
+
+        // Y axis
+        ctx.beginPath();
+        ctx.moveTo(mapX(0), mapY(0));
+        ctx.lineTo(mapX(0), mapY(maxHeight));
+        ctx.stroke();
+    }
+
+    function drawPastTrajectories() {
+        for (let path of trajectories) {
+            drawTrajectory(path.v0, path.rad, path.t_f, '#9ca3af', false);
+        }
+    }
+
+    function drawTrajectory(v0, rad, t_max, color, dashed) {
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        if (dashed) ctx.setLineDash([5, 5]);
+        else ctx.setLineDash([]);
+        
+        for (let t = 0; t <= t_max; t += 0.05) {
+            let x = v0 * Math.cos(rad) * t;
+            let y = v0 * Math.sin(rad) * t - 0.5 * g * t * t;
+            if (y < 0) y = 0;
+            if (t === 0) ctx.moveTo(mapX(x), mapY(y));
+            else ctx.lineTo(mapX(x), mapY(y));
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
+    }
 
     function startAnimation() {
         if (animationId) cancelAnimationFrame(animationId);
-        t = 0;
-        animate();
-    }
-
-    function animate() {
-        const v0 = parseFloat(document.getElementById('v0Input').value);
-        const alpha = parseFloat(document.getElementById('angleInput').value) * Math.PI / 180;
         
-        const x = v0 * Math.cos(alpha) * t;
-        const y = v0 * Math.sin(alpha) * t - 0.5 * g * t * t;
+        const v0 = parseFloat(v0Slider.value);
+        const alpha = parseFloat(alphaSlider.value);
+        const { t_f, rad } = calculateMetrics(v0, alpha);
+        
+        // Save current as past trajectory
+        trajectories.push({v0, rad, t_f});
+        if (trajectories.length > 5) trajectories.shift(); // keep last 5
+        
+        let startTime = null;
 
-        if (y < 0 && t > 0) {
-            cancelAnimationFrame(animationId);
-            return;
+        function animate(timestamp) {
+            if (!startTime) startTime = timestamp;
+            let progressTime = (timestamp - startTime) / 1000; // time in seconds
+            
+            // Speed up animation factor
+            let simTime = progressTime * 5; 
+            if (simTime > t_f) simTime = t_f;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawGrid();
+            drawPastTrajectories();
+
+            // Draw current animated path up to simTime
+            ctx.beginPath();
+            ctx.strokeStyle = '#ef4444'; // Red for active animation
+            ctx.lineWidth = 3;
+            for (let t = 0; t <= simTime; t += 0.05) {
+                let x = v0 * Math.cos(rad) * t;
+                let y = v0 * Math.sin(rad) * t - 0.5 * g * t * t;
+                if (t === 0) ctx.moveTo(mapX(x), mapY(y));
+                else ctx.lineTo(mapX(x), mapY(y));
+            }
+            ctx.stroke();
+
+            // Draw projectile ball
+            let currentX = v0 * Math.cos(rad) * simTime;
+            let currentY = v0 * Math.sin(rad) * simTime - 0.5 * g * simTime * simTime;
+            
+            ctx.beginPath();
+            ctx.arc(mapX(currentX), mapY(currentY), 6, 0, 2 * Math.PI);
+            ctx.fillStyle = '#ef4444';
+            ctx.fill();
+
+            if (simTime < t_f) {
+                animationId = requestAnimationFrame(animate);
+            } else {
+                animationId = null;
+                // Leave it drawn in blue after finish
+                drawStatic();
+            }
         }
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        // Draw Ground
-        ctx.beginPath();
-        ctx.moveTo(0, canvas.height - 10);
-        ctx.lineTo(canvas.width, canvas.height - 10);
-        ctx.stroke();
-
-        // Draw Projectile
-        ctx.beginPath();
-        ctx.arc(x * scale, (canvas.height - 10) - (y * scale), 5, 0, Math.PI * 2);
-        ctx.fillStyle = "red";
-        ctx.fill();
-
-        t += 0.05;
         animationId = requestAnimationFrame(animate);
     }
 
-    document.getElementById('angleInput').oninput = function() { document.getElementById('angleVal').innerText = this.value; };
-    document.getElementById('v0Input').oninput = function() { document.getElementById('v0Val').innerText = this.value; };
+    v0Slider.addEventListener('input', updateLabels);
+    alphaSlider.addEventListener('input', updateLabels);
+    animateBtn.addEventListener('click', startAnimation);
+
+    // Init
+    updateLabels();
 </script>
+
 </body>
 </html>

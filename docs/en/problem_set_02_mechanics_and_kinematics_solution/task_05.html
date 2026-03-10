@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 05 - Elliptical Motion Kinematics</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 20px;
+            background-color: #f9fafb;
+            color: #1f2937;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1, h2 { color: #111827; }
+        .controls {
+            margin: 20px 0;
+            padding: 15px;
+            background: #eff6ff;
+            border-radius: 6px;
+            border-left: 4px solid #3b82f6;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        label {
+            font-weight: bold;
+            min-width: 130px;
+        }
+        input[type="range"] {
+            flex-grow: 1;
+        }
+        span.value-display {
+            min-width: 40px;
+            text-align: right;
+            font-family: monospace;
+            font-size: 1.1em;
+        }
+        .flex-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .canvas-box {
+            flex: 1;
+            min-width: 300px;
+            background: #f3f4f6;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        canvas {
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            width: 100%;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
+        .color-box { width: 14px; height: 14px; border-radius: 3px; }
+        button {
+            padding: 8px 16px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            grid-column: span 2;
+        }
+        button:hover { background: #2563eb; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Elliptical Motion: Trajectory and Magnitudes</h1>
+    <p>Visualizing <strong>x(t) = a·cos(ωt)</strong> and <strong>y(t) = b·sin(ωt)</strong>.</p>
+
+    <div class="controls">
+        <div class="control-group">
+            <label for="aSlider">Semi-major a:</label>
+            <input type="range" id="aSlider" min="1" max="5" step="0.5" value="4">
+            <span class="value-display" id="aValue">4.0</span>
+        </div>
+        <div class="control-group">
+            <label for="bSlider">Semi-minor b:</label>
+            <input type="range" id="bSlider" min="1" max="5" step="0.5" value="2">
+            <span class="value-display" id="bValue">2.0</span>
+        </div>
+        <div class="control-group">
+            <label for="omegaSlider">Angular Vel ω:</label>
+            <input type="range" id="omegaSlider" min="0.5" max="3" step="0.1" value="1">
+            <span class="value-display" id="omegaValue">1.0</span>
+        </div>
+        <button id="toggleBtn">Pause Animation</button>
+    </div>
+
+    <div class="flex-container">
+        <div class="canvas-box">
+            <h3>Trajectory Visualization</h3>
+            <canvas id="trajCanvas" width="400" height="400"></canvas>
+            <div class="legend">
+                <div class="legend-item"><div class="color-box" style="background:#10b981;"></div> Velocity</div>
+                <div class="legend-item"><div class="color-box" style="background:#ef4444;"></div> Acceleration</div>
+            </div>
+        </div>
+        <div class="canvas-box">
+            <h3>Magnitudes over Time</h3>
+            <canvas id="graphCanvas" width="400" height="400"></canvas>
+            <div class="legend">
+                <div class="legend-item"><div class="color-box" style="background:#10b981;"></div> |v(t)|</div>
+                <div class="legend-item"><div class="color-box" style="background:#ef4444;"></div> |a(t)|</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const trajCanvas = document.getElementById('trajCanvas');
+    const trajCtx = trajCanvas.getContext('2d');
+    const graphCanvas = document.getElementById('graphCanvas');
+    const graphCtx = graphCanvas.getContext('2d');
+
+    const aSlider = document.getElementById('aSlider');
+    const bSlider = document.getElementById('bSlider');
+    const omegaSlider = document.getElementById('omegaSlider');
+    const aValue = document.getElementById('aValue');
+    const bValue = document.getElementById('bValue');
+    const omegaValue = document.getElementById('omegaValue');
+    const toggleBtn = document.getElementById('toggleBtn');
+
+    let time = 0;
+    let isPlaying = true;
+    let lastTimestamp = 0;
+
+    function drawArrow(ctx, fromX, fromY, toX, toY, color) {
+        const headlen = 10; 
+        const dx = toX - fromX;
+        const dy = toY - fromY;
+        const angle = Math.atan2(dy, dx);
+        
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.fillStyle = color;
+        ctx.lineWidth = 2;
+        ctx.moveTo(fromX, fromY);
+        ctx.lineTo(toX, toY);
+        ctx.stroke();
+        
+        ctx.beginPath();
+        ctx.moveTo(toX, toY);
+        ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 6), toY - headlen * Math.sin(angle - Math.PI / 6));
+        ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 6), toY - headlen * Math.sin(angle + Math.PI / 6));
+        ctx.lineTo(toX, toY);
+        ctx.fill();
+    }
+
+    function render(timestamp) {
+        if (!lastTimestamp) lastTimestamp = timestamp;
+        let dt = (timestamp - lastTimestamp) / 1000;
+        lastTimestamp = timestamp;
+
+        if (isPlaying) {
+            time += dt;
+        }
+
+        const a = parseFloat(aSlider.value);
+        const b = parseFloat(bSlider.value);
+        const omega = parseFloat(omegaSlider.value);
+
+        aValue.innerText = a.toFixed(1);
+        bValue.innerText = b.toFixed(1);
+        omegaValue.innerText = omega.toFixed(1);
+
+        // --- Draw Trajectory Canvas ---
+        trajCtx.clearRect(0, 0, trajCanvas.width, trajCanvas.height);
+        
+        const centerX = trajCanvas.width / 2;
+        const centerY = trajCanvas.height / 2;
+        const scale = 30; // pixels per meter
+
+        // Axes
+        trajCtx.strokeStyle = '#e5e7eb';
+        trajCtx.lineWidth = 1;
+        trajCtx.beginPath();
+        trajCtx.moveTo(0, centerY); trajCtx.lineTo(trajCanvas.width, centerY);
+        trajCtx.moveTo(centerX, 0); trajCtx.lineTo(centerX, trajCanvas.height);
+        trajCtx.stroke();
+
+        // Draw Ellipse
+        trajCtx.beginPath();
+        trajCtx.strokeStyle = '#9ca3af';
+        trajCtx.lineWidth = 2;
+        trajCtx.setLineDash([5, 5]);
+        trajCtx.ellipse(centerX, centerY, a * scale, b * scale, 0, 0, 2 * Math.PI);
+        trajCtx.stroke();
+        trajCtx.setLineDash([]);
+
+        // Current kinematics
+        const x = a * Math.cos(omega * time);
+        const y = b * Math.sin(omega * time);
+        const vx = -a * omega * Math.sin(omega * time);
+        const vy = b * omega * Math.cos(omega * time);
+        const ax = -a * omega * omega * Math.cos(omega * time);
+        const ay = -b * omega * omega * Math.sin(omega * time);
+
+        const screenX = centerX + x * scale;
+        const screenY = centerY - y * scale;
+
+        // Vectors
+        const vScale = 0.4;
+        const aScale = 0.2;
+        drawArrow(trajCtx, screenX, screenY, screenX + vx * scale * vScale, screenY - vy * scale * vScale, '#10b981');
+        drawArrow(trajCtx, screenX, screenY, screenX + ax * scale * aScale, screenY - ay * scale * aScale, '#ef4444');
+
+        // Particle
+        trajCtx.beginPath();
+        trajCtx.arc(screenX, screenY, 6, 0, 2 * Math.PI);
+        trajCtx.fillStyle = '#3b82f6';
+        trajCtx.fill();
+
+        // --- Draw Graphs Canvas ---
+        graphCtx.clearRect(0, 0, graphCanvas.width, graphCanvas.height);
+        
+        const gMargin = 40;
+        const gWidth = graphCanvas.width - gMargin * 2;
+        const gHeight = graphCanvas.height - gMargin * 2;
+        
+        const period = 2 * Math.PI / omega;
+        const tMax = period * 1.5; // Show 1.5 periods
+        
+        // Find max magnitude for scaling
+        let maxMag = 0;
+        for(let t_i=0; t_i<=tMax; t_i+=0.1) {
+            let vM = omega * Math.sqrt(a*a*Math.pow(Math.sin(omega*t_i),2) + b*b*Math.pow(Math.cos(omega*t_i),2));
+            let aM = omega*omega * Math.sqrt(a*a*Math.pow(Math.cos(omega*t_i),2) + b*b*Math.pow(Math.sin(omega*t_i),2));
+            if(vM > maxMag) maxMag = vM;
+            if(aM > maxMag) maxMag = aM;
+        }
+        maxMag *= 1.1; // Add 10% headroom
+
+        function mapT(t) { return gMargin + (t / tMax) * gWidth; }
+        function mapMag(mag) { return graphCanvas.height - gMargin - (mag / maxMag) * gHeight; }
+
+        // Axes
+        graphCtx.strokeStyle = '#9ca3af';
+        graphCtx.beginPath();
+        graphCtx.moveTo(mapT(0), mapMag(0)); graphCtx.lineTo(mapT(tMax), mapMag(0)); // time axis
+        graphCtx.moveTo(mapT(0), mapMag(0)); graphCtx.lineTo(mapT(0), mapMag(maxMag)); // magnitude axis
+        graphCtx.stroke();
+
+        // Draw |v(t)|
+        graphCtx.beginPath();
+        graphCtx.strokeStyle = '#10b981';
+        graphCtx.lineWidth = 2;
+        for(let t_i=0; t_i<=tMax; t_i+=0.05) {
+            let vM = omega * Math.sqrt(a*a*Math.pow(Math.sin(omega*t_i),2) + b*b*Math.pow(Math.cos(omega*t_i),2));
+            if(t_i === 0) graphCtx.moveTo(mapT(t_i), mapMag(vM));
+            else graphCtx.lineTo(mapT(t_i), mapMag(vM));
+        }
+        graphCtx.stroke();
+
+        // Draw |a(t)|
+        graphCtx.beginPath();
+        graphCtx.strokeStyle = '#ef4444';
+        graphCtx.lineWidth = 2;
+        for(let t_i=0; t_i<=tMax; t_i+=0.05) {
+            let aM = omega*omega * Math.sqrt(a*a*Math.pow(Math.cos(omega*t_i),2) + b*b*Math.pow(Math.sin(omega*t_i),2));
+            if(t_i === 0) graphCtx.moveTo(mapT(t_i), mapMag(aM));
+            else graphCtx.lineTo(mapT(t_i), mapMag(aM));
+        }
+        graphCtx.stroke();
+
+        // Indicator line for current time
+        let displayTime = time % tMax;
+        graphCtx.beginPath();
+        graphCtx.strokeStyle = '#3b82f6';
+        graphCtx.lineWidth = 1;
+        graphCtx.setLineDash([4, 4]);
+        graphCtx.moveTo(mapT(displayTime), mapMag(0));
+        graphCtx.lineTo(mapT(displayTime), mapMag(maxMag));
+        graphCtx.stroke();
+        graphCtx.setLineDash([]);
+
+        requestAnimationFrame(render);
+    }
+
+    toggleBtn.addEventListener('click', () => {
+        isPlaying = !isPlaying;
+        toggleBtn.innerText = isPlaying ? "Play Animation" : "Pause Animation";
+        if (isPlaying) lastTimestamp = performance.now();
+    });
+
+    requestAnimationFrame(render);
+</script>
+
+</body>
+</html>

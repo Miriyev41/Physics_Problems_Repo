@@ -1,8 +1,8 @@
-# Task 04 – Geometry of parametric curves
+# Task 04 – Geometry of Parametric Curves
 
 ## Problem Statement
 
-Investigate the following curves given by their parametric equations:
+Investigate the following parametric curves:
 
 A) $x(t) = R\cos t, \quad y(t) = R\sin t$
 
@@ -12,119 +12,77 @@ C) $x(t) = t, \quad y(t) = t^2$
 
 D) $x(t) = \cosh t, \quad y(t) = \sinh t$
 
-For each curve, the required operations are:
-1. Eliminate the parameter (if possible).
-2. Determine the type of curve.
-3. Determine the velocity $\vec v(t)$ and acceleration $\vec a(t)$.
-4. Check if the velocity/acceleration has a constant magnitude ($|\vec v| = \text{const}$ or $|\vec a| = \text{const}$).
+For each curve, the following must be determined:
+1. Eliminate the parameter $t$ (if possible) to find the implicit equation of the curve.
+2. Determine the geometric type of the curve.
+3. Determine the velocity vector $\vec v(t)$ and the acceleration vector $\vec a(t)$.
+4. Check if the velocity magnitude $|\vec v(t)|$ or acceleration magnitude $|\vec a(t)|$ is constant.
 
 ## Theory
 
-A parametric curve in two dimensions is defined by a position vector $\vec r(t) = \bigl(x(t), y(t)\bigr)$. 
+A parametric curve defines coordinates as functions of a single variable, usually time $t$. Eliminating the parameter involves using algebraic, trigonometric, or hyperbolic identities to express $y$ purely as a function of $x$ (or implicitly as an equation relating $x$ and $y$). 
 
-Eliminating the parameter $t$ means finding an algebraic relationship between $x$ and $y$ that does not depend on $t$. This is often achieved using substitution or fundamental identities, such as the Pythagorean trigonometric identity:
+The fundamental identities frequently used are:
 
 $$
 \cos^2 t + \sin^2 t = 1
 $$
 
-or the fundamental hyperbolic identity:
-
 $$
 \cosh^2 t - \sinh^2 t = 1
 $$
 
-The velocity vector is the first derivative of the position vector with respect to time:
-
-$$
-\vec v(t) = \left( \frac{dx}{dt}, \frac{dy}{dt} \right)
-$$
-
-The acceleration vector is the second derivative of the position vector, or the first derivative of the velocity vector:
-
-$$
-\vec a(t) = \left( \frac{d^2x}{dt^2}, \frac{d^2y}{dt^2} \right)
-$$
-
-The magnitude of any vector $\vec u = (u_x, u_y)$ is given by the Euclidean norm:
-
-$$
-|\vec u| = \sqrt{u_x^2 + u_y^2}
-$$
-
-A vector has a constant magnitude if its length does not depend on the parameter $t$.
+In kinematics, the velocity vector is the first time-derivative of the position vector, and acceleration is the second time-derivative. Their magnitudes (lengths) define the speed and the strength of the acceleration. To determine if a magnitude is constant, one must check if the resulting expression for the magnitude depends on the parameter $t$.
 
 ## Step-by-Step Solution
 
-### Curve A: $\ x(t) = R\cos t,\quad  y(t) = R\sin t$
+### Curve A: $x(t) = R\cos t, \quad y(t) = R\sin t$
 
-#### 1. Eliminate the parameter
-Square both $x(t)$ and $y(t)$:
+#### 1. Eliminating the parameter
 
-$$
-x^2 = R^2 \cos^2 t
-$$
-
-$$
-y^2 = R^2 \sin^2 t
-$$
-
-Add the two equations together:
+Square both coordinates and add them together:
 
 $$
 \begin{align}
-x^2 + y^2 &= R^2 \cos^2 t + R^2 \sin^2 t \\
-          &= R^2 (\cos^2 t + \sin^2 t)
+x^2 + y^2 &= (R\cos t)^2 + (R\sin t)^2 \\
+          &= R^2\cos^2 t + R^2\sin^2 t \\
+          &= R^2(\cos^2 t + \sin^2 t)
 \end{align}
 $$
 
-Using the identity $\cos^2 t + \sin^2 t = 1$, we get:
+Using the fundamental trigonometric identity, this simplifies to:
 
 $$
 x^2 + y^2 = R^2
 $$
 
-#### 2. Determine the type of curve
-The equation $x^2 + y^2 = R^2$ describes a **circle** centered at the origin $(0,0)$ with radius $R$.
+#### 2. Type of curve
 
-#### 3. Determine velocity and acceleration
-Differentiate $x(t)$ and $y(t)$ to find velocity:
+The equation $x^2 + y^2 = R^2$ describes a **circle** centered at the origin with radius $R$.
 
-$$
-v_x(t) = \frac{d}{dt}(R\cos t) = -R\sin t
-$$
+#### 3. Velocity and acceleration
+
+Differentiating the position components with respect to $t$:
 
 $$
-v_y(t) = \frac{d}{dt}(R\sin t) = R\cos t
+\vec v(t) = \left( \frac{d}{dt}(R\cos t), \frac{d}{dt}(R\sin t) \right) = (-R\sin t, R\cos t)
 $$
 
-$$
-\vec v(t) = \bigl(-R\sin t, R\cos t\bigr)
-$$
-
-Differentiate velocity to find acceleration:
+Differentiating the velocity components:
 
 $$
-a_x(t) = \frac{d}{dt}(-R\sin t) = -R\cos t
+\vec a(t) = \left( \frac{d}{dt}(-R\sin t), \frac{d}{dt}(R\cos t) \right) = (-R\cos t, -R\sin t)
 $$
 
-$$
-a_y(t) = \frac{d}{dt}(R\cos t) = -R\sin t
-$$
+#### 4. Constancy of magnitudes
 
-$$
-\vec a(t) = \bigl(-R\cos t, -R\sin t\bigr)
-$$
-
-#### 4. Check magnitudes
 Calculate the magnitude of velocity:
 
 $$
 \begin{align}
 |\vec v(t)| &= \sqrt{(-R\sin t)^2 + (R\cos t)^2} \\
             &= \sqrt{R^2\sin^2 t + R^2\cos^2 t} \\
-            &= \sqrt{R^2(\sin^2 t + \cos^2 t)} \\
-            &= \sqrt{R^2} \\
+            &= \sqrt{R^2(1)} \\
             &= R
 \end{align}
 $$
@@ -135,30 +93,25 @@ $$
 \begin{align}
 |\vec a(t)| &= \sqrt{(-R\cos t)^2 + (-R\sin t)^2} \\
             &= \sqrt{R^2\cos^2 t + R^2\sin^2 t} \\
-            &= \sqrt{R^2(\cos^2 t + \sin^2 t)} \\
-            &= \sqrt{R^2} \\
             &= R
 \end{align}
 $$
 
-Both $|\vec v|$ and $|\vec a|$ are **constant**.
+Both $|\vec v(t)|$ and $|\vec a(t)|$ are **constant**.
 
 ---
 
-### Curve B: $\ x(t) = a\cos t, \quad y(t) = b\sin t$
+### Curve B: $x(t) = a\cos t, \quad y(t) = b\sin t$
 
-#### 1. Eliminate the parameter
-Divide $x(t)$ by $a$ and $y(t)$ by $b$:
+#### 1. Eliminating the parameter
 
-$$
-\frac{x}{a} = \cos t
-$$
+Isolate the trigonometric functions:
 
 $$
-\frac{y}{b} = \sin t
+\frac{x}{a} = \cos t, \quad \frac{y}{b} = \sin t
 $$
 
-Square both expressions and add them:
+Square both equations and add them:
 
 $$
 \left(\frac{x}{a}\right)^2 + \left(\frac{y}{b}\right)^2 = \cos^2 t + \sin^2 t
@@ -168,205 +121,155 @@ $$
 \frac{x^2}{a^2} + \frac{y^2}{b^2} = 1
 $$
 
-#### 2. Determine the type of curve
-The equation $\frac{x^2}{a^2} + \frac{y^2}{b^2} = 1$ describes an **ellipse** centered at the origin with semi-axes $a$ and $b$.
+#### 2. Type of curve
 
-#### 3. Determine velocity and acceleration
-Differentiate position to find velocity:
+This is the standard equation of an **ellipse** centered at the origin with semi-major and semi-minor axes $a$ and $b$.
 
-$$
-\vec v(t) = \bigl(-a\sin t, b\cos t\bigr)
-$$
+#### 3. Velocity and acceleration
 
-Differentiate velocity to find acceleration:
+Differentiating with respect to $t$:
 
 $$
-\vec a(t) = \bigl(-a\cos t, -b\sin t\bigr)
-$$
-
-#### 4. Check magnitudes
-Calculate the magnitude of velocity:
-
-$$
-|\vec v(t)| = \sqrt{(-a\sin t)^2 + (b\cos t)^2}
+\vec v(t) = (-a\sin t, b\cos t)
 $$
 
 $$
-|\vec v(t)| = \sqrt{a^2\sin^2 t + b^2\cos^2 t}
+\vec a(t) = (-a\cos t, -b\sin t)
 $$
 
-Calculate the magnitude of acceleration:
+#### 4. Constancy of magnitudes
+
+Magnitude of velocity:
 
 $$
-|\vec a(t)| = \sqrt{(-a\cos t)^2 + (-b\sin t)^2}
+|\vec v(t)| = \sqrt{(-a\sin t)^2 + (b\cos t)^2} = \sqrt{a^2\sin^2 t + b^2\cos^2 t}
 $$
 
+Magnitude of acceleration:
+
 $$
-|\vec a(t)| = \sqrt{a^2\cos^2 t + b^2\sin^2 t}
+|\vec a(t)| = \sqrt{(-a\cos t)^2 + (-b\sin t)^2} = \sqrt{a^2\cos^2 t + b^2\sin^2 t}
 $$
 
-Neither $|\vec v|$ nor $|\vec a|$ is constant (unless $a = b$, which reduces to the circle case). They depend on the parameter $t$.
+Because $a \neq b$ (in the general case), these expressions depend on $t$. Therefore, neither $|\vec v(t)|$ nor $|\vec a(t)|$ is **constant**.
 
 ---
 
-### Curve C: $\ x(t) = t, \quad   y(t) = t^2$
+### Curve C: $x(t) = t, \quad y(t) = t^2$
 
-#### 1. Eliminate the parameter
-From the first equation, we have $t = x$. Substitute this directly into the second equation:
+#### 1. Eliminating the parameter
+
+Substitute the expression for $t$ from the first equation ($t = x$) directly into the second equation:
 
 $$
 y = x^2
 $$
 
-#### 2. Determine the type of curve
-The equation $y = x^2$ describes a **parabola** opening upwards, with its vertex at the origin.
+#### 2. Type of curve
 
-#### 3. Determine velocity and acceleration
-Differentiate position to find velocity:
+This represents a standard **parabola**.
 
-$$
-v_x(t) = \frac{d}{dt}(t) = 1
-$$
+#### 3. Velocity and acceleration
+
+Differentiating with respect to $t$:
 
 $$
-v_y(t) = \frac{d}{dt}(t^2) = 2t
+\vec v(t) = (1, 2t)
 $$
 
 $$
-\vec v(t) = \bigl(1, 2t\bigr)
+\vec a(t) = (0, 2)
 $$
 
-Differentiate velocity to find acceleration:
+#### 4. Constancy of magnitudes
+
+Magnitude of velocity:
 
 $$
-a_x(t) = \frac{d}{dt}(1) = 0
+|\vec v(t)| = \sqrt{1^2 + (2t)^2} = \sqrt{1 + 4t^2}
 $$
 
-$$
-a_y(t) = \frac{d}{dt}(2t) = 2
-$$
+This clearly depends on $t$.
+
+Magnitude of acceleration:
 
 $$
-\vec a(t) = \bigl(0, 2\bigr)
+|\vec a(t)| = \sqrt{0^2 + 2^2} = 2
 $$
 
-#### 4. Check magnitudes
-Calculate the magnitude of velocity:
-
-$$
-|\vec v(t)| = \sqrt{1^2 + (2t)^2}
-$$
-
-$$
-|\vec v(t)| = \sqrt{1 + 4t^2}
-$$
-
-Calculate the magnitude of acceleration:
-
-$$
-|\vec a(t)| = \sqrt{0^2 + 2^2}
-$$
-
-$$
-|\vec a(t)| = 2
-$$
-
-The magnitude of velocity $|\vec v(t)|$ is **not constant** (it depends on $t$). The magnitude of acceleration $|\vec a(t)|$ is **constant**.
+The magnitude of acceleration is **constant**, but the magnitude of velocity is **not constant**.
 
 ---
 
-### Curve D: $\ x(t) = \cosh t, \quad y(t) = \sinh t$
+### Curve D: $x(t) = \cosh t, \quad y(t) = \sinh t$
 
-#### 1. Eliminate the parameter
-Square both equations:
+#### 1. Eliminating the parameter
 
-$$
-x^2 = \cosh^2 t
-$$
-
-$$
-y^2 = \sinh^2 t
-$$
-
-Subtract the second equation from the first:
+Square both coordinates and subtract the second from the first:
 
 $$
 x^2 - y^2 = \cosh^2 t - \sinh^2 t
 $$
 
-Using the hyperbolic identity $\cosh^2 t - \sinh^2 t = 1$, we get:
+Using the fundamental hyperbolic identity:
 
 $$
 x^2 - y^2 = 1
 $$
 
-Since $x(t) = \cosh t$, and the range of hyperbolic cosine is $\cosh t \geq 1$ for all real $t$, $x$ is always positive.
+Note that since $\cosh t \ge 1$ for all real $t$, this only traces the part of the curve where $x \ge 1$.
 
-#### 2. Determine the type of curve
-The equation $x^2 - y^2 = 1$ with $x \geq 1$ describes the **right branch of a unit hyperbola**.
+#### 2. Type of curve
 
-#### 3. Determine velocity and acceleration
-Recall the derivatives of hyperbolic functions: $\frac{d}{dt}(\cosh t) = \sinh t$ and $\frac{d}{dt}(\sinh t) = \cosh t$.
+The equation describes a **hyperbola**. Specifically, the parametric equations trace only the **right branch** of the hyperbola.
 
-Differentiate position to find velocity:
+#### 3. Velocity and acceleration
 
-$$
-\vec v(t) = \bigl(\sinh t, \cosh t\bigr)
-$$
-
-Differentiate velocity to find acceleration:
+Recall the derivatives of hyperbolic functions: $\frac{d}{dt}\cosh t = \sinh t$ and $\frac{d}{dt}\sinh t = \cosh t$.
 
 $$
-\vec a(t) = \bigl(\cosh t, \sinh t\bigr)
+\vec v(t) = (\sinh t, \cosh t)
 $$
 
-#### 4. Check magnitudes
-Calculate the magnitude of velocity:
+$$
+\vec a(t) = (\cosh t, \sinh t)
+$$
+
+#### 4. Constancy of magnitudes
+
+Magnitude of velocity:
 
 $$
 |\vec v(t)| = \sqrt{\sinh^2 t + \cosh^2 t}
 $$
 
-Using the identity $\cosh^2 t + \sinh^2 t = \cosh(2t)$:
+Using the identity $\cosh(2t) = \cosh^2 t + \sinh^2 t$:
 
 $$
 |\vec v(t)| = \sqrt{\cosh(2t)}
 $$
 
-Calculate the magnitude of acceleration:
+Magnitude of acceleration:
 
 $$
-|\vec a(t)| = \sqrt{\cosh^2 t + \sinh^2 t}
+|\vec a(t)| = \sqrt{\cosh^2 t + \sinh^2 t} = \sqrt{\cosh(2t)}
 $$
 
-$$
-|\vec a(t)| = \sqrt{\cosh(2t)}
-$$
-
-Neither $|\vec v|$ nor $|\vec a|$ is constant; both depend on the parameter $t$.
+Since $\cosh(2t)$ varies with $t$, neither magnitude is **constant**.
 
 ## Final Result
 
-| Curve | Cartesian Equation | Type of Curve | $\vec v(t)$ | $\vec a(t)$ | $|\vec v|$ Const? | $|\vec a|$ Const? |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **A** | $x^2 + y^2 = R^2$ | Circle | $(-R\sin t, R\cos t)$ | $(-R\cos t, -R\sin t)$ | Yes ($R$) | Yes ($R$) |
-| **B** | $\frac{x^2}{a^2} + \frac{y^2}{b^2} = 1$ | Ellipse | $(-a\sin t, b\cos t)$ | $(-a\cos t, -b\sin t)$ | No | No |
-| **C** | $y = x^2$ | Parabola | $(1, 2t)$ | $(0, 2)$ | No | Yes ($2$) |
-| **D** | $x^2 - y^2 = 1, x\ge 1$ | Hyperbola | $(\sinh t, \cosh t)$ | $(\cosh t, \sinh t)$ | No | No |
+- **Curve A**: Circle ($x^2 + y^2 = R^2$). $|\vec v| = R$ (constant), $|\vec a| = R$ (constant).
+- **Curve B**: Ellipse ($\frac{x^2}{a^2} + \frac{y^2}{b^2} = 1$). $|\vec v|$ is not constant, $|\vec a|$ is not constant.
+- **Curve C**: Parabola ($y = x^2$). $|\vec v| = \sqrt{1+4t^2}$ (not constant), $|\vec a| = 2$ (constant).
+- **Curve D**: Hyperbola right branch ($x^2 - y^2 = 1, x \ge 1$). $|\vec v| = \sqrt{\cosh(2t)}$ (not constant), $|\vec a| = \sqrt{\cosh(2t)}$ (not constant).
 
 ## Interpretation
 
+The physical properties of the motion reflect the geometric nature of the curves. 
 
+For the circle (Curve A), motion parameterized by $t$ represents uniform circular motion, meaning the speed is constant. Consequently, the acceleration is purely centripetal, maintaining a constant magnitude as it continuously changes the direction of the velocity vector.
 
-[Image of conic sections: circle, ellipse, parabola, hyperbola]
+For the parabola (Curve C), the constant acceleration vector $(0,2)$ represents motion under a uniform force field, mathematically identical to idealized projectile motion under constant gravity. The speed changes because the component of velocity parallel to the acceleration increases linearly over time.
 
-
-The parameterization of a curve defines not just its geometric shape, but the specific kinematics (motion) of a particle traversing it. 
-
-In **Curve A (Circle)**, using pure sine and cosine with identical coefficients results in uniform circular motion. The distance to the center is fixed, and the speed is strictly constant. 
-
-In **Curve B (Ellipse)**, the different semi-axes ($a \neq b$) mean the particle must "speed up" and "slow down" depending on its position relative to the origin, making neither speed nor acceleration magnitude constant. 
-
-**Curve C (Parabola)** is classic projectile motion. The horizontal velocity is constant ($v_x = 1$), but the vertical velocity increases linearly with time, leading to a constant downward (or in this case, upward) acceleration of magnitude $2$.
-
-**Curve D (Hyperbola)** utilizes hyperbolic functions which grow exponentially. Even though the trajectory follows a geometric hyperbola, the particle's speed and acceleration magnitude increase continuously and boundlessly as $|t|$ increases.
+For the ellipse and hyperbola, the parameterization given implies non-uniform motion where both the speed of the particle and the magnitude of the forces acting upon it vary depending on its position along the trajectory.

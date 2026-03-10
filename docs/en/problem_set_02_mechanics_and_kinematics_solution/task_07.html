@@ -2,74 +2,245 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Task 07 - Quadratic Drag Simulation</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 07 - 2D Motion with Constant Acceleration</title>
     <style>
-        body { font-family: sans-serif; margin: 20px; }
-        .container { max-width: 900px; margin: auto; }
-        .controls { display: flex; gap: 10px; background: #eee; padding: 15px; border-radius: 5px; }
-        canvas { border: 1px solid #ccc; margin-top: 20px; }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 20px;
+            background-color: #f9fafb;
+            color: #1f2937;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1, h2 { color: #111827; }
+        .controls {
+            margin: 20px 0;
+            padding: 15px;
+            background: #eff6ff;
+            border-radius: 6px;
+            border-left: 4px solid #3b82f6;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        button {
+            padding: 8px 16px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { background: #2563eb; }
+        canvas {
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .stats {
+            margin-top: 15px;
+            padding: 15px;
+            background: #1f2937;
+            color: #10b981;
+            border-radius: 6px;
+            font-family: monospace;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            text-align: center;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
+        .color-box { width: 16px; height: 16px; border-radius: 4px; }
     </style>
 </head>
 <body>
+
 <div class="container">
-    <h1>Projectile Motion: Quadratic Air Resistance</h1>
+    <h1>2D Motion Animation: Constant Acceleration</h1>
+    <p>Visualizing trajectory where <strong>a=(2,-3)</strong>, <strong>v(0)=(1,0)</strong>, <strong>r(0)=(0,0)</strong>.</p>
+
     <div class="controls">
-        <label>Drag Coeff (k): <input type="number" id="kInput" value="0.01" step="0.005"></label>
-        <label>Initial V: <input type="number" id="v0Input" value="50"></label>
-        <label>Angle: <input type="number" id="angleInput" value="45"></label>
-        <button onclick="simulate()">Simulate (Euler)</button>
+        <button id="toggleBtn">Pause Animation</button>
+        <button id="resetBtn">Restart</button>
     </div>
-    <canvas id="dragChart"></canvas>
+
+    <div class="stats" id="statsDisplay">
+        <div id="tStat">Time: 0.00 s</div>
+        <div id="rStat">r = (0.00, 0.00)</div>
+        <div id="vStat">v = (0.00, 0.00)</div>
+    </div>
+
+    <canvas id="animCanvas" width="800" height="450"></canvas>
+    
+    <div class="legend">
+        <div class="legend-item"><div class="color-box" style="background:#d1d5db;"></div> Trajectory</div>
+        <div class="legend-item"><div class="color-box" style="background:#10b981;"></div> Velocity v(t)</div>
+        <div class="legend-item"><div class="color-box" style="background:#ef4444;"></div> Acceleration a(t)</div>
+    </div>
 </div>
 
 <script>
-    let chart = null;
+    const canvas = document.getElementById('animCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    const toggleBtn = document.getElementById('toggleBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    
+    const tStat = document.getElementById('tStat');
+    const rStat = document.getElementById('rStat');
+    const vStat = document.getElementById('vStat');
 
-    function simulate() {
-        const k = parseFloat(document.getElementById('kInput').value);
-        const v0 = parseFloat(document.getElementById('v0Input').value);
-        const angle = parseFloat(document.getElementById('angleInput').value) * Math.PI / 180;
-        const g = 9.81;
-        const dt = 0.01;
+    let time = 0;
+    let isPlaying = true;
+    let lastTimestamp = 0;
 
-        let x = 0, y = 0;
-        let vx = v0 * Math.cos(angle);
-        let vy = v0 * Math.sin(angle);
+    const tMax = 4; // Simulate up to 4 seconds
+
+    function resetAnim() {
+        time = 0;
+    }
+
+    function drawArrow(ctx, fromX, fromY, toX, toY, color) {
+        const headlen = 10; 
+        const dx = toX - fromX;
+        const dy = toY - fromY;
+        const angle = Math.atan2(dy, dx);
         
-        const pathData = [];
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.fillStyle = color;
+        ctx.lineWidth = 2.5;
+        ctx.moveTo(fromX, fromY);
+        ctx.lineTo(toX, toY);
+        ctx.stroke();
+        
+        ctx.beginPath();
+        ctx.moveTo(toX, toY);
+        ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 6), toY - headlen * Math.sin(angle - Math.PI / 6));
+        ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 6), toY - headlen * Math.sin(angle + Math.PI / 6));
+        ctx.lineTo(toX, toY);
+        ctx.fill();
+    }
 
-        while (y >= 0) {
-            pathData.push({x: x, y: y});
-            let v = Math.sqrt(vx*vx + vy*vy);
-            let ax = -k * v * vx;
-            let ay = -g - k * v * vy;
+    function render(timestamp) {
+        if (!lastTimestamp) lastTimestamp = timestamp;
+        let dt = (timestamp - lastTimestamp) / 1000;
+        lastTimestamp = timestamp;
 
-            x += vx * dt;
-            y += vy * dt;
-            vx += ax * dt;
-            vy += ay * dt;
-            
-            if (pathData.length > 5000) break; // Safety
+        if (isPlaying) {
+            time += dt;
+            if (time > tMax) time = 0; // Loop animation
         }
 
-        const ctx = document.getElementById('dragChart').getContext('2d');
-        if (chart) chart.destroy();
-        chart = new Chart(ctx, {
-            type: 'scatter',
-            data: {
-                datasets: [{
-                    label: 'Quadratic Drag Trajectory',
-                    data: pathData,
-                    showLine: true,
-                    borderColor: 'blue',
-                    pointRadius: 0
-                }]
-            },
-            options: { scales: { x: {title: {display:true, text:'Distance (m)'}}, y: {title: {display:true, text:'Height (m)'}} } }
-        });
+        // Kinematic equations
+        const x = time + time * time;
+        const y = -1.5 * time * time;
+        
+        const vx = 1 + 2 * time;
+        const vy = -3 * time;
+        
+        const ax = 2;
+        const ay = -3;
+
+        tStat.innerText = `Time: ${time.toFixed(2)} s`;
+        rStat.innerText = `r = (${x.toFixed(2)}, ${y.toFixed(2)})`;
+        vStat.innerText = `v = (${vx.toFixed(2)}, ${vy.toFixed(2)})`;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Coordinate mapping system
+        const marginX = 50;
+        const marginY = 50;
+        const width = canvas.width - marginX * 2;
+        const height = canvas.height - marginY * 2;
+
+        const xMax = tMax + tMax * tMax; // 20
+        const yMin = -1.5 * tMax * tMax; // -24
+        
+        function mapX(val) { return marginX + (val / xMax) * width; }
+        // y is negative, map 0 to top margin, yMin to bottom margin
+        function mapY(val) { return marginY + (val / yMin) * height; }
+
+        // Draw Axes
+        ctx.beginPath();
+        ctx.strokeStyle = '#e5e7eb';
+        ctx.lineWidth = 2;
+        ctx.moveTo(mapX(0), marginY); ctx.lineTo(mapX(xMax), marginY); // X-axis
+        ctx.moveTo(mapX(0), marginY); ctx.lineTo(mapX(0), mapY(yMin)); // Y-axis
+        ctx.stroke();
+
+        // Draw Full Trajectory Path
+        ctx.beginPath();
+        ctx.strokeStyle = '#d1d5db';
+        ctx.lineWidth = 3;
+        for (let t_i = 0; t_i <= tMax; t_i += 0.05) {
+            let px = t_i + t_i * t_i;
+            let py = -1.5 * t_i * t_i;
+            if (t_i === 0) ctx.moveTo(mapX(px), mapY(py));
+            else ctx.lineTo(mapX(px), mapY(py));
+        }
+        ctx.stroke();
+
+        // Draw Trail up to current time
+        ctx.beginPath();
+        ctx.strokeStyle = '#3b82f6';
+        ctx.lineWidth = 4;
+        for (let t_i = 0; t_i <= time; t_i += 0.05) {
+            let px = t_i + t_i * t_i;
+            let py = -1.5 * t_i * t_i;
+            if (t_i === 0) ctx.moveTo(mapX(px), mapY(py));
+            else ctx.lineTo(mapX(px), mapY(py));
+        }
+        ctx.stroke();
+
+        // Particle location
+        const screenX = mapX(x);
+        const screenY = mapY(y);
+
+        // Vector scaling factors
+        const vScale = 15; // pixels per unit of velocity
+        const aScale = 20; // pixels per unit of acceleration
+
+        // Draw Vectors
+        drawArrow(ctx, screenX, screenY, screenX + vx * vScale, screenY + vy * (height/yMin) * 2, '#10b981'); // Velocity
+        drawArrow(ctx, screenX, screenY, screenX + ax * aScale, screenY + ay * (height/yMin) * 2, '#ef4444'); // Acceleration
+
+        // Draw Particle
+        ctx.beginPath();
+        ctx.arc(screenX, screenY, 7, 0, 2 * Math.PI);
+        ctx.fillStyle = '#1f2937';
+        ctx.fill();
+
+        requestAnimationFrame(render);
     }
-    window.onload = simulate;
+
+    toggleBtn.addEventListener('click', () => {
+        isPlaying = !isPlaying;
+        toggleBtn.innerText = isPlaying ? "Play Animation" : "Pause Animation";
+        if (isPlaying) lastTimestamp = performance.now();
+    });
+
+    resetBtn.addEventListener('click', resetAnim);
+
+    requestAnimationFrame(render);
 </script>
+
 </body>
 </html>

@@ -1,142 +1,113 @@
-# Task 10 – Angular momentum in circular motion
+# Task 10 – Angular Momentum in Circular Motion
 
 ## Problem Statement
 
-Consider circular motion in the $xy$ plane with the following position vector:
+Consider circular motion in the $xy$ plane given by the position vector:
 
 $$
-\vec r(t) = \bigl(R\cos(\omega t), R\sin(\omega t), 0\bigr)
+\vec r(t) = \bigl( R\cos(\omega t), R\sin(\omega t), 0 \bigr)
 $$
 
-The required operations are:
-1. Determine the velocity vector $\vec v(t) = \dot{\vec r}(t)$.
-2. Calculate the angular momentum with respect to the origin: $\vec L(t) = m\vec r(t) \times \vec v(t)$.
-3. Show that the magnitude $|\vec L| = mR^2\omega$ is constant.
-4. Show that the vector $\vec L$ is perpendicular to the plane of motion.
+1. Determine the velocity:
+   $$
+   \vec v(t) = \dot{\vec r}(t)
+   $$
+2. Calculate the angular momentum with respect to the origin:
+   $$
+   \vec L(t) = m \, \vec r(t) \times \vec v(t)
+   $$
+3. Show that the magnitude $|\vec L| = mR^2\omega$ is constant, and that the vector $\vec L$ is perpendicular to the plane of motion.
 
 ## Theory
 
-Angular momentum $\vec L$ is a vector quantity that represents the product of a body's rotational inertia and rotational velocity about a particular axis. For a point mass $m$ with position vector $\vec r$ and velocity $\vec v$, it is defined by the cross product:
+
+
+Angular momentum $\vec L$ of a point mass $m$ with respect to an origin is defined as the cross product of the position vector $\vec r$ and the linear momentum vector $\vec p = m\vec v$. Mathematically, this is expressed as:
 
 $$
-\vec L = m(\vec r \times \vec v)
+\vec L = \vec r \times \vec p = m (\vec r \times \vec v)
 $$
 
-The velocity vector $\vec v(t)$ is the time derivative of the position vector $\vec r(t)$:
+The cross product produces a vector that is orthogonal (perpendicular) to both $\vec r$ and $\vec v$. If a particle moves entirely within a 2D plane, its position and velocity vectors lie in that plane, meaning their cross product must point exactly along the normal to that plane.
 
-$$
-\vec v(t) = \left( \frac{dx}{dt}, \frac{dy}{dt}, \frac{dz}{dt} \right)
-$$
-
-The cross product of two vectors $\vec A = (A_x, A_y, A_z)$ and $\vec B = (B_x, B_y, B_z)$ is calculated as:
-
-$$
-\vec A \times \vec B = 
-\begin{pmatrix}
-A_y B_z - A_z B_y \\
-A_z B_x - A_x B_z \\
-A_x B_y - A_y B_x
-\end{pmatrix}
-$$
-
-The magnitude of the angular momentum vector is:
-
-$$
-|\vec L| = \sqrt{L_x^2 + L_y^2 + L_z^2}
-$$
-
-A vector is perpendicular to the $xy$ plane if its $x$ and $y$ components are zero, leaving only a $z$ component.
+For a particle in uniform circular motion, the distance from the origin $R$ and the angular velocity $\omega$ are constant. Under these conditions, the angular momentum is a conserved quantity, meaning its magnitude and direction do not change over time.
 
 ## Step-by-Step Solution
 
-### 1. Determine the velocity vector $\vec v(t)$
+### 1. Determine the velocity $\vec v(t)$
 
-We differentiate each component of $\vec r(t) = \bigl(R\cos(\omega t), R\sin(\omega t), 0\bigr)$ with respect to $t$. Use the chain rule: $\frac{d}{dt}\cos(\omega t) = -\omega\sin(\omega t)$ and $\frac{d}{dt}\sin(\omega t) = \omega\cos(\omega t)$.
-
-First component ($v_x$):
+The velocity vector is the time derivative of the position vector. Differentiate each component of $\vec r(t)$ with respect to time $t$:
 
 $$
-v_x(t) = \frac{d}{dt}(R\cos(\omega t)) = -R\omega\sin(\omega t)
+\vec v(t) = \frac{d}{dt} \bigl( R\cos(\omega t), R\sin(\omega t), 0 \bigr)
 $$
 
-Second component ($v_y$):
+Applying the chain rule (since $\frac{d}{dt}(\omega t) = \omega$):
 
 $$
-v_y(t) = \frac{d}{dt}(R\sin(\omega t)) = R\omega\cos(\omega t)
-$$
-
-Third component ($v_z$):
-
-$$
-v_z(t) = \frac{d}{dt}(0) = 0
-$$
-
-Therefore, the velocity vector is:
-
-$$
-\vec v(t) = \bigl(-R\omega\sin(\omega t), R\omega\cos(\omega t), 0\bigr)
+\vec v(t) = \bigl( -R\omega\sin(\omega t), R\omega\cos(\omega t), 0 \bigr)
 $$
 
 ### 2. Calculate the angular momentum $\vec L(t)$
 
-Set up the cross product $\vec L = m(\vec r \times \vec v)$. Let's first compute $\vec r \times \vec v$:
+The angular momentum is given by $\vec L(t) = m (\vec r(t) \times \vec v(t))$. 
+
+First, let us set up the cross product using the determinant form with standard basis vectors:
 
 $$
 \vec r \times \vec v = 
 \begin{pmatrix}
-R\cos(\omega t) \\
-R\sin(\omega t) \\
-0
+y v_z - z v_y \\
+z v_x - x v_z \\
+x v_y - y v_x
 \end{pmatrix}
-\times
+$$
+
+Substitute the components $x = R\cos(\omega t)$, $y = R\sin(\omega t)$, $z = 0$ and $v_x = -R\omega\sin(\omega t)$, $v_y = R\omega\cos(\omega t)$, $v_z = 0$:
+
+$$
+\begin{align}
+\vec r \times \vec v &= 
 \begin{pmatrix}
--R\omega\sin(\omega t) \\
-R\omega\cos(\omega t) \\
-0
+(R\sin(\omega t))(0) - (0)(R\omega\cos(\omega t)) \\
+(0)(-R\omega\sin(\omega t)) - (R\cos(\omega t))(0) \\
+(R\cos(\omega t))(R\omega\cos(\omega t)) - (R\sin(\omega t))(-R\omega\sin(\omega t))
+\end{pmatrix} \\
+&= 
+\begin{pmatrix}
+0 \\
+0 \\
+R^2\omega\cos^2(\omega t) + R^2\omega\sin^2(\omega t)
+\end{pmatrix}
+\end{align}
+$$
+
+Factor out the common term $R^2\omega$ in the $z$-component:
+
+$$
+\vec r \times \vec v = 
+\begin{pmatrix}
+0 \\
+0 \\
+R^2\omega \left( \cos^2(\omega t) + \sin^2(\omega t) \right)
 \end{pmatrix}
 $$
 
-First component ($L_x$):
+Using the fundamental trigonometric identity $\cos^2(\omega t) + \sin^2(\omega t) = 1$, the cross product simplifies to:
 
 $$
-(R\sin(\omega t) \cdot 0) - (0 \cdot R\omega\cos(\omega t)) = 0 - 0 = 0
+\vec r \times \vec v = (0, 0, R^2\omega)
 $$
 
-Second component ($L_y$):
+Now, multiply by the mass $m$ to get the angular momentum vector:
 
 $$
-(0 \cdot -R\omega\sin(\omega t)) - (R\cos(\omega t) \cdot 0) = 0 - 0 = 0
+\vec L(t) = m (0, 0, R^2\omega) = (0, 0, mR^2\omega)
 $$
 
-Third component ($L_z$):
+### 3. Show magnitude is constant and vector is perpendicular
 
-$$
-\begin{align}
-L_z &= (R\cos(\omega t))(R\omega\cos(\omega t)) - (R\sin(\omega t))(-R\omega\sin(\omega t)) \\
-    &= R^2\omega\cos^2(\omega t) - (-R^2\omega\sin^2(\omega t)) \\
-    &= R^2\omega\cos^2(\omega t) + R^2\omega\sin^2(\omega t)
-\end{align}
-$$
-
-Factor out $R^2\omega$:
-
-$$
-\begin{align}
-L_z &= R^2\omega (\cos^2(\omega t) + \sin^2(\omega t)) \\
-    &= R^2\omega (1) \\
-    &= R^2\omega
-\end{align}
-$$
-
-Multiplying by the mass $m$:
-
-$$
-\vec L(t) = (0, 0, mR^2\omega)
-$$
-
-### 3. Show that $|\vec L|$ is constant
-
-Calculate the magnitude of the resulting vector:
+To find the magnitude $|\vec L|$, calculate the Euclidean norm of the angular momentum vector:
 
 $$
 \begin{align}
@@ -146,36 +117,21 @@ $$
 \end{align}
 $$
 
-Since $m$, $R$, and $\omega$ are given as constants of the motion, the magnitude $|\vec L|$ does not depend on time $t$. Therefore, it is constant.
+Since $m$, $R$, and $\omega$ are all constants, the magnitude $|\vec L| = mR^2\omega$ does not depend on time $t$ and is therefore **constant**.
 
-### 4. Show that $\vec L$ is perpendicular to the plane of motion
+Next, we evaluate the direction. The position vector $\vec r(t)$ and velocity vector $\vec v(t)$ have zero $z$-components, meaning the motion is entirely restricted to the $xy$-plane. 
 
-The motion occurs in the $xy$ plane (as seen by the $z=0$ component in the position vector). 
-
-The angular momentum vector we calculated is:
-
-$$
-\vec L = 
-\begin{pmatrix}
-0 \\
-0 \\
-mR^2\omega
-\end{pmatrix}
-$$
-
-Because the $x$ and $y$ components are zero, the vector points exclusively along the $z$-axis. The $z$-axis is, by definition, perpendicular to the $xy$ plane.
+The angular momentum vector $\vec L(t) = (0, 0, mR^2\omega)$ has zero $x$- and $y$-components, meaning it points entirely along the $z$-axis. Since the $z$-axis is, by definition, orthogonal to the $xy$-plane, the vector $\vec L$ is strictly **perpendicular to the plane of motion**.
 
 ## Final Result
 
-* Velocity: $\vec v(t) = \bigl(-R\omega\sin(\omega t), R\omega\cos(\omega t), 0\bigr)$
-* Angular Momentum: $\vec L(t) = \bigl(0, 0, mR^2\omega\bigr)$
-* Magnitude: $|\vec L| = mR^2\omega$ (Constant)
-* The vector $\vec L$ points along the $z$-axis, which is perpendicular to the $xy$ plane of motion.
+- **Velocity:** $\vec v(t) = (-R\omega\sin(\omega t), R\omega\cos(\omega t), 0)$
+- **Angular Momentum Vector:** $\vec L(t) = (0, 0, mR^2\omega)$
+- **Magnitude:** $|\vec L| = mR^2\omega$ (constant)
+- **Direction:** The vector lies purely on the $z$-axis, which is perpendicular to the $xy$ plane of motion.
 
 ## Interpretation
 
+This result mathematically proves a foundational concept in classical mechanics: for a particle undergoing uniform circular motion around an origin, its angular momentum is strictly conserved in both magnitude and direction. 
 
-
-In uniform circular motion, the position and velocity vectors are always perpendicular to each other ($\vec r \cdot \vec v = 0$). Their cross product results in a vector that is perpendicular to the plane containing them. 
-
-The fact that $\vec L$ is constant (both in magnitude and direction) is a consequence of the conservation of angular momentum. In this system, the force (centripetal force) points toward the origin. Because the force is parallel to the position vector, the torque $\vec \tau = \vec r \times \vec F$ is zero. Since torque is the rate of change of angular momentum ($\vec \tau = d\vec L/dt$), a zero torque implies that $\vec L$ must remain constant throughout the motion.
+Because the net force required to maintain uniform circular motion (centripetal force) points directly toward the origin, it exerts zero torque ($\vec \tau = \vec r \times \vec F = 0$). According to Newton's Second Law for rotation ($\vec \tau = \frac{d\vec L}{dt}$), a zero net torque implies that the angular momentum cannot change over time, which matches our derived constant vector $\vec L = (0, 0, mR^2\omega)$. The direction of this vector is predicted by the Right-Hand Rule: curling the fingers of the right hand in the direction of the rotation (from $x$ towards $y$) leaves the thumb pointing along the positive $z$-axis.

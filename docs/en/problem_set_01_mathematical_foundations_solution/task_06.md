@@ -1,187 +1,112 @@
-# Task 06 – Curve length and numerical integration
+# Task 06 – Curve Length and Numerical Integration
 
 ## Problem Statement
 
-A parametric trajectory in 2D is given:
+A parametric trajectory in 2D is given by:
 
 $$
-x(t) = t, \qquad y(t)=t^2, \qquad t\in[0,1]
+x(t) = t, \qquad y(t) = t^2, \qquad t \in [0,1]
 $$
 
-The required analytical operations are:
 1. Determine the velocity vector $\vec v(t) = \frac{d\vec r}{dt}$.
 2. Determine the magnitude of the velocity $|\vec v(t)|$.
-3. Write the arc length of the trajectory as an integral $s = \int_0^1 |\vec v(t)|\,dt$.
-4. Calculate this integral analytically (if possible) or reduce it to a form that requires a numerical method.
-
-The required computational operations (implemented separately) are:
-5. Implement the trapezoidal rule in HTML/JS to calculate $s$, check convergence with increasing divisions $N$, and plot the error.
+3. Write the arc length of the trajectory as an integral $s = \int_0^1 |\vec v(t)| \, dt$.
+4. Calculate this integral analytically.
+5. Implement the trapezoidal rule in HTML/JS to calculate the arc length, check convergence, and plot the error as a function of the number of divisions $N$.
 
 ## Theory
 
-The length of a parametric curve (arc length) from $t=a$ to $t=b$ is the integral of the particle's speed over that time interval:
+The arc length of a parametric curve from $t=a$ to $t=b$ is the integral of the particle's speed (the magnitude of the velocity vector) over that time interval. 
+
+The trapezoidal rule is a numerical integration method that approximates the area under a curve by dividing the total area into $N$ trapezoids rather than rectangles. The formula for the trapezoidal approximation of an integral $\int_a^b f(t) dt$ is:
 
 $$
-s = \int_a^b |\vec v(t)| \, dt
+\int_a^b f(t) \, dt \approx \frac{h}{2} \left( f(t_0) + 2 \sum_{i=1}^{N-1} f(t_i) + f(t_N) \right)
 $$
 
-Where the speed $|\vec v(t)|$ is the magnitude of the velocity vector:
-
-$$
-|\vec v(t)| = \sqrt{v_x(t)^2 + v_y(t)^2} = \sqrt{\left(\frac{dx}{dt}\right)^2 + \left(\frac{dy}{dt}\right)^2}
-$$
-
-To integrate expressions of the form $\sqrt{1 + u^2}$, trigonometric substitution is highly effective. By substituting $u = \tan \theta$, we can utilize the trigonometric identity:
-
-$$
-1 + \tan^2 \theta = \sec^2 \theta
-$$
-
-Additionally, numerical integration methods, such as the trapezoidal rule, approximate the definite integral of a function $f(t)$ by dividing the interval $[a,b]$ into $N$ subintervals of width $\Delta t = \frac{b-a}{N}$. The approximation is given by:
-
-$$
-\int_a^b f(t) \, dt \approx \Delta t \left( \frac{f(a) + f(b)}{2} + \sum_{k=1}^{N-1} f(a + k\Delta t) \right)
-$$
+where $h = \frac{b - a}{N}$ is the step size, and $t_i = a + i \cdot h$.
 
 ## Step-by-Step Solution
 
-### 1. Determine the velocity vector $\vec v(t)$
+### 1. Velocity vector
 
-Given the position vector $\vec r(t) = (t, t^2)$. We take the derivative with respect to $t$.
-
-First component:
+The position vector is $\vec r(t) = (t, t^2)$. Differentiating each component with respect to $t$ yields the velocity vector:
 
 $$
-v_x(t) = \frac{d}{dt}(t) = 1
+\vec v(t) = \left( \frac{d}{dt}(t), \frac{d}{dt}(t^2) \right) = (1, 2t)
 $$
 
-Second component:
+### 2. Magnitude of the velocity
+
+The magnitude of the velocity vector (the speed) is calculated using the Euclidean norm:
 
 $$
-v_y(t) = \frac{d}{dt}(t^2) = 2t
+|\vec v(t)| = \sqrt{1^2 + (2t)^2} = \sqrt{1 + 4t^2}
 $$
 
-The velocity vector is:
+### 3. Arc length integral
 
-$$
-\vec v(t) = \bigl(1, 2t\bigr)
-$$
-
-### 2. Determine the magnitude of the velocity $|\vec v(t)|$
-
-Using the Euclidean norm on the velocity vector:
-
-$$
-\begin{align}
-|\vec v(t)| &= \sqrt{(1)^2 + (2t)^2} \\
-            &= \sqrt{1 + 4t^2}
-\end{align}
-$$
-
-### 3. Write the arc length as an integral
-
-Substitute the velocity magnitude into the arc length formula with the limits $t=0$ to $t=1$:
+Substituting the speed into the arc length formula:
 
 $$
 s = \int_0^1 \sqrt{1 + 4t^2} \, dt
 $$
 
-### 4. Calculate the integral analytically
+### 4. Analytical calculation
 
-We solve the integral using trigonometric substitution. Let:
+To solve the integral $\int \sqrt{1 + 4t^2} \, dt$, we use a trigonometric substitution. Let $2t = \tan \theta$. Then the differential is $2 \, dt = \sec^2 \theta \, d\theta$, which gives $dt = \frac{1}{2} \sec^2 \theta \, d\theta$.
 
-$$
-2t = \tan \theta \implies t = \frac{1}{2} \tan \theta
-$$
-
-The differential $dt$ becomes:
-
-$$
-dt = \frac{1}{2} \sec^2 \theta \, d\theta
-$$
-
-Substitute these into the square root expression:
+Substitute these into the integral:
 
 $$
 \begin{align}
-\sqrt{1 + 4t^2} &= \sqrt{1 + \tan^2 \theta} \\
-                &= \sqrt{\sec^2 \theta} \\
-                &= \sec \theta
+\int \sqrt{1 + \tan^2 \theta} \left( \frac{1}{2} \sec^2 \theta \right) d\theta &= \frac{1}{2} \int \sqrt{\sec^2 \theta} \sec^2 \theta \, d\theta \\
+&= \frac{1}{2} \int \sec^3 \theta \, d\theta
 \end{align}
 $$
 
-Now, substitute back into the indefinite integral $\int \sqrt{1+4t^2} \, dt$:
+The integral of $\sec^3 \theta$ is a standard result obtained via integration by parts:
+
+$$
+\int \sec^3 \theta \, d\theta = \frac{1}{2} \sec \theta \tan \theta + \frac{1}{2} \ln |\sec \theta + \tan \theta|
+$$
+
+Applying this to our expression:
+
+$$
+\frac{1}{2} \int \sec^3 \theta \, d\theta = \frac{1}{4} \sec \theta \tan \theta + \frac{1}{4} \ln |\sec \theta + \tan \theta|
+$$
+
+Convert back to the variable $t$ using the relations $\tan \theta = 2t$ and $\sec \theta = \sqrt{1 + \tan^2 \theta} = \sqrt{1 + 4t^2}$:
+
+$$
+\int \sqrt{1 + 4t^2} \, dt = \frac{1}{4} \left( 2t \sqrt{1 + 4t^2} + \ln \left| \sqrt{1 + 4t^2} + 2t \right| \right)
+$$
+
+Now, evaluate the definite integral from $t = 0$ to $t = 1$:
 
 $$
 \begin{align}
-\int \sqrt{1 + 4t^2} \, dt &= \int (\sec \theta) \left( \frac{1}{2} \sec^2 \theta \, d\theta \right) \\
-                           &= \frac{1}{2} \int \sec^3 \theta \, d\theta
+s &= \left[ \frac{1}{4} \left( 2t \sqrt{1 + 4t^2} + \ln \left| \sqrt{1 + 4t^2} + 2t \right| \right) \right]_0^1 \\
+  &= \frac{1}{4} \left( 2(1)\sqrt{1 + 4(1)^2} + \ln \left| \sqrt{1 + 4(1)^2} + 2(1) \right| \right) - \frac{1}{4} \left( 0 + \ln |1 + 0| \right) \\
+  &= \frac{1}{4} \left( 2\sqrt{5} + \ln(\sqrt{5} + 2) \right) \\
+  &= \frac{\sqrt{5}}{2} + \frac{1}{4} \ln(\sqrt{5} + 2)
 \end{align}
 $$
 
-The integral of $\sec^3 \theta$ is a standard result (obtained via integration by parts):
+Approximating the numerical value:
 
 $$
-\int \sec^3 \theta \, d\theta = \frac{1}{2} \sec \theta \tan \theta + \frac{1}{2} \ln|\sec \theta + \tan \theta|
-$$
-
-Therefore, our integral becomes:
-
-$$
-\begin{align}
-\frac{1}{2} \int \sec^3 \theta \, d\theta &= \frac{1}{2} \left( \frac{1}{2} \sec \theta \tan \theta + \frac{1}{2} \ln|\sec \theta + \tan \theta| \right) \\
-                                          &= \frac{1}{4} \sec \theta \tan \theta + \frac{1}{4} \ln|\sec \theta + \tan \theta|
-\end{align}
-$$
-
-Now, transform back to the variable $t$. We know $\tan \theta = 2t$ and $\sec \theta = \sqrt{1 + 4t^2}$:
-
-$$
-\int \sqrt{1 + 4t^2} \, dt = \frac{1}{4} \left(\sqrt{1 + 4t^2}\right)(2t) + \frac{1}{4} \ln \left| \sqrt{1 + 4t^2} + 2t \right|
-$$
-
-Simplify the expression:
-
-$$
-\int \sqrt{1 + 4t^2} \, dt = \frac{1}{2} t \sqrt{1 + 4t^2} + \frac{1}{4} \ln \left( 2t + \sqrt{1 + 4t^2} \right)
-$$
-
-Finally, evaluate this definite integral from $t = 0$ to $t = 1$.
-
-Upper limit ($t=1$):
-
-$$
-\begin{align}
-\text{Upper} &= \frac{1}{2}(1)\sqrt{1 + 4(1)^2} + \frac{1}{4} \ln\left(2(1) + \sqrt{1 + 4(1)^2}\right) \\
-             &= \frac{\sqrt{5}}{2} + \frac{1}{4} \ln(2 + \sqrt{5})
-\end{align}
-$$
-
-Lower limit ($t=0$):
-
-$$
-\begin{align}
-\text{Lower} &= \frac{1}{2}(0)\sqrt{1 + 0} + \frac{1}{4} \ln(0 + \sqrt{1 + 0}) \\
-             &= 0 + \frac{1}{4} \ln(1) \\
-             &= 0
-\end{align}
-$$
-
-Subtract the lower limit from the upper limit:
-
-$$
-s = \frac{\sqrt{5}}{2} + \frac{1}{4} \ln(2 + \sqrt{5})
+s \approx 1.11803 + 0.25(1.44363) \approx 1.47894
 $$
 
 ## Final Result
 
-* Velocity vector: $\vec v(t) = (1, 2t)$
-* Velocity magnitude: $|\vec v(t)| = \sqrt{1 + 4t^2}$
-* Integral formulation: $s = \int_0^1 \sqrt{1 + 4t^2} \, dt$
-* Analytical length: $s = \frac{\sqrt{5}}{2} + \frac{1}{4} \ln(2 + \sqrt{5}) \approx 1.4789$
+- **Velocity:** $\vec v(t) = (1, 2t)$
+- **Speed:** $|\vec v(t)| = \sqrt{1 + 4t^2}$
+- **Arc length integral:** $s = \int_0^1 \sqrt{1 + 4t^2} \, dt$
+- **Analytical arc length:** $s = \frac{\sqrt{5}}{2} + \frac{1}{4} \ln(\sqrt{5} + 2) \approx 1.47894$
 
 ## Interpretation
 
-[Image of parabolic trajectory with tangent velocity vectors]
-
-The arc length of a simple parabola ($y = x^2$) results in a non-trivial integral involving a square root of a quadratic. This leads to an analytical solution containing both an algebraic component (representing the linear distance approximation) and a logarithmic component (representing the stretching curvature of the space). Due to the complexity of integrating such radicals analytically, computing arc lengths for more complex curves typically relies entirely on numerical integration, which is why algorithms like the trapezoidal rule are highly valuable in computational physics.
+The exact analytical calculation of arc length often leads to complex integrals, even for simple polynomials like a parabola ($y = t^2$). This highlights the practical necessity of numerical integration methods in physics and engineering. As implemented in the accompanying HTML/JS application, the trapezoidal rule provides an increasingly accurate approximation of this exact value as the number of divisions $N$ increases, with the error decreasing predictably.

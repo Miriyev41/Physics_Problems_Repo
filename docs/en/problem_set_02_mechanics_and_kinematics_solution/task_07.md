@@ -1,89 +1,121 @@
-# Task 07 – Projectile motion with quadratic air resistance
+# Task 07 – 2D motion with a given acceleration
 
 ## Problem Statement
 
-Consider the motion of a projectile where the air resistance is proportional to the square of the velocity:
+Given is the acceleration $\vec a = (2, -3)$ and the initial conditions: $\vec v(0)=(1,0)$, $\vec r(0)=(0,0)$.
 
-$$
-\vec F_d = -c |\vec v| \vec v
-$$
-
-The required operations are:
-1. Write the differential equations of motion for the $x$ and $y$ components.
-2. Explain why this system of equations cannot be solved analytically like the linear case.
-3. Implement a numerical solution using the Euler method in an HTML/JS application.
-4. Compare the results with the linear model (Problem 6).
+1. Determine $\vec v(t)$.
+2. Determine $\vec r(t)$.
+3. Draw the trajectory, velocity vector, and acceleration vector at a few selected moments in time, or create an HTML animation.
 
 ## Theory
 
-For high-speed projectiles (like a baseball or a cannonball), the air resistance is better modeled by a quadratic dependence on speed. Newton's Second Law ($\vec F = m\vec a$) for this system is:
+When the acceleration of a particle is constant, the velocity and position vectors can be determined by integrating the constant acceleration with respect to time. The relationships are given by the fundamental kinematic equations for constant acceleration in vector form:
 
 $$
-m \vec a = m \vec g - c |\vec v| \vec v
+\vec v(t) = \vec v(0) + \int_0^t \vec a \, d\tau = \vec v_0 + \vec a t
 $$
 
-Where $|\vec v| = \sqrt{v_x^2 + v_y^2}$. The drag force components are:
-
 $$
-F_{dx} = -c \sqrt{v_x^2 + v_y^2} v_x, \qquad F_{dy} = -c \sqrt{v_x^2 + v_y^2} v_y
+\vec r(t) = \vec r(0) + \int_0^t \vec v(\tau) \, d\tau = \vec r_0 + \vec v_0 t + \frac{1}{2} \vec a t^2
 $$
 
-Unlike the linear model, the $x$ and $y$ components are **coupled**. This means the change in horizontal velocity depends on the vertical velocity, and vice versa. Because of this coupling and the non-linearity ($v^2$ terms), no general analytical solution exists in terms of elementary functions.
-
-The **Euler Method** is a first-order numerical procedure for solving ODEs. It approximates the next state by taking a small step $\Delta t$ in the direction of the current derivative:
-
-$$
-v_{n+1} = v_n + a_n \Delta t, \qquad r_{n+1} = r_n + v_n \Delta t
-$$
+Since the motion is in two dimensions (a plane) and the acceleration vector is not collinear with the initial velocity vector, the resulting trajectory will be a parabola.
 
 ## Step-by-Step Solution
 
-### 1. Write the differential equations of motion
+### 1. Determine the velocity $\vec v(t)$
 
-Define $k = c/m$ as the drag coefficient per unit mass.
-
-**Horizontal Component ($x$):**
+We start by identifying the components of the initial velocity and constant acceleration vectors:
 
 $$
-\frac{dv_x}{dt} = -k \sqrt{v_x^2 + v_y^2} v_x
+\vec v_0 = 
+\begin{pmatrix}
+1 \\
+0
+\end{pmatrix}
 $$
 
-**Vertical Component ($y$):**
+$$
+\vec a = 
+\begin{pmatrix}
+2 \\
+-3
+\end{pmatrix}
+$$
+
+Integrating the acceleration to find the velocity:
 
 $$
-\frac{dv_y}{dt} = -g - k \sqrt{v_x^2 + v_y^2} v_y
+\begin{align}
+\vec v(t) &= \vec v_0 + \vec a t \\
+          &= 
+\begin{pmatrix}
+1 \\
+0
+\end{pmatrix}
++ 
+\begin{pmatrix}
+2 \\
+-3
+\end{pmatrix} t \\
+          &= 
+\begin{pmatrix}
+1 + 2t \\
+-3t
+\end{pmatrix}
+\end{align}
 $$
 
-### 2. Explanation of Non-solvability
+Written in coordinate form, the velocity vector is $\vec v(t) = (1 + 2t, -3t)$.
 
-In Task 06 (linear drag), the equation for $v_x$ was $\dot{v}_x = -kv_x$, which is independent of $v_y$. In the quadratic model:
-- The equations are **non-linear** due to the $v^2$ terms (inside the square root and multiplied by the component).
-- The equations are **coupled**. You cannot solve for $x(t)$ without simultaneously knowing $y(t)$.
-- Standard integration techniques fail because the variables cannot be separated.
+### 2. Determine the position $\vec r(t)$
 
-### 3. Numerical Algorithm (Euler Method)
+The initial position is at the origin:
 
-To solve this numerically, we iterate through time steps $i$:
+$$
+\vec r_0 = 
+\begin{pmatrix}
+0 \\
+0
+\end{pmatrix}
+$$
 
-1. Calculate current speed: $v_i = \sqrt{v_{x,i}^2 + v_{y,i}^2}$
-2. Calculate accelerations:
-   - $a_{x,i} = -k \cdot v_i \cdot v_{x,i}$
-   - $a_{y,i} = -g - k \cdot v_i \cdot v_{y,i}$
-3. Update velocities:
-   - $v_{x,i+1} = v_{x,i} + a_{x,i} \Delta t$
-   - $v_{y,i+1} = v_{y,i} + a_{y,i} \Delta t$
-4. Update positions:
-   - $x_{i+1} = x_i + v_{x,i} \Delta t$
-   - $y_{i+1} = y_i + v_{y,i} \Delta t$
+Integrating the velocity vector to find the position:
+
+$$
+\begin{align}
+\vec r(t) &= \vec r_0 + \int_0^t \vec v(\tau) \, d\tau \\
+          &= 
+\begin{pmatrix}
+0 \\
+0
+\end{pmatrix}
++ \int_0^t 
+\begin{pmatrix}
+1 + 2\tau \\
+-3\tau
+\end{pmatrix} \, d\tau \\
+          &= 
+\begin{pmatrix}
+\left[ \tau + \tau^2 \right]_0^t \\
+\left[ -\frac{3}{2}\tau^2 \right]_0^t
+\end{pmatrix} \\
+          &= 
+\begin{pmatrix}
+t + t^2 \\
+-\frac{3}{2}t^2
+\end{pmatrix}
+\end{align}
+$$
+
+Written in coordinate form, the position vector is $\vec r(t) = (t + t^2, -1.5t^2)$.
 
 ## Final Result
 
-* ODEs: $\dot{v}_x = -k v v_x$ and $\dot{v}_y = -g - k v v_y$.
-* System is non-linear and coupled, requiring numerical solvers.
-* Terminal velocity for pure vertical fall ($v_x = 0$) occurs when $mg = c v^2 \implies v_{term} = \sqrt{mg/c}$.
+- **Velocity:** $\vec v(t) = (1 + 2t, -3t)$
+- **Position:** $\vec r(t) = (t + t^2, -1.5t^2)$
 
 ## Interpretation
 
-[Image of trajectory comparison: vacuum vs linear drag vs quadratic drag]
-
-Quadratic drag is much more "aggressive" at high speeds than linear drag. At the beginning of a launch, the drag force is at its maximum because $v$ is highest. This causes a significant "flattening" of the initial climb. As the projectile slows down near the peak, the drag force decreases quadratically, allowing gravity to dominate. The descent is characterized by a rapid approach to a terminal velocity, resulting in a nearly vertical drop at the end of the flight path.
+The motion combines a constant velocity in the x-direction modified by a constant positive acceleration, and a motion from rest in the y-direction driven by a constant negative acceleration. Because the acceleration is uniform and acts at an angle to the initial velocity, the particle describes a parabolic trajectory opening towards the negative y-axis. The acceleration vector $\vec a$ remains fixed in both magnitude and direction throughout the motion, while the velocity vector $\vec v(t)$ continuously rotates to align more closely with the direction of the acceleration vector as time approaches infinity.

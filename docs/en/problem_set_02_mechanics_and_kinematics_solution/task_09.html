@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 09 - Change of Reference Frame</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 20px;
+            background-color: #f9fafb;
+            color: #1f2937;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1, h2 { color: #111827; }
+        .controls {
+            margin: 20px 0;
+            padding: 15px;
+            background: #eff6ff;
+            border-radius: 6px;
+            border-left: 4px solid #3b82f6;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input[type="range"] {
+            width: 100px;
+        }
+        button {
+            padding: 8px 16px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { background: #2563eb; }
+        .flex-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .canvas-box {
+            flex: 1;
+            min-width: 400px;
+            background: #f3f4f6;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        canvas {
+            background: #0f172a; /* Dark space background */
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            width: 100%;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
+        .color-box { width: 14px; height: 14px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Heliocentric vs. Geocentric Reference Frames</h1>
+    <p>Visualizing the orbits of Earth and Mars, and the resulting apparent retrograde motion.</p>
+
+    <div class="controls">
+        <div class="control-group">
+            <label for="speedSlider">Simulation Speed:</label>
+            <input type="range" id="speedSlider" min="0.1" max="3" step="0.1" value="1">
+        </div>
+        <button id="toggleBtn">Pause Animation</button>
+        <button id="resetBtn">Reset</button>
+    </div>
+
+    <div class="flex-container">
+        <div class="canvas-box">
+            <h3>Panel A: Heliocentric System</h3>
+            <canvas id="helioCanvas" width="450" height="450"></canvas>
+            <div class="legend">
+                <div class="legend-item"><div class="color-box" style="background:#facc15;"></div> Sun</div>
+                <div class="legend-item"><div class="color-box" style="background:#3b82f6;"></div> Earth</div>
+                <div class="legend-item"><div class="color-box" style="background:#ef4444;"></div> Mars</div>
+            </div>
+        </div>
+        <div class="canvas-box">
+            <h3>Panel B: Geocentric System</h3>
+            <canvas id="geoCanvas" width="450" height="450"></canvas>
+            <div class="legend">
+                <div class="legend-item"><div class="color-box" style="background:#3b82f6;"></div> Earth (Center)</div>
+                <div class="legend-item"><div class="color-box" style="background:#ef4444;"></div> Mars Trajectory</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const helioCanvas = document.getElementById('helioCanvas');
+    const helioCtx = helioCanvas.getContext('2d');
+    const geoCanvas = document.getElementById('geoCanvas');
+    const geoCtx = geoCanvas.getContext('2d');
+
+    const speedSlider = document.getElementById('speedSlider');
+    const toggleBtn = document.getElementById('toggleBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    let time = 0;
+    let isPlaying = true;
+    let lastTimestamp = 0;
+    let geoTrace = [];
+
+    // Orbital Parameters (approximate relative values)
+    const R_Z = 1.0; // Earth distance (1 AU)
+    const omega_Z = 1.0; // Earth angular velocity
+
+    const R_M = 1.52; // Mars distance (~1.52 AU)
+    const omega_M = 0.53; // Mars angular velocity (slower)
+
+    function resetAnim() {
+        time = 0;
+        geoTrace = [];
+        geoCtx.clearRect(0, 0, geoCanvas.width, geoCanvas.height);
+    }
+
+    function render(timestamp) {
+        if (!lastTimestamp) lastTimestamp = timestamp;
+        let dt = (timestamp - lastTimestamp) / 1000;
+        lastTimestamp = timestamp;
+
+        const speed = parseFloat(speedSlider.value);
+
+        if (isPlaying) {
+            time += dt * speed;
+        }
+
+        const scale = 100; // pixels per AU
+        const cxH = helioCanvas.width / 2;
+        const cyH = helioCanvas.height / 2;
+        
+        const cxG = geoCanvas.width / 2;
+        const cyG = geoCanvas.height / 2;
+
+        // Kinematics
+        const x_Z = R_Z * Math.cos(omega_Z * time);
+        const y_Z = R_Z * Math.sin(omega_Z * time);
+        
+        const x_M = R_M * Math.cos(omega_M * time);
+        const y_M = R_M * Math.sin(omega_M * time);
+
+        // Geocentric relative positions
+        const x_rel = x_M - x_Z;
+        const y_rel = y_M - y_Z;
+
+        if (isPlaying && geoTrace.length < 2000) {
+            geoTrace.push({ x: x_rel, y: y_rel });
+        }
+
+        // --- Panel A: Heliocentric ---
+        helioCtx.clearRect(0, 0, helioCanvas.width, helioCanvas.height);
+        
+        // Sun
+        helioCtx.beginPath();
+        helioCtx.arc(cxH, cyH, 8, 0, 2*Math.PI);
+        helioCtx.fillStyle = '#facc15';
+        helioCtx.fill();
+
+        // Orbits
+        helioCtx.strokeStyle = '#334155';
+        helioCtx.lineWidth = 1;
+        helioCtx.beginPath(); helioCtx.arc(cxH, cyH, R_Z * scale, 0, 2*Math.PI); helioCtx.stroke();
+        helioCtx.beginPath(); helioCtx.arc(cxH, cyH, R_M * scale, 0, 2*Math.PI); helioCtx.stroke();
+
+        // Earth
+        const scrX_Z = cxH + x_Z * scale;
+        const scrY_Z = cyH - y_Z * scale;
+        helioCtx.beginPath();
+        helioCtx.arc(scrX_Z, scrY_Z, 6, 0, 2*Math.PI);
+        helioCtx.fillStyle = '#3b82f6';
+        helioCtx.fill();
+
+        // Mars
+        const scrX_M = cxH + x_M * scale;
+        const scrY_M = cyH - y_M * scale;
+        helioCtx.beginPath();
+        helioCtx.arc(scrX_M, scrY_M, 5, 0, 2*Math.PI);
+        helioCtx.fillStyle = '#ef4444';
+        helioCtx.fill();
+        
+        // Line of sight
+        helioCtx.beginPath();
+        helioCtx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+        helioCtx.moveTo(scrX_Z, scrY_Z);
+        helioCtx.lineTo(scrX_M, scrY_M);
+        helioCtx.stroke();
+
+        // --- Panel B: Geocentric ---
+        geoCtx.clearRect(0, 0, geoCanvas.width, geoCanvas.height);
+        
+        // Grid lines (faint)
+        geoCtx.strokeStyle = '#1e293b';
+        geoCtx.lineWidth = 1;
+        geoCtx.beginPath(); geoCtx.moveTo(cxG, 0); geoCtx.lineTo(cxG, geoCanvas.height); geoCtx.stroke();
+        geoCtx.beginPath(); geoCtx.moveTo(0, cyG); geoCtx.lineTo(geoCanvas.width, cyG); geoCtx.stroke();
+
+        // Trace of Mars
+        geoCtx.beginPath();
+        geoCtx.strokeStyle = 'rgba(239, 68, 68, 0.7)';
+        geoCtx.lineWidth = 2;
+        for (let i = 0; i < geoTrace.length; i++) {
+            let px = cxG + geoTrace[i].x * scale;
+            let py = cyG - geoTrace[i].y * scale;
+            if (i === 0) geoCtx.moveTo(px, py);
+            else geoCtx.lineTo(px, py);
+        }
+        geoCtx.stroke();
+
+        // Earth (Center)
+        geoCtx.beginPath();
+        geoCtx.arc(cxG, cyG, 6, 0, 2*Math.PI);
+        geoCtx.fillStyle = '#3b82f6';
+        geoCtx.fill();
+
+        // Current relative Mars position
+        geoCtx.beginPath();
+        geoCtx.arc(cxG + x_rel * scale, cyG - y_rel * scale, 5, 0, 2*Math.PI);
+        geoCtx.fillStyle = '#ef4444';
+        geoCtx.fill();
+
+        requestAnimationFrame(render);
+    }
+
+    toggleBtn.addEventListener('click', () => {
+        isPlaying = !isPlaying;
+        toggleBtn.innerText = isPlaying ? "Pause Animation" : "Play Animation";
+        if (isPlaying) lastTimestamp = performance.now();
+    });
+
+    resetBtn.addEventListener('click', resetAnim);
+
+    requestAnimationFrame(render);
+</script>
+
+</body>
+</html>

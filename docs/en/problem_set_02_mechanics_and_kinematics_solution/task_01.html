@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task 09 - Harmonic Oscillator</title>
+    <title>Task 01 - 1D Kinematics Visualization</title>
     <style>
         body {
             font-family: system-ui, -apple-system, sans-serif;
@@ -27,7 +27,7 @@
             border-radius: 6px;
             border-left: 4px solid #3b82f6;
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 15px;
         }
         .control-group {
@@ -37,7 +37,7 @@
         }
         label {
             font-weight: bold;
-            min-width: 140px;
+            min-width: 80px;
         }
         input[type="range"] {
             flex-grow: 1;
@@ -64,36 +64,47 @@
         }
         .legend-item { display: flex; align-items: center; gap: 5px; }
         .color-box { width: 16px; height: 16px; border-radius: 4px; }
+        .stats {
+            margin-top: 15px;
+            padding: 10px;
+            background: #1f2937;
+            color: #10b981;
+            border-radius: 6px;
+            font-family: monospace;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Harmonic Oscillator Dynamics</h1>
-    <p>Visualizing Position <strong>x(t)</strong>, Velocity <strong>x'(t)</strong>, and Acceleration <strong>x''(t)</strong>.</p>
+    <h1>1D Kinematics: Position, Velocity, Acceleration</h1>
+    <p>Visualizing <strong>x(t)</strong>, <strong>v(t)</strong>, and <strong>a(t)</strong>.</p>
 
     <div class="controls">
         <div class="control-group">
-            <label for="omegaSlider">Angular Freq (ω):</label>
-            <input type="range" id="omegaSlider" min="0.5" max="5" step="0.1" value="2">
-            <span class="value-display" id="omegaValue">2.0</span>
+            <label for="x0Slider">x₀ (m):</label>
+            <input type="range" id="x0Slider" min="-10" max="10" step="1" value="0">
+            <span class="value-display" id="x0Value">0</span>
         </div>
         <div class="control-group">
-            <label for="x0Slider">Initial Pos (x₀):</label>
-            <input type="range" id="x0Slider" min="-5" max="5" step="0.5" value="3">
-            <span class="value-display" id="x0Value">3.0</span>
+            <label for="v0Slider">v₀ (m/s):</label>
+            <input type="range" id="v0Slider" min="-10" max="10" step="1" value="5">
+            <span class="value-display" id="v0Value">5</span>
         </div>
         <div class="control-group">
-            <label for="v0Slider">Initial Vel (v₀):</label>
-            <input type="range" id="v0Slider" min="-10" max="10" step="1" value="0">
-            <span class="value-display" id="v0Value">0.0</span>
+            <label for="aSlider">a (m/s²):</label>
+            <input type="range" id="aSlider" min="-5" max="5" step="0.5" value="-2">
+            <span class="value-display" id="aValue">-2.0</span>
         </div>
     </div>
 
+    <div class="stats" id="statsDisplay">
+        </div>
+
     <div class="legend">
         <div class="legend-item"><div class="color-box" style="background:#3b82f6;"></div> x(t) [Position]</div>
-        <div class="legend-item"><div class="color-box" style="background:#10b981;"></div> x'(t) [Velocity]</div>
-        <div class="legend-item"><div class="color-box" style="background:#ef4444;"></div> x''(t) [Acceleration]</div>
+        <div class="legend-item"><div class="color-box" style="background:#10b981;"></div> v(t) [Velocity]</div>
+        <div class="legend-item"><div class="color-box" style="background:#ef4444;"></div> a(t) [Acceleration]</div>
     </div>
 
     <canvas id="plotCanvas" width="800" height="400"></canvas>
@@ -103,22 +114,39 @@
     const canvas = document.getElementById('plotCanvas');
     const ctx = canvas.getContext('2d');
     
-    const omegaSlider = document.getElementById('omegaSlider');
     const x0Slider = document.getElementById('x0Slider');
     const v0Slider = document.getElementById('v0Slider');
+    const aSlider = document.getElementById('aSlider');
     
-    const omegaValue = document.getElementById('omegaValue');
     const x0Value = document.getElementById('x0Value');
     const v0Value = document.getElementById('v0Value');
+    const aValue = document.getElementById('aValue');
+    const statsDisplay = document.getElementById('statsDisplay');
 
     function drawPlot() {
-        const omega = parseFloat(omegaSlider.value);
         const x0 = parseFloat(x0Slider.value);
         const v0 = parseFloat(v0Slider.value);
+        const a = parseFloat(aSlider.value);
         
-        omegaValue.innerText = omega.toFixed(1);
         x0Value.innerText = x0.toFixed(1);
         v0Value.innerText = v0.toFixed(1);
+        aValue.innerText = a.toFixed(1);
+
+        // Calculate key physical metrics
+        let stoppingTime = (a !== 0) ? (-v0 / a) : "Never";
+        let maxDisplacement = x0;
+        
+        if (typeof stoppingTime === "number" && stoppingTime > 0) {
+            maxDisplacement = x0 + v0 * stoppingTime + 0.5 * a * stoppingTime * stoppingTime;
+            stoppingTime = stoppingTime.toFixed(2) + " s";
+        } else {
+            stoppingTime = (stoppingTime <= 0) ? "N/A (already stopped or reversed)" : "Never (a=0)";
+        }
+
+        statsDisplay.innerHTML = `
+            <div>Stopping Time (v=0) : ${stoppingTime}</div>
+            <div>Max Displacement    : ${(typeof maxDisplacement === "number") ? maxDisplacement.toFixed(2) + " m" : "Infinite"}</div>
+        `;
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -127,31 +155,35 @@
         const width = canvas.width - marginX * 2;
         const height = canvas.height - marginY * 2;
 
-        const tMax = 10;
+        const tMax = 5; // Look at the first 5 seconds
         
-        // Find maximum absolute value to scale the Y axis dynamically
-        let maxAbsY = 0;
-        for (let t = 0; t <= tMax; t += 0.05) {
-            let x = x0 * Math.cos(omega * t) + (v0 / omega) * Math.sin(omega * t);
-            let v = -x0 * omega * Math.sin(omega * t) + v0 * Math.cos(omega * t);
-            let a = -omega * omega * x;
-            
+        // Find max bounds for dynamic scaling
+        let maxAbsY = 10; // baseline
+        for (let t = 0; t <= tMax; t += 0.1) {
+            let x = x0 + v0 * t + 0.5 * a * t * t;
+            let v = v0 + a * t;
             if (Math.abs(x) > maxAbsY) maxAbsY = Math.abs(x);
             if (Math.abs(v) > maxAbsY) maxAbsY = Math.abs(v);
-            if (Math.abs(a) > maxAbsY) maxAbsY = Math.abs(a);
         }
+        if (Math.abs(a) > maxAbsY) maxAbsY = Math.abs(a);
         
-        // Add a little padding to max Y
-        const yBound = maxAbsY * 1.1 || 1; // avoid division by zero if all are flat
+        const yBound = maxAbsY * 1.1;
 
         function mapT(t) { return marginX + (t / tMax) * width; }
         function mapY(y) { return canvas.height / 2 - (y / yBound) * (height / 2); }
 
-        // Draw axes
+        // Draw grid
         ctx.lineWidth = 1;
-        ctx.strokeStyle = '#9ca3af';
-        
+        ctx.strokeStyle = '#e5e7eb';
+        for(let t=0; t<=tMax; t+=1) {
+            ctx.beginPath();
+            ctx.moveTo(mapT(t), marginY);
+            ctx.lineTo(mapT(t), canvas.height - marginY);
+            ctx.stroke();
+        }
+
         // T-axis (Y=0)
+        ctx.strokeStyle = '#9ca3af';
         ctx.beginPath();
         ctx.moveTo(mapT(0), mapY(0));
         ctx.lineTo(mapT(tMax), mapY(0));
@@ -163,7 +195,6 @@
         ctx.lineTo(mapT(0), mapY(yBound));
         ctx.stroke();
 
-        // Draw lines function
         function drawCurve(calcFn, color) {
             ctx.strokeStyle = color;
             ctx.lineWidth = 2.5;
@@ -184,29 +215,20 @@
             ctx.stroke();
         }
 
-        // x(t) - Position (Blue)
-        drawCurve((t) => {
-            return x0 * Math.cos(omega * t) + (v0 / omega) * Math.sin(omega * t);
-        }, '#3b82f6');
+        // x(t) Position (Blue)
+        drawCurve((t) => x0 + v0 * t + 0.5 * a * t * t, '#3b82f6');
 
-        // x'(t) - Velocity (Green)
-        drawCurve((t) => {
-            return -x0 * omega * Math.sin(omega * t) + v0 * Math.cos(omega * t);
-        }, '#10b981');
+        // v(t) Velocity (Green)
+        drawCurve((t) => v0 + a * t, '#10b981');
 
-        // x''(t) - Acceleration (Red)
-        drawCurve((t) => {
-            let x = x0 * Math.cos(omega * t) + (v0 / omega) * Math.sin(omega * t);
-            return -omega * omega * x;
-        }, '#ef4444');
+        // a(t) Acceleration (Red)
+        drawCurve((t) => a, '#ef4444');
     }
 
-    // Event listeners
-    omegaSlider.addEventListener('input', drawPlot);
     x0Slider.addEventListener('input', drawPlot);
     v0Slider.addEventListener('input', drawPlot);
+    aSlider.addEventListener('input', drawPlot);
 
-    // Initial draw
     drawPlot();
 </script>
 

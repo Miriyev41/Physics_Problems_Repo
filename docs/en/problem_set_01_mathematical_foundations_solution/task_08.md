@@ -1,116 +1,98 @@
-# Task 08 – First-order differential equation
+# Task 08 – First-Order Differential Equation
 
 ## Problem Statement
 
-The following first-order ordinary differential equation is given:
+Given the first-order differential equation:
 
 $$
 \frac{dy}{dt} = -k y
 $$
 
-The required analytical operation is to solve the equation.
-
-The required computational operation is to visualize the solution in an HTML/JS application for different values of the parameter $k$ and different initial conditions $y(0)$.
+1. Solve the equation.
+2. Visualize the solution in an HTML/JS application for different values of parameter $k$ and different initial conditions $y(0)$.
 
 ## Theory
 
-A first-order ordinary differential equation (ODE) relates a function to its first derivative. When the equation can be algebraically manipulated such that all terms involving the dependent variable ($y$) are on one side and all terms involving the independent variable ($t$) are on the other, it is known as a separable differential equation.
+A differential equation relates an unknown function to its derivatives. The equation $\frac{dy}{dt} = -ky$ is a first-order, linear, and separable ordinary differential equation (ODE). It is one of the most fundamental equations in physics, commonly used to model processes where the rate of change of a quantity is directly proportional to the current amount of that quantity. 
 
-The method of separation of variables involves rearranging the equation into the form:
+If $k > 0$, the equation describes **exponential decay** (e.g., radioactive decay, discharging a capacitor). If $k < 0$, it describes **exponential growth** (e.g., unconstrained population growth, continuously compounded interest).
 
-$$
-f(y) \, dy = g(t) \, dt
-$$
-
-Once separated, we integrate both sides with respect to their respective variables. The resulting constant of integration is determined using an initial condition, typically the value of the function at time zero, $y(0)$.
+The standard method to solve a separable ODE is to move all terms involving the dependent variable ($y$) to one side of the equation and all terms involving the independent variable ($t$) to the other side, and then integrate both sides.
 
 ## Step-by-Step Solution
 
-### 1. Separate the variables
+### 1. Separation of variables
 
-Start with the given differential equation:
+Starting with the given differential equation:
 
 $$
 \frac{dy}{dt} = -k y
 $$
 
-Divide both sides by $y$ (assuming $y \neq 0$) and multiply by the differential $dt$:
+Divide both sides by $y$ and multiply by $dt$ to separate the variables $y$ and $t$:
 
 $$
 \frac{1}{y} \, dy = -k \, dt
 $$
 
-### 2. Integrate both sides
+### 2. Integration of both sides
 
-Apply the indefinite integral to both sides of the separated equation:
+Integrate both sides of the equation:
 
 $$
 \int \frac{1}{y} \, dy = \int -k \, dt
 $$
 
-Evaluate the standard integrals. The integral of $1/y$ is the natural logarithm of the absolute value of $y$, and the integral of a constant is the constant multiplied by the variable of integration:
+Evaluating the integrals yields:
 
 $$
 \ln|y| = -kt + C
 $$
 
-Here, $C$ represents an arbitrary constant of integration. (Although each integral produces a constant, they are combined into a single constant $C$ on the right side).
+where $C$ is an arbitrary constant of integration.
 
-### 3. Solve for $y(t)$
+### 3. Solving for y(t)
 
-To isolate $y$, exponentiate both sides using base $e$:
-
-$$
-e^{\ln|y|} = e^{-kt + C}
-$$
-
-Simplify the left side using the inverse property of logarithms and exponentials, and expand the right side using exponent rules:
-
-$$
-|y| = e^C e^{-kt}
-$$
-
-Let $C_1 = \pm e^C$. Since $e^C$ is a positive constant, allowing for the $\pm$ sign covers both positive and negative values of $y$. If $y=0$, it is a trivial solution that satisfies the original differential equation, meaning $C_1$ can be any real number:
-
-$$
-y(t) = C_1 e^{-kt}
-$$
-
-### 4. Apply the initial condition
-
-To find the specific value of $C_1$, use the initial condition at $t = 0$, defined as $y(0)$:
+To isolate $y$, exponentiate both sides of the equation:
 
 $$
 \begin{align}
-y(0) &= C_1 e^{-k(0)} \\
-     &= C_1 e^0 \\
-     &= C_1 (1) \\
-     &= C_1
+e^{\ln|y|} &= e^{-kt + C} \\
+|y| &= e^C \cdot e^{-kt}
 \end{align}
 $$
 
-Therefore, the constant $C_1$ is exactly equal to the initial value $y(0)$.
-
-Substitute $C_1$ back into the general solution to obtain the particular solution:
+Let $A = \pm e^C$. Since $C$ is an arbitrary constant, $A$ can be any non-zero real number. (The case $A=0$ corresponds to the trivial solution $y(t)=0$, which also satisfies the original ODE). We can write the general solution as:
 
 $$
-y(t) = y(0) e^{-kt}
+y(t) = A e^{-kt}
 $$
+
+### 4. Applying the initial condition
+
+Let the initial condition at time $t = 0$ be $y(0) = y_0$. Substitute $t = 0$ into the general solution:
+
+$$
+\begin{align}
+y(0) &= A e^{-k(0)} \\
+y_0 &= A e^0 \\
+y_0 &= A(1) \\
+A &= y_0
+\end{align}
+$$
+
+Substituting $A = y_0$ back into the general solution yields the particular solution.
 
 ## Final Result
 
-The general solution to the differential equation is:
+The solution to the differential equation is:
 
 $$
-y(t) = y(0) e^{-kt}
+y(t) = y_0 e^{-kt}
 $$
 
 ## Interpretation
 
+The solution $y(t) = y_0 e^{-kt}$ demonstrates that the quantity $y$ changes exponentially over time. 
 
-
-This differential equation is the fundamental model for exponential processes. 
-
-When $k > 0$, the solution $y(t)$ represents **exponential decay**. The rate of change of the quantity is directly proportional to its current value, meaning as the quantity decreases, its rate of decrease slows down. This mathematically describes ubiquitous physical phenomena such as radioactive decay, the cooling of a hot object (Newton's law of cooling), or the discharging of a capacitor through a resistor. The parameter $k$ is the decay constant, determining how rapidly the system approaches zero.
-
-When $k < 0$, the exponent becomes positive, representing **exponential growth**, which models unconstrained population growth or continuous compound interest.
+The parameter $y_0$ strictly determines the starting amplitude of the curve. The parameter $k$ determines the rate of the exponential function. A larger positive value of $k$ causes the function to decay more rapidly toward zero. A negative value of $k$ causes the function to grow exponentially toward infinity. The value $k=0$ results in a constant function $y(t) = y_0$, where the rate of change is zero.

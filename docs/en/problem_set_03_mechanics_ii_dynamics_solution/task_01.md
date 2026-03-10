@@ -2,198 +2,166 @@
 
 ## Problem Statement
 
-A constant force acts on a body of mass $m = 2\ \text{kg}$:
+A constant force acts on a body of mass $m = 2\ \mathrm{kg}$:
 
 $$
-\vec F = (6, 2)\ \text{N}
+\vec F = [6, 2]\ \mathrm{N}
 $$
 
-The body starts with an initial velocity $\vec v(0) = (1, -1)\ \text{m/s}$ from the initial position $\vec r(0) = (0, 0)\ \text{m}$.
+The body starts with an initial velocity $\vec v(0) = (1, -1)\ \mathrm{\frac{m}{s}}$ from the point $\vec r(0)=(0,0)\ \mathrm{m}$. 
 
-The required operations are:
-1. Determine the acceleration $\vec a(t)$.
-2. Determine the velocity $\vec v(t)$.
-3. Determine the position $\vec r(t)$.
-4. Calculate the work $W$ done by the force at time $t = 3\ \text{s}$.
-5. Verify the consistency with the work-energy theorem.
+Calculate the following:
+1. Determine $\vec a(t)$.
+2. Determine $\vec v(t)$.
+3. Determine $\vec r(t)$.
+4. Draw the trajectory of the motion.
+5. Calculate the work done by the force at time $t=3\ \mathrm{s}$.
+6. Check the consistency with the work-energy theorem.
 
 ## Theory
 
 Newton's Second Law states that the acceleration of an object is directly proportional to the net force acting on it and inversely proportional to its mass:
 
 $$
-\vec F = m\vec a \implies \vec a = \frac{\vec F}{m}
+\vec a = \frac{\vec F}{m}
 $$
 
-For a constant force, the acceleration is also constant. The velocity $\vec v(t)$ and position $\vec r(t)$ can be found by integrating the acceleration with respect to time:
+If the force is constant, the acceleration is also constant. We can determine the velocity and position vectors by integrating the acceleration with respect to time using the standard kinematic equations:
 
 $$
-\vec v(t) = \vec v(0) + \int_0^t \vec a(\tau) \, d\tau
+\vec v(t) = \vec v(0) + \vec a t
 $$
 
 $$
-\vec r(t) = \vec r(0) + \int_0^t \vec v(\tau) \, d\tau
+\vec r(t) = \vec r(0) + \vec v(0)t + \frac{1}{2}\vec a t^2
 $$
 
-The work done by a constant force is the dot product of the force and the displacement:
+The **work-energy theorem** states that the total work $W$ done by the net force on an object equals its change in kinetic energy $\Delta K$:
+
+$$
+W = \Delta K = K_f - K_i
+$$
+
+For a constant force, work can also be calculated directly using the dot product of the force vector and the displacement vector:
 
 $$
 W = \vec F \cdot \Delta \vec r
 $$
 
-The work-energy theorem states that the work done by the net force is equal to the change in kinetic energy:
-
-$$
-W = \Delta K = \frac{1}{2} m |\vec v(t)|^2 - \frac{1}{2} m |\vec v(0)|^2
-$$
-
 ## Step-by-Step Solution
 
-### 1. Determine the acceleration $\vec a(t)$
+### 1. Determine acceleration $\vec a(t)$
 
 Using Newton's Second Law:
 
 $$
-\vec a = \frac{\vec F}{m} = \frac{1}{2}
-\begin{pmatrix}
-6 \\
-2
-\end{pmatrix}
-$$
-
-Calculate each component:
-
-$$
-a_x = \frac{6}{2} = 3\ \text{m/s}^2
-$$
-
-$$
-a_y = \frac{2}{2} = 1\ \text{m/s}^2
-$$
-
-Therefore:
-
-$$
-\vec a(t) = (3, 1)\ \text{m/s}^2
-$$
-
-### 2. Determine the velocity $\vec v(t)$
-
-Integrate the constant acceleration and add the initial velocity $\vec v(0) = (1, -1)$:
-
-First component ($v_x$):
-
-$$
-v_x(t) = v_x(0) + a_x t = 1 + 3t
-$$
-
-Second component ($v_y$):
-
-$$
-v_y(t) = v_y(0) + a_y t = -1 + 1t
-$$
-
-The velocity vector is:
-
-$$
-\vec v(t) = (1 + 3t, -1 + t)\ \text{m/s}
-$$
-
-### 3. Determine the position $\vec r(t)$
-
-Integrate the velocity vector and add the initial position $\vec r(0) = (0, 0)$:
-
-First component ($x$):
-
-$$
-x(t) = x(0) + \int_0^t (1 + 3\tau) \, d\tau = 0 + [ \tau + 1.5\tau^2 ]_0^t = t + 1.5t^2
-$$
-
-Second component ($y$):
-
-$$
-y(t) = y(0) + \int_0^t (-1 + \tau) \, d\tau = 0 + [ -\tau + 0.5\tau^2 ]_0^t = -t + 0.5t^2
-$$
-
-The position vector is:
-
-$$
-\vec r(t) = (t + 1.5t^2, -t + 0.5t^2)\ \text{m}
-$$
-
-### 4. Calculate the work done at $t = 3\ \text{s}$
-
-**Step 1: Calculate the displacement $\Delta \vec r$ at $t = 3$**
-
-$$
-x(3) = 3 + 1.5(3^2) = 3 + 1.5(9) = 3 + 13.5 = 16.5\ \text{m}
-$$
-
-$$
-y(3) = -3 + 0.5(3^2) = -3 + 4.5 = 1.5\ \text{m}
-$$
-
-So, $\Delta \vec r = (16.5, 1.5)\ \text{m}$.
-
-**Step 2: Calculate work $W = \vec F \cdot \Delta \vec r$**
-
-$$
 \begin{align}
-W &= (6, 2) \cdot (16.5, 1.5) \\
-  &= 6(16.5) + 2(1.5) \\
-  &= 99 + 3 \\
-  &= 102\ \text{J}
+\vec a(t) &= \frac{\vec F}{m} \\
+          &= \frac{(6, 2)}{2} \\
+          &= (3, 1)\ \mathrm{\frac{m}{s^2}}
 \end{align}
 $$
 
-### 5. Verify the Work-Energy Theorem
+The acceleration is constant over time.
 
-**Step 1: Initial Kinetic Energy $K_0$**
+### 2. Determine velocity $\vec v(t)$
 
-$$
-|\vec v(0)|^2 = 1^2 + (-1)^2 = 2
-$$
+Integrate the constant acceleration and apply the initial condition $\vec v(0) = (1, -1)$:
 
 $$
-K_0 = \frac{1}{2}(2)(2) = 2\ \text{J}
+\begin{align}
+\vec v(t) &= \vec v(0) + \vec a t \\
+          &= (1, -1) + (3, 1)t \\
+          &= (1 + 3t, -1 + t)\ \mathrm{\frac{m}{s}}
+\end{align}
 $$
 
-**Step 2: Final Kinetic Energy $K_f$ at $t = 3$**
+### 3. Determine position $\vec r(t)$
+
+Integrate the velocity and apply the initial condition $\vec r(0) = (0, 0)$:
 
 $$
-v_x(3) = 1 + 3(3) = 10\ \text{m/s}
+\begin{align}
+\vec r(t) &= \vec r(0) + \vec v(0)t + \frac{1}{2}\vec a t^2 \\
+          &= (0, 0) + (1, -1)t + \frac{1}{2}(3, 1)t^2 \\
+          &= \left( t + 1.5t^2, -t + 0.5t^2 \right)\ \mathrm{m}
+\end{align}
 $$
 
-$$
-v_y(3) = -1 + 3 = 2\ \text{m/s}
-$$
+### 4. Work done by the force at $t=3\ \mathrm{s}$
+
+First, find the displacement at $t = 3\ \mathrm{s}$. Since the initial position is the origin, the displacement is simply the position vector at $t = 3$:
 
 $$
-|\vec v(3)|^2 = 10^2 + 2^2 = 104
+\begin{align}
+\vec r(3) &= \left( 3 + 1.5(3)^2, -3 + 0.5(3)^2 \right) \\
+          &= (3 + 13.5, -3 + 4.5) \\
+          &= (16.5, 1.5)\ \mathrm{m}
+\end{align}
 $$
 
-$$
-K_f = \frac{1}{2}(2)(104) = 104\ \text{J}
-$$
-
-**Step 3: Change in Kinetic Energy $\Delta K$**
+Now calculate the work using the dot product:
 
 $$
-\Delta K = 104 - 2 = 102\ \text{J}
+\begin{align}
+W &= \vec F \cdot \vec r(3) \\
+  &= (6)(16.5) + (2)(1.5) \\
+  &= 99 + 3 \\
+  &= 102\ \mathrm{J}
+\end{align}
 $$
 
-Since $W = 102\ \text{J}$ and $\Delta K = 102\ \text{J}$, the theorem is verified.
+### 5. Check consistency with the work-energy theorem
+
+Calculate the initial kinetic energy at $t=0$:
+
+$$
+\begin{align}
+K_i &= \frac{1}{2} m |\vec v(0)|^2 \\
+    &= \frac{1}{2} (2) \left( 1^2 + (-1)^2 \right) \\
+    &= 1(1 + 1) \\
+    &= 2\ \mathrm{J}
+\end{align}
+$$
+
+Calculate the final velocity at $t=3\ \mathrm{s}$:
+
+$$
+\begin{align}
+\vec v(3) &= (1 + 3(3), -1 + 3) \\
+          &= (10, 2)\ \mathrm{\frac{m}{s}}
+\end{align}
+$$
+
+Calculate the final kinetic energy at $t=3\ \mathrm{s}$:
+
+$$
+\begin{align}
+K_f &= \frac{1}{2} m |\vec v(3)|^2 \\
+    &= \frac{1}{2} (2) \left( 10^2 + 2^2 \right) \\
+    &= 100 + 4 \\
+    &= 104\ \mathrm{J}
+\end{align}
+$$
+
+Calculate the change in kinetic energy:
+
+$$
+\begin{align}
+\Delta K &= K_f - K_i \\
+         &= 104 - 2 \\
+         &= 102\ \mathrm{J}
+\end{align}
+$$
 
 ## Final Result
 
-* Acceleration: $\vec a(t) = (3, 1)\ \text{m/s}^2$
-* Velocity: $\vec v(t) = (1 + 3t, -1 + t)\ \text{m/s}$
-* Position: $\vec r(t) = (t + 1.5t^2, -t + 0.5t^2)\ \text{m}$
-* Work done: $W = 102\ \text{J}$
-* Verification: $W = \Delta K = 102\ \text{J}$
+- **Acceleration:** $\vec a(t) = (3, 1)\ \mathrm{\frac{m}{s^2}}$
+- **Velocity:** $\vec v(t) = (1 + 3t, -1 + t)\ \mathrm{\frac{m}{s}}$
+- **Position:** $\vec r(t) = (t + 1.5t^2, -t + 0.5t^2)\ \mathrm{m}$
+- **Work done ($t=3$):** $W = 102\ \mathrm{J}$
+- **Kinetic energy change:** $\Delta K = 102\ \mathrm{J}$ (matches the work done).
 
 ## Interpretation
 
-
-
-Under a constant force, the particle follows a parabolic trajectory. The work done by the force directly increases the speed of the particle, which is reflected in the gain of kinetic energy. The fact that the work-energy theorem holds confirms that our kinematic derivations (integration of acceleration) and our dynamical calculations (work done by force) are perfectly consistent.
+The exact match between the direct mechanical work calculation ($102\ \mathrm{J}$) and the change in kinetic energy ($102\ \mathrm{J}$) perfectly validates the work-energy theorem. The initial negative y-velocity slightly pulled the particle down, but the constant positive acceleration eventually turns the particle's path into a rightward, upward-sweeping parabola.

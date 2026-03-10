@@ -2,168 +2,126 @@
 
 ## Problem Statement
 
-The path equation of a particle is given in parametric form:
+The path equation is given in parametric form:
 
 $$
-x(t) = 2t^2, \qquad y(t) = 3t^3
+x(t)=2t^2, \qquad y(t)=3t^3
 $$
 
-The required operations are:
-1. Eliminate the parameter $t$ to find the Cartesian equation of the trajectory.
-2. Determine the velocity vector $\vec v(t)$ and its magnitude $|\vec v(t)|$.
-3. Determine the acceleration vector $\vec a(t)$ and its magnitude $|\vec a(t)|$.
-4. Determine if the acceleration is constant.
+1. Eliminate the parameter $t$.
+2. Draw the trajectory.
+3. Calculate $\vec v(t)$, $|\vec v(t)|$, $\vec a(t)$ and $|\vec a(t)|$.
+4. Is the acceleration constant?
 
 ## Theory
 
-To eliminate the parameter $t$, we express $t$ as a function of one coordinate (usually $x$) and substitute it into the other coordinate equation ($y$). This results in a direct relationship $y = f(x)$ that describes the geometric shape of the path in the $xy$-plane.
+A trajectory described by parametric equations defines the coordinates $x$ and $y$ as functions of time $t$. Eliminating the parameter $t$ gives the implicit equation of the curve $f(x, y) = 0$, which describes the path solely in the spatial domain.
 
-The velocity vector is the time derivative of the position vector:
-
-$$
-\vec v(t) = \left( \frac{dx}{dt}, \frac{dy}{dt} \right)
-$$
-
-The acceleration vector is the time derivative of the velocity vector:
-
-$$
-\vec a(t) = \left( \frac{dv_x}{dt}, \frac{dv_y}{dt} \right)
-$$
-
-The magnitude of any vector $\vec u = (u_x, u_y)$ is calculated using the Euclidean norm:
-
-$$
-|\vec u| = \sqrt{u_x^2 + u_y^2}
-$$
-
-An acceleration is considered constant only if both its magnitude and its direction do not change with time. If any component of $\vec a(t)$ depends on $t$, the acceleration is non-uniform.
+The velocity vector is the first derivative of the position vector with respect to time, and the acceleration vector is the first derivative of the velocity vector (or the second derivative of the position vector). If any component of the acceleration vector depends on time, the acceleration is not constant.
 
 ## Step-by-Step Solution
 
-### 1. Eliminate the parameter $t$
+### 1. Elimination of the parameter $t$
 
-**Step 1: Express $t$ in terms of $x$**
-
-From the equation $x = 2t^2$:
+Given the equations:
 
 $$
-t^2 = \frac{x}{2}
+x = 2t^2 \implies t^2 = \frac{x}{2}
 $$
 
-Taking the square root (considering $t \geq 0$):
+Since $t^2 \ge 0$, we must have $x \ge 0$. To find $y$ in terms of $x$, it is easier to match the powers of $t$. We know that $t^6 = (t^2)^3 = (t^3)^2$.
+
+Let us cube the $x$ equation and square the $y$ equation:
 
 $$
-t = \sqrt{\frac{x}{2}}
+x^3 = (2t^2)^3 = 8t^6
 $$
 
-**Step 2: Substitute into the equation for $y$**
+$$
+y^2 = (3t^3)^2 = 9t^6
+$$
 
-Substitute $t = \left(\frac{x}{2}\right)^{1/2}$ into $y = 3t^3$:
+From the first equation, substitute $t^6 = \frac{x^3}{8}$ into the second equation:
 
 $$
 \begin{align}
-y &= 3 \left( \sqrt{\frac{x}{2}} \right)^3 \\
-  &= 3 \left( \frac{x}{2} \right)^{3/2}
+y^2 &= 9 \left( \frac{x^3}{8} \right) \\
+y^2 &= \frac{9}{8} x^3
 \end{align}
 $$
 
-This can also be written as:
+Taking the square root (assuming $t \ge 0 \implies y \ge 0$), the explicit function is:
 
 $$
-y = \frac{3}{2\sqrt{2}} x\sqrt{x}
+y = \sqrt{\frac{9}{8} x^3} = \frac{3}{2\sqrt{2}} x^{3/2}
 $$
 
-### 2. Calculate velocity $\vec v(t)$ and magnitude $|\vec v(t)|$
+This curve is known as a semi-cubical parabola.
 
-**Step 1: Compute velocity components**
+### 2. Calculation of velocity and its magnitude
 
-Differentiate $x(t) = 2t^2$:
-
-$$
-v_x(t) = \frac{d}{dt}(2t^2) = 4t
-$$
-
-Differentiate $y(t) = 3t^3$:
+The position vector is:
 
 $$
-v_y(t) = \frac{d}{dt}(3t^3) = 9t^2
+\vec r(t) = (2t^2, 3t^3)
 $$
 
-The velocity vector is:
+The velocity vector is the derivative of position:
 
 $$
-\vec v(t) = (4t, 9t^2)
+\begin{align}
+\vec v(t) &= \left( \frac{d}{dt}(2t^2), \frac{d}{dt}(3t^3) \right) \\
+          &= (4t, 9t^2)
+\end{align}
 $$
 
-**Step 2: Compute the magnitude $|\vec v(t)|$**
+The magnitude (speed) is:
 
 $$
 \begin{align}
 |\vec v(t)| &= \sqrt{(4t)^2 + (9t^2)^2} \\
-            &= \sqrt{16t^2 + 81t^4}
+            &= \sqrt{16t^2 + 81t^4} \\
+            &= t \sqrt{16 + 81t^2}
+\end{align}
+$$
+*(Assuming $t \ge 0$)*.
+
+### 3. Calculation of acceleration and its magnitude
+
+The acceleration vector is the derivative of velocity:
+
+$$
+\begin{align}
+\vec a(t) &= \left( \frac{d}{dt}(4t), \frac{d}{dt}(9t^2) \right) \\
+          &= (4, 18t)
 \end{align}
 $$
 
-Factoring out $t^2$:
-
-$$
-|\vec v(t)| = t\sqrt{16 + 81t^2}
-$$
-
-### 3. Calculate acceleration $\vec a(t)$ and magnitude $|\vec a(t)|$
-
-**Step 1: Compute acceleration components**
-
-Differentiate $v_x(t) = 4t$:
-
-$$
-a_x(t) = \frac{d}{dt}(4t) = 4
-$$
-
-Differentiate $v_y(t) = 9t^2$:
-
-$$
-a_y(t) = \frac{d}{dt}(9t^2) = 18t
-$$
-
-The acceleration vector is:
-
-$$
-\vec a(t) = (4, 18t)
-$$
-
-**Step 2: Compute the magnitude $|\vec a(t)|$**
+The magnitude of the acceleration is:
 
 $$
 \begin{align}
 |\vec a(t)| &= \sqrt{4^2 + (18t)^2} \\
-            &= \sqrt{16 + 324t^2}
+            &= \sqrt{16 + 324t^2} \\
+            &= 2 \sqrt{4 + 81t^2}
 \end{align}
 $$
 
 ### 4. Is the acceleration constant?
 
-An acceleration is constant if and only if $\frac{d\vec a}{dt} = \vec 0$.
+No, the acceleration is **not constant**. 
 
-Looking at the components:
-- $a_x = 4$ (constant)
-- $a_y = 18t$ (depends on $t$)
-
-Since the $y$-component of the acceleration increases linearly with time, the vector $\vec a(t)$ changes both its magnitude and its direction as time progresses.
-
-**Conclusion: The acceleration is NOT constant.**
+While the horizontal component $a_x = 4$ is constant, the vertical component $a_y = 18t$ explicitly depends on time. Consequently, both the direction and the magnitude $|\vec a(t)| = 2\sqrt{4 + 81t^2}$ of the acceleration vector change as time progresses.
 
 ## Final Result
 
-* Cartesian equation: $y = 3 \left( \frac{x}{2} \right)^{3/2}$
-* Velocity vector: $\vec v(t) = (4t, 9t^2)$
-* Velocity magnitude: $|\vec v(t)| = \sqrt{16t^2 + 81t^4}$
-* Acceleration vector: $\vec a(t) = (4, 18t)$
-* Acceleration magnitude: $|\vec a(t)| = \sqrt{16 + 324t^2}$
-* Acceleration is not constant.
+- **Implicit equation:** $y^2 = \frac{9}{8} x^3$
+- **Velocity:** $\vec v(t) = (4t, 9t^2)$
+- **Speed:** $|\vec v(t)| = t \sqrt{16 + 81t^2}$
+- **Acceleration:** $\vec a(t) = (4, 18t)$
+- **Acceleration Magnitude:** $|\vec a(t)| = 2 \sqrt{4 + 81t^2}$
+- **Constancy:** The acceleration is **not constant** because its $y$-component and magnitude depend on $t$.
 
 ## Interpretation
 
-
-
-The trajectory described by $y \propto x^{3/2}$ is known as a semi-cubic parabola. Unlike standard projectile motion where acceleration is a constant vector (gravity), the particle in this task experiences a constant force in the $x$-direction and a time-dependent increasing force in the $y$-direction. This causes the particle to "curve" more sharply upward as time increases, which is reflected in the non-constant acceleration vector. The speed of the particle grows rapidly because both components of the velocity are increasing functions of time.
+The motion begins from rest at the origin since $\vec v(0) = (0,0)$. However, there is an initial non-zero horizontal acceleration $\vec a(0) = (4,0)$, which kicks the particle along the $x$-axis. As time increases, the vertical acceleration $18t$ grows linearly, meaning the particle is pulled increasingly stronger in the positive $y$-direction. This explains the characteristic shape of the semi-cubical parabola $y \propto x^{3/2}$, which curves upwards progressively steeper as $x$ increases.

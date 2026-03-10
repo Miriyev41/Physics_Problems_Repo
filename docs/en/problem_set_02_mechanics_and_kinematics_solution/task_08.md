@@ -1,122 +1,118 @@
-# Task 08 – Motion in different reference frames
+# Task 08 – Relative motion
 
 ## Problem Statement
 
-Two bodies, A and B, move in the $xy$ plane with constant velocities:
+Body A moves with velocity $\vec v_A=(3,1)$, body B with velocity $\vec v_B=(1,-2)$.
 
-$$
-\vec v_A = (v_{Ax}, v_{Ay}), \qquad \vec v_B = (v_{Bx}, v_{By})
-$$
-
-Their initial positions at $t=0$ are $\vec r_A(0)$ and $\vec r_B(0)$.
-
-The required operations are:
-1. Write the equations of motion $\vec r_A(t)$ and $\vec r_B(t)$ in the laboratory reference frame (origin of the coordinate system).
-2. Determine the relative position vector of body B with respect to body A: $\vec r_{B/A}(t) = \vec r_B(t) - \vec r_A(t)$.
-3. Determine the relative velocity $\vec v_{B/A}$.
-4. Visualize the trajectories from three perspectives:
-    - The laboratory reference frame.
-    - The reference frame attached to body A.
-    - The reference frame attached to body B.
+1. Determine the relative velocity $\vec v_{A/B}$.
+2. Determine the direction of the relative motion.
+3. Visualize the motion of both bodies in:
+    - the reference frame attached to the origin of the coordinate system,
+    - the reference frame attached to body A,
+    - the reference frame attached to body B.
 
 ## Theory
 
-The position of a particle moving with constant velocity is given by the linear equation:
+Relative motion describes the observation of a body's movement from the perspective of another moving body. In classical mechanics (Galilean relativity), velocities add and subtract vectorially. 
+
+The relative velocity of body A with respect to body B, denoted as $\vec v_{A/B}$, is the velocity of A as measured by an observer situated on B. It is calculated by subtracting the velocity vector of the observer (B) from the velocity vector of the object being observed (A):
 
 $$
-\vec r(t) = \vec r(0) + \vec v t
+\vec v_{A/B} = \vec v_A - \vec v_B
 $$
 
-In classical mechanics, specifically Galilean relativity, the position of an object B relative to an observer A is found by vector subtraction. If $\vec r_A$ and $\vec r_B$ are positions relative to a fixed laboratory origin $O$, then:
+The direction of this relative velocity can be found using the arctangent of the ratio of its $y$ and $x$ components. 
 
-$$
-\vec r_{B/A} = \vec r_B - \vec r_A
-$$
-
-The velocity of B relative to A is the time derivative of the relative position:
-
-$$
-\vec v_{B/A} = \frac{d}{dt} (\vec r_B - \vec r_A) = \vec v_B - \vec v_A
-$$
-
-In the reference frame attached to body A, body A is always at the origin $(0,0)$, and all other objects move with their relative velocities.
+When shifting reference frames:
+- In the global frame, both bodies move with their respective absolute velocities.
+- In the frame of Body A, Body A is stationary at the origin, and Body B moves with velocity $\vec v_{B/A} = -\vec v_{A/B}$.
+- In the frame of Body B, Body B is stationary at the origin, and Body A moves with velocity $\vec v_{A/B}$.
 
 ## Step-by-Step Solution
 
-### 1. Equations of motion in the Lab Frame
+### 1. Determine the relative velocity $\vec v_{A/B}$
 
-For body A:
-
-$$
-x_A(t) = x_A(0) + v_{Ax} t
-$$
+Given the velocity vectors:
 
 $$
-y_A(t) = y_A(0) + v_{Ay} t
+\vec v_A = 
+\begin{pmatrix}
+3 \\
+1
+\end{pmatrix}, \qquad
+\vec v_B = 
+\begin{pmatrix}
+1 \\
+-2
+\end{pmatrix}
 $$
 
-For body B:
-
-$$
-x_B(t) = x_B(0) + v_{Bx} t
-$$
-
-$$
-y_B(t) = y_B(0) + v_{By} t
-$$
-
-In vector form:
-
-$$
-\vec r_A(t) = \vec r_A(0) + \vec v_A t, \qquad \vec r_B(t) = \vec r_B(0) + \vec v_B t
-$$
-
-### 2. Determine relative position $\vec r_{B/A}(t)$
-
-Subtract the position vector of A from the position vector of B:
+Calculate the vector difference:
 
 $$
 \begin{align}
-\vec r_{B/A}(t) &= \vec r_B(t) - \vec r_A(t) \\
-                &= [\vec r_B(0) + \vec v_B t] - [\vec r_A(0) + \vec v_A t] \\
-                &= [\vec r_B(0) - \vec r_A(0)] + (\vec v_B - \vec v_A)t
+\vec v_{A/B} &= \vec v_A - \vec v_B \\
+             &= 
+\begin{pmatrix}
+3 \\
+1
+\end{pmatrix}
+- 
+\begin{pmatrix}
+1 \\
+-2
+\end{pmatrix} \\
+             &= 
+\begin{pmatrix}
+3 - 1 \\
+1 - (-2)
+\end{pmatrix} \\
+             &= 
+\begin{pmatrix}
+2 \\
+3
+\end{pmatrix}
 \end{align}
 $$
 
-Let $\vec r_{rel, 0} = \vec r_B(0) - \vec r_A(0)$ be the initial relative separation.
+So, the relative velocity is $\vec v_{A/B} = (2, 3)$.
 
-### 3. Determine relative velocity $\vec v_{B/A}$
+### 2. Determine the direction of the relative motion
 
-The relative velocity is the coefficient of $t$ in the relative position equation:
-
-$$
-\vec v_{B/A} = \vec v_B - \vec v_A
-$$
-
-Component-wise:
+The direction is the angle $\theta$ the vector $\vec v_{A/B}$ makes with the positive $x$-axis. We can calculate this using the tangent function:
 
 $$
-v_{rel, x} = v_{Bx} - v_{Ax}
+\tan \theta = \frac{v_{y, A/B}}{v_{x, A/B}} = \frac{3}{2} = 1.5
 $$
 
+Taking the arctangent:
+
 $$
-v_{rel, y} = v_{By} - v_{Ay}
+\theta = \arctan(1.5) \approx 56.31^\circ
 $$
 
-### 4. Interpretation of Frames
+Since both components of $\vec v_{A/B}$ are positive, the vector points into the first quadrant, so the angle is exactly $56.31^\circ$ above the positive $x$-axis.
 
-- **Lab Frame:** Both A and B are seen moving along straight lines from their respective starting points.
-- **Frame A:** Body A sits at $(0,0)$. Body B moves in a straight line starting from $\vec r_{rel, 0}$ with velocity $\vec v_{B/A}$.
-- **Frame B:** Body B sits at $(0,0)$. Body A moves in a straight line starting from $-\vec r_{rel, 0}$ with velocity $\vec v_{A/B} = \vec v_A - \vec v_B$.
+### 3. Velocities in different reference frames
+
+**Frame attached to the origin (Global):**
+- $\vec v_A = (3, 1)$
+- $\vec v_B = (1, -2)$
+
+**Frame attached to Body A:**
+- $\vec v_{A/A} = \vec v_A - \vec v_A = (0, 0)$ (A is stationary)
+- $\vec v_{B/A} = \vec v_B - \vec v_A = (1-3, -2-1) = (-2, -3)$
+
+**Frame attached to Body B:**
+- $\vec v_{A/B} = \vec v_A - \vec v_B = (2, 3)$
+- $\vec v_{B/B} = \vec v_B - \vec v_B = (0, 0)$ (B is stationary)
 
 ## Final Result
 
-* Lab positions: $\vec r_A(t) = \vec r_A(0) + \vec v_A t$, $\vec r_B(t) = \vec r_B(0) + \vec v_B t$
-* Relative position (B relative to A): $\vec r_{B/A}(t) = (\vec r_B(0) - \vec r_A(0)) + (\vec v_B - \vec v_A)t$
-* Relative velocity: $\vec v_{B/A} = \vec v_B - \vec v_A$
+- **Relative velocity of A wrt B:** $\vec v_{A/B} = (2, 3)$
+- **Direction:** $\theta = \arctan(1.5) \approx 56.3^\circ$
+- **Relative velocity of B wrt A:** $\vec v_{B/A} = (-2, -3)$
 
 ## Interpretation
 
-[Image of relative velocity vector addition diagram]
-
-The principle of Galilean relativity shows that the laws of constant velocity motion are preserved across inertial frames. While the individual trajectories look different depending on who is watching (e.g., body A sees body B moving at a different speed than the lab observer does), the relative velocity remains a constant vector. This is a fundamental concept for understanding collisions, navigation, and the transition from geocentric to heliocentric models of the solar system.
+To an observer standing still at the origin, Body A drifts right and slightly up, while Body B drifts right and down. However, if you are sitting on Body B, you do not feel your own motion; instead, it appears as though the entire universe is moving backwards relative to you. Thus, you observe Body A moving away from you toward the top-right corner with a combined speed governed by the vector $(2, 3)$. The symmetry of Galilean relativity ensures that $\vec v_{A/B} = -\vec v_{B/A}$, meaning an observer on A sees B moving away in the exact opposite direction (bottom-left).

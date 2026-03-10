@@ -2,105 +2,261 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Task 09 - Heliocentric vs Geocentric Motion</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 10 - Analysis of Motion from Numerical Data</title>
     <style>
-        body { font-family: sans-serif; text-align: center; background: #050505; color: white; }
-        .flex-container { display: flex; justify-content: center; gap: 20px; padding: 20px; }
-        canvas { border: 1px solid #444; background: black; }
-        .controls { margin-bottom: 20px; background: #222; padding: 15px; display: inline-block; border-radius: 8px; }
-        h2 { margin-bottom: 5px; font-size: 1.2em; color: #aaa; }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 20px;
+            background-color: #f9fafb;
+            color: #1f2937;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1, h2 { color: #111827; }
+        .controls {
+            margin: 20px 0;
+            padding: 15px;
+            background: #eff6ff;
+            border-radius: 6px;
+            border-left: 4px solid #3b82f6;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-grow: 1;
+        }
+        label { font-weight: bold; min-width: 140px; }
+        input[type="range"] { flex-grow: 1; }
+        span.value-display {
+            min-width: 60px;
+            text-align: right;
+            font-family: monospace;
+            font-size: 1.1em;
+        }
+        .flex-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .canvas-box {
+            flex: 1;
+            min-width: 400px;
+            background: #f3f4f6;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        canvas {
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            width: 100%;
+        }
+        .stats {
+            margin-top: 15px;
+            padding: 15px;
+            background: #1f2937;
+            color: #10b981;
+            border-radius: 6px;
+            font-family: monospace;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
+        .color-box { width: 14px; height: 14px; border-radius: 3px; }
     </style>
 </head>
 <body>
-    <h1>Planetary Motion Reference Frames</h1>
+
+<div class="container">
+    <h1>Numerical Integration & Differentiation</h1>
+    <p>Comparing Exact vs. Numerical derivatives for <strong>x(t) = t + 0.05t²</strong>.</p>
+
     <div class="controls">
-        <button onclick="reset()">Restart Animation</button>
-        <p>Blue = Earth | Red = Mars | Yellow = Sun</p>
+        <div class="control-group">
+            <label for="dtSlider">Time Step (Δt):</label>
+            <input type="range" id="dtSlider" min="0.1" max="5.0" step="0.1" value="1.0">
+            <span class="value-display" id="dtValue">1.0 s</span>
+        </div>
     </div>
+
+    <div class="stats" id="statsDisplay">
+        <div id="vErrorStat">Max Velocity Error: 0.00 m/s</div>
+        <div id="aErrorStat">Max Acceleration Error: 0.00 m/s²</div>
+    </div>
+
     <div class="flex-container">
-        <div>
-            <h2>Heliocentric (Sun-Centered)</h2>
-            <canvas id="helioCanvas" width="400" height="400"></canvas>
+        <div class="canvas-box">
+            <h3>Velocity Approximation</h3>
+            <canvas id="velCanvas" width="400" height="300"></canvas>
+            <div class="legend">
+                <div class="legend-item"><div class="color-box" style="background:#3b82f6;"></div> Exact v(t)</div>
+                <div class="legend-item"><div class="color-box" style="background:#ef4444;"></div> Forward Diff</div>
+            </div>
         </div>
-        <div>
-            <h2>Geocentric (Earth-Centered)</h2>
-            <canvas id="geoCanvas" width="400" height="400"></canvas>
+        <div class="canvas-box">
+            <h3>Acceleration Approximation</h3>
+            <canvas id="accCanvas" width="400" height="300"></canvas>
+            <div class="legend">
+                <div class="legend-item"><div class="color-box" style="background:#3b82f6;"></div> Exact a(t)</div>
+                <div class="legend-item"><div class="color-box" style="background:#ef4444;"></div> Central Diff</div>
+            </div>
         </div>
     </div>
+</div>
 
 <script>
-    const helioCtx = document.getElementById('helioCanvas').getContext('2d');
-    const geoCtx = document.getElementById('geoCanvas').getContext('2d');
+    const velCanvas = document.getElementById('velCanvas');
+    const velCtx = velCanvas.getContext('2d');
+    const accCanvas = document.getElementById('accCanvas');
+    const accCtx = accCanvas.getContext('2d');
 
-    // Parameters
-    const Rz = 60, Rm = 110;
-    const wz = 0.05, wm = 0.026; // Earth is faster (~1.88x)
-    let t = 0;
-    let geoPath = [];
+    const dtSlider = document.getElementById('dtSlider');
+    const dtValue = document.getElementById('dtValue');
+    
+    const vErrorStat = document.getElementById('vErrorStat');
+    const aErrorStat = document.getElementById('aErrorStat');
 
-    function draw() {
-        t += 1;
+    function exactPos(t) { return t + 0.05 * t * t; }
+    function exactVel(t) { return 1 + 0.1 * t; }
+    function exactAcc(t) { return 0.1; }
+
+    function drawPlot() {
+        const dt = parseFloat(dtSlider.value);
+        dtValue.innerText = dt.toFixed(1) + " s";
+
+        const tMax = 10;
+        const marginX = 40;
+        const marginY = 30;
         
-        // Calculate positions
-        const xz = Rz * Math.cos(wz * t * 0.1);
-        const yz = Rz * Math.sin(wz * t * 0.1);
-        const xm = Rm * Math.cos(wm * t * 0.1);
-        const ym = Rm * Math.sin(wm * t * 0.1);
+        // Data Arrays
+        let exactV = [];
+        let numV = [];
+        let exactA = [];
+        let numA = [];
+        
+        let maxVError = 0;
+        let maxAError = 0;
 
-        // Geocentric coordinates (Mars relative to Earth)
-        const relX = xm - xz;
-        const relY = ym - yz;
-        geoPath.push({x: relX, y: relY});
-        if (geoPath.length > 500) geoPath.shift();
+        // Generate discrete points based on dt
+        for (let t = 0; t <= tMax; t += dt) {
+            // Forward Difference for Velocity
+            if (t + dt <= tMax + 0.001) { // bounds check
+                let vNum = (exactPos(t + dt) - exactPos(t)) / dt;
+                let vExact = exactVel(t);
+                
+                numV.push({t: t, val: vNum});
+                exactV.push({t: t, val: vExact});
+                
+                let err = Math.abs(vNum - vExact);
+                if (err > maxVError) maxVError = err;
+            }
 
-        // Clear
-        helioCtx.clearRect(0, 0, 400, 400);
-        geoCtx.clearRect(0, 0, 400, 400);
+            // Central Difference for Acceleration
+            if (t - dt >= -0.001 && t + dt <= tMax + 0.001) {
+                let aNum = (exactPos(t + dt) - 2*exactPos(t) + exactPos(t - dt)) / (dt * dt);
+                let aExact = exactAcc(t);
+                
+                numA.push({t: t, val: aNum});
+                exactA.push({t: t, val: aExact});
+                
+                let err = Math.abs(aNum - aExact);
+                if (err > maxAError) maxAError = err;
+            }
+        }
 
-        // Draw Heliocentric
-        const center = 200;
-        // Sun
-        drawCircle(helioCtx, center, center, 8, 'yellow');
-        // Orbits
-        drawOrbit(helioCtx, center, center, Rz);
-        drawOrbit(helioCtx, center, center, Rm);
-        // Planets
-        drawCircle(helioCtx, center + xz, center + yz, 5, '#3498db');
-        drawCircle(helioCtx, center + xm, center + ym, 4, '#e74c3c');
+        vErrorStat.innerText = `Max Velocity Error (Forward): ${maxVError.toFixed(4)} m/s`;
+        aErrorStat.innerText = `Max Acceleration Error (Central): ${maxAError.toFixed(4)} m/s²`;
 
-        // Draw Geocentric
-        // Earth (Origin)
-        drawCircle(geoCtx, center, center, 6, '#3498db');
-        // Trace
-        geoCtx.beginPath();
-        geoCtx.strokeStyle = 'rgba(231, 76, 60, 0.5)';
-        geoPath.forEach((p, i) => {
-            if(i===0) geoCtx.moveTo(center + p.x, center + p.y);
-            else geoCtx.lineTo(center + p.x, center + p.y);
-        });
-        geoCtx.stroke();
-        // Mars
-        drawCircle(geoCtx, center + relX, center + relY, 4, '#e74c3c');
+        // Draw Velocity Plot
+        velCtx.clearRect(0, 0, velCanvas.width, velCanvas.height);
+        let vMinY = 0.5, vMaxY = 2.5;
+        
+        function mapX_v(t) { return marginX + (t / tMax) * (velCanvas.width - 2 * marginX); }
+        function mapY_v(v) { return velCanvas.height - marginY - ((v - vMinY) / (vMaxY - vMinY)) * (velCanvas.height - 2 * marginY); }
 
-        requestAnimationFrame(draw);
+        // Axes
+        velCtx.strokeStyle = '#9ca3af';
+        velCtx.beginPath();
+        velCtx.moveTo(mapX_v(0), mapY_v(vMinY)); velCtx.lineTo(mapX_v(tMax), mapY_v(vMinY));
+        velCtx.moveTo(mapX_v(0), mapY_v(vMinY)); velCtx.lineTo(mapX_v(0), mapY_v(vMaxY));
+        velCtx.stroke();
+
+        // Exact Continuous Velocity Line
+        velCtx.strokeStyle = '#3b82f6';
+        velCtx.lineWidth = 2;
+        velCtx.beginPath();
+        for (let t = 0; t <= tMax; t += 0.1) {
+            let px = mapX_v(t);
+            let py = mapY_v(exactVel(t));
+            if (t === 0) velCtx.moveTo(px, py);
+            else velCtx.lineTo(px, py);
+        }
+        velCtx.stroke();
+
+        // Numerical Velocity Points
+        velCtx.fillStyle = '#ef4444';
+        for (let pt of numV) {
+            velCtx.beginPath();
+            velCtx.arc(mapX_v(pt.t), mapY_v(pt.val), 4, 0, 2 * Math.PI);
+            velCtx.fill();
+        }
+
+        // Draw Acceleration Plot
+        accCtx.clearRect(0, 0, accCanvas.width, accCanvas.height);
+        let aMinY = 0.0, aMaxY = 0.2;
+        
+        function mapX_a(t) { return marginX + (t / tMax) * (accCanvas.width - 2 * marginX); }
+        function mapY_a(a) { return accCanvas.height - marginY - ((a - aMinY) / (aMaxY - aMinY)) * (accCanvas.height - 2 * marginY); }
+
+        // Axes
+        accCtx.strokeStyle = '#9ca3af';
+        accCtx.beginPath();
+        accCtx.moveTo(mapX_a(0), mapY_a(aMinY)); accCtx.lineTo(mapX_a(tMax), mapY_a(aMinY));
+        accCtx.moveTo(mapX_a(0), mapY_a(aMinY)); accCtx.lineTo(mapX_a(0), mapY_a(aMaxY));
+        accCtx.stroke();
+
+        // Exact Continuous Acceleration Line
+        accCtx.strokeStyle = '#3b82f6';
+        accCtx.lineWidth = 2;
+        accCtx.beginPath();
+        accCtx.moveTo(mapX_a(0), mapY_a(0.1));
+        accCtx.lineTo(mapX_a(tMax), mapY_a(0.1));
+        accCtx.stroke();
+
+        // Numerical Acceleration Points
+        accCtx.fillStyle = '#ef4444';
+        for (let pt of numA) {
+            accCtx.beginPath();
+            accCtx.arc(mapX_a(pt.t), mapY_a(pt.val), 4, 0, 2 * Math.PI);
+            accCtx.fill();
+        }
     }
 
-    function drawCircle(ctx, x, y, r, color) {
-        ctx.fillStyle = color;
-        ctx.beginPath();
-        ctx.arc(x, y, r, 0, Math.PI*2);
-        ctx.fill();
-    }
-
-    function drawOrbit(ctx, x, y, r) {
-        ctx.strokeStyle = '#333';
-        ctx.beginPath();
-        ctx.arc(x, y, r, 0, Math.PI*2);
-        ctx.stroke();
-    }
-
-    function reset() { t = 0; geoPath = []; }
-    draw();
+    dtSlider.addEventListener('input', drawPlot);
+    drawPlot();
 </script>
+
 </body>
 </html>

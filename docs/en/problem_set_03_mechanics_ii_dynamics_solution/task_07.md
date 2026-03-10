@@ -2,144 +2,158 @@
 
 ## Problem Statement
 
-A body of mass $m$ is thrown vertically upward with an initial velocity $v(0) = v_0$ from the initial position $y(0) = 0$. The motion is subject to gravity and a linear air resistance force $F_d = -kv$.
-
-The equation of motion is given as:
+We have the equation of motion for a vertical throw with linear drag:
 
 $$
 m\frac{dv}{dt} = -mg - kv
 $$
 
-The required operations are:
-1. Solve the differential equation to find the velocity $v(t)$.
-2. Determine the maximum height $H_{max}$ reached by the body.
-3. Compare the result with the case without drag.
-4. Perform a numerical simulation (HTML/JS) and compare analytical and numerical solutions.
+with initial conditions $v(0)=v_0$, $x(0)=0$.
+
+1. Solve the equation.
+2. Determine the maximum height.
+3. Compare with the case without drag.
+4. Perform a numerical simulation.
+5. Compare the analytical and numerical solutions.
 
 ## Theory
 
-In a vertical throw with air resistance, two forces act on the body during its ascent: the constant force of gravity $mg$ and the velocity-dependent drag force $kv$. Both forces point downward (opposite to the initial upward velocity), leading to a faster deceleration than in a vacuum.
+When an object is thrown vertically upwards in a fluid (like air), it experiences two forces: the constant downward force of gravity ($F_g = -mg$) and a drag force that opposes its motion. For relatively low speeds, Stokes' linear drag applies ($F_d = -kv$).
 
-The governing equation is a first-order linear non-homogeneous differential equation:
-
-$$
-\frac{dv}{dt} + \frac{k}{m}v = -g
-$$
-
-This can be solved using the method of separating variables or by using an integrating factor. The maximum height is reached at the instant $t_s$ when the velocity becomes zero ($v(t_s) = 0$). The height is found by integrating the velocity function:
-
-$$
-y(t) = \int_0^t v(\tau) \, d\tau
-$$
+The net force determines the acceleration via Newton's Second Law. To find the velocity $v(t)$ and position $x(t)$, we must solve the resulting first-order ordinary differential equation (ODE). Since the forces depend on velocity, the acceleration is not constant, and we cannot use simple constant-acceleration kinematics.
 
 ## Step-by-Step Solution
 
-### 1. Solve for velocity $v(t)$
+### 1. Solve the equation of motion
 
-**Step 1: Separate the variables**
-
-Rearrange the equation of motion:
+Starting with the given ODE:
 
 $$
-\frac{dv}{dt} = -\left( g + \frac{k}{m}v \right)
+m\frac{dv}{dt} = -mg - kv
 $$
 
-$$
-\frac{dv}{g + \frac{k}{m}v} = -dt
-$$
-
-**Step 2: Integrate both sides**
-
-Integrate from $v_0$ to $v(t)$ and from $0$ to $t$:
+Rearrange it to isolate terms with $v$:
 
 $$
-\int_{v_0}^{v} \frac{d\bar{v}}{g + \frac{k}{m}\bar{v}} = -\int_0^t d\tau
+\frac{dv}{dt} = -g - \frac{k}{m}v = -\frac{k}{m} \left( v + \frac{mg}{k} \right)
 $$
 
-Let $u = g + \frac{k}{m}\bar{v}$, then $du = \frac{k}{m}d\bar{v}$:
+This is a separable differential equation. Separate the variables $v$ and $t$:
 
 $$
-\frac{m}{k} \ln \left| g + \frac{k}{m}\bar{v} \right|_{v_0}^v = -t
+\frac{dv}{v + \frac{mg}{k}} = -\frac{k}{m} dt
+$$
+
+Integrate both sides:
+
+$$
+\int \frac{dv}{v + \frac{mg}{k}} = \int -\frac{k}{m} \, dt
 $$
 
 $$
-\ln \left( \frac{g + \frac{k}{m}v}{g + \frac{k}{m}v_0} \right) = -\frac{k}{m}t
+\ln\left| v + \frac{mg}{k} \right| = -\frac{k}{m}t + C
 $$
 
-**Step 3: Isolate $v(t)$**
+Exponentiate both sides to solve for $v$:
 
 $$
-\frac{g + \frac{k}{m}v}{g + \frac{k}{m}v_0} = e^{-\frac{k}{m}t}
+v(t) + \frac{mg}{k} = A e^{-\frac{k}{m}t}
 $$
+
+where $A = \pm e^C$. Apply the initial condition $v(0) = v_0$:
+
+$$
+\begin{align}
+v_0 + \frac{mg}{k} &= A e^0 \\
+A &= v_0 + \frac{mg}{k}
+\end{align}
+$$
+
+Substitute $A$ back to find the exact velocity function:
 
 $$
 v(t) = \left( v_0 + \frac{mg}{k} \right) e^{-\frac{k}{m}t} - \frac{mg}{k}
 $$
 
-### 2. Determine the maximum height $H_{max}$
-
-**Step 1: Find the stopping time $t_s$**
-
-Set $v(t_s) = 0$:
-
-$$
-0 = \left( v_0 + \frac{mg}{k} \right) e^{-\frac{k}{m}t_s} - \frac{mg}{k}
-$$
-
-$$
-e^{-\frac{k}{m}t_s} = \frac{\frac{mg}{k}}{v_0 + \frac{mg}{k}} = \frac{mg}{kv_0 + mg}
-$$
-
-Taking the natural logarithm:
-
-$$
-t_s = \frac{m}{k} \ln \left( 1 + \frac{kv_0}{mg} \right)
-$$
-
-**Step 2: Integrate velocity to find $y(t)$**
+To find the position $x(t)$, integrate the velocity function:
 
 $$
 \begin{align}
-y(t) &= \int_0^t \left[ \left( v_0 + \frac{mg}{k} \right) e^{-\frac{k}{m}\tau} - \frac{mg}{k} \right] d\tau \\
-     &= \left( v_0 + \frac{mg}{k} \right) \left[ -\frac{m}{k} e^{-\frac{k}{m}\tau} \right]_0^t - \frac{mg}{k}t \\
+x(t) &= \int v(t) \, dt \\
+     &= \int \left[ \left( v_0 + \frac{mg}{k} \right) e^{-\frac{k}{m}t} - \frac{mg}{k} \right] dt \\
+     &= -\frac{m}{k} \left( v_0 + \frac{mg}{k} \right) e^{-\frac{k}{m}t} - \frac{mg}{k}t + C_2
+\end{align}
+$$
+
+Apply the initial condition $x(0) = 0$:
+
+$$
+\begin{align}
+0 &= -\frac{m}{k} \left( v_0 + \frac{mg}{k} \right) e^0 - 0 + C_2 \\
+C_2 &= \frac{m}{k} \left( v_0 + \frac{mg}{k} \right)
+\end{align}
+$$
+
+Substitute $C_2$ back to find the exact position function:
+
+$$
+\begin{align}
+x(t) &= \frac{m}{k} \left( v_0 + \frac{mg}{k} \right) - \frac{m}{k} \left( v_0 + \frac{mg}{k} \right) e^{-\frac{k}{m}t} - \frac{mg}{k}t \\
      &= \frac{m}{k} \left( v_0 + \frac{mg}{k} \right) \left( 1 - e^{-\frac{k}{m}t} \right) - \frac{mg}{k}t
 \end{align}
 $$
 
-**Step 3: Evaluate at $t_s$**
+### 2. Determine the maximum height
 
-Substitute $e^{-\frac{k}{m}t_s} = \frac{mg}{kv_0 + mg}$ and $t_s$:
+The object reaches its maximum height when its velocity is zero ($v(t_h) = 0$). First, find the time $t_h$:
+
+$$
+0 = \left( v_0 + \frac{mg}{k} \right) e^{-\frac{k}{m}t_h} - \frac{mg}{k}
+$$
+
+$$
+e^{\frac{k}{m}t_h} = \frac{v_0 + \frac{mg}{k}}{\frac{mg}{k}} = 1 + \frac{k v_0}{mg}
+$$
+
+$$
+t_h = \frac{m}{k} \ln\left( 1 + \frac{k v_0}{mg} \right)
+$$
+
+Substitute $t_h$ into the position function $x(t)$ to find $x_{max}$. Note that from the velocity equation at $t_h$, we know $e^{-\frac{k}{m}t_h} = \left(1 + \frac{k v_0}{mg}\right)^{-1}$.
 
 $$
 \begin{align}
-H_{max} &= \frac{m}{k} \left( \frac{kv_0 + mg}{k} \right) \left( 1 - \frac{mg}{kv_0 + mg} \right) - \frac{mg}{k} \left[ \frac{m}{k} \ln \left( 1 + \frac{kv_0}{mg} \right) \right] \\
-        &= \frac{mv_0}{k} - \frac{m^2 g}{k^2} \ln \left( 1 + \frac{kv_0}{mg} \right)
+x_{max} &= \frac{m}{k} \left( v_0 + \frac{mg}{k} \right) \left( 1 - \frac{1}{1 + \frac{k v_0}{mg}} \right) - \frac{mg}{k} \left[ \frac{m}{k} \ln\left( 1 + \frac{k v_0}{mg} \right) \right] \\
+        &= \frac{m}{k} \left( \frac{k v_0 + mg}{k} \right) \left( \frac{\frac{k v_0}{mg}}{1 + \frac{k v_0}{mg}} \right) - \frac{m^2 g}{k^2} \ln\left( 1 + \frac{k v_0}{mg} \right) \\
+        &= \frac{m v_0}{k} - \frac{m^2 g}{k^2} \ln\left( 1 + \frac{k v_0}{mg} \right)
 \end{align}
 $$
 
 ### 3. Compare with the case without drag
 
-In a vacuum ($k \to 0$), we use the Taylor expansion $\ln(1+x) \approx x - \frac{x^2}{2} + \frac{x^3}{3}$:
+Without drag ($k \to 0$), we recover the standard kinematic equations via Taylor series expansion of the logarithm, or by directly solving $m\ddot{x} = -mg$:
+- **Velocity without drag:** $v_{nodrag}(t) = v_0 - gt$
+- **Position without drag:** $x_{nodrag}(t) = v_0 t - \frac{1}{2}gt^2$
+- **Maximum height without drag:** $x_{max, nodrag} = \frac{v_0^2}{2g}$
 
-$$
-\begin{align}
-H_{max} &\approx \frac{mv_0}{k} - \frac{m^2 g}{k^2} \left[ \frac{kv_0}{mg} - \frac{1}{2} \left( \frac{kv_0}{mg} \right)^2 \right] \\
-        &= \frac{mv_0}{k} - \left[ \frac{mv_0}{k} - \frac{v_0^2}{2g} \right] \\
-        &= \frac{v_0^2}{2g}
-\end{align}
-$$
+When drag is present, the net downward force is greater on the way up ($mg + kv$) than it would be without drag ($mg$). This causes the object to decelerate faster, meaning it takes less time to reach the apex and it reaches a strictly **lower maximum height** ($x_{max} < \frac{v_0^2}{2g}$).
 
-This confirms that the result reduces to the standard kinematic formula $H = \frac{v_0^2}{2g}$ when resistance is neglected. With drag ($k > 0$), the logarithmic term ensures $H_{max}$ is always strictly smaller than the vacuum height.
+### 4. Numerical simulation & 5. Comparison
+
+A numerical simulation can be performed using the Euler method. We define a small time step $\Delta t$ and iteratively update velocity and position:
+1. $a_i = -g - \frac{k}{m}v_i$
+2. $v_{i+1} = v_i + a_i \Delta t$
+3. $x_{i+1} = x_i + v_i \Delta t$
+
+The HTML application accompanying this task executes this numerical integration simultaneously with the analytical evaluation. Because the Euler method uses a first-order approximation, a slight discrepancy (truncation error) emerges between the exact analytical curve and the numerical points, which shrinks as $\Delta t \to 0$.
 
 ## Final Result
 
-* Velocity: $v(t) = (v_0 + \frac{mg}{k})e^{-\frac{k}{m}t} - \frac{mg}{k}$
-* Stopping time: $t_s = \frac{m}{k} \ln(1 + \frac{kv_0}{mg})$
-* Max Height: $H_{max} = \frac{mv_0}{k} - \frac{m^2 g}{k^2} \ln(1 + \frac{kv_0}{mg})$
-* Comparison: $H_{with\ drag} < H_{vacuum}$
+- **Velocity:** $v(t) = \left( v_0 + \frac{mg}{k} \right) e^{-\frac{k}{m}t} - \frac{mg}{k}$
+- **Position:** $x(t) = \frac{m}{k} \left( v_0 + \frac{mg}{k} \right) \left( 1 - e^{-\frac{k}{m}t} \right) - \frac{mg}{k}t$
+- **Max Height:** $x_{max} = \frac{m v_0}{k} - \frac{m^2 g}{k^2} \ln\left( 1 + \frac{k v_0}{mg} \right)$
+- **Comparison:** The drag force causes a strictly lower maximum height and a non-symmetric trajectory (it takes longer to fall down than it does to rise).
 
 ## Interpretation
 
-[Image of velocity-time graph for a vertical throw with linear air resistance]
-
-The presence of air resistance during an upward throw results in a "shorter" and "faster" ascent compared to a vacuum. Because the drag force helps gravity pull the object down during the upward phase, the object loses its initial kinetic energy more rapidly. This leads to a lower peak height and a significantly shorter time to reach that peak. Physically, the term $mg/k$ represents the terminal velocity; in this upward throw model, it acts as a scaling factor for how quickly the atmosphere "saps" the momentum from the projectile.
+The term $\frac{mg}{k}$ represents the "terminal velocity" $v_t$ of the object. As $t \to \infty$ (assuming the object falls infinitely), the exponential term vanishes, and $v(t) \to -\frac{mg}{k} = -v_t$. This means the object accelerates downward until the upward drag force exactly balances the downward gravitational force, at which point the net acceleration becomes zero and the object falls at a constant speed.

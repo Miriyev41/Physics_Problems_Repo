@@ -1,160 +1,171 @@
-# Task 05 – Power and efficiency
+# Task 05 – Momentum and one-dimensional head-on collision
 
 ## Problem Statement
 
-A body of mass $m = 10\ \text{kg}$ is pulled up an inclined plane with an angle $\alpha = 30^\circ$ at a constant velocity $v = 2\ \text{m/s}$. The coefficient of kinetic friction is $\mu = 0.2$.
+Two bodies with masses $m_1, m_2$ move along a single straight line. The collision is elastic. 
 
-The required operations are:
-1. Determine the pulling force $F$ required to maintain constant velocity.
-2. Calculate the power $P$ developed by the pulling force.
-3. Calculate the rate of energy dissipation due to friction ($P_{friction}$).
-4. Determine the efficiency $\eta$ of the process.
-5. Analyze how the efficiency changes with the angle $\alpha$.
+1. Write down the principles of conservation of momentum and energy.
+2. Determine the velocities after the collision.
+3. Consider the case $m_1 = m_2$.
+4. Consider the limit $m_2 \gg m_1$.
+5. Interpret the results physically.
 
 ## Theory
 
-Power $P$ is the rate at which work is done or energy is transferred. For a constant force $\vec F$ acting on an object moving with velocity $\vec v$, the instantaneous power is given by the dot product:
+[Image of elastic collision of two spheres]
 
-$$
-P = \vec F \cdot \vec v
-$$
+An elastic collision is an encounter between two bodies in which the total kinetic energy of the two bodies remains the same. In an ideal, perfectly elastic collision, there is no net conversion of kinetic energy into other forms such as heat, noise, or potential energy.
 
-If the force and velocity are parallel, this simplifies to $P = Fv$.
+For an isolated system (no external forces), the total momentum is always conserved regardless of the collision type. Since the motion is restricted to a single straight line (1D), we can drop vector notation and simply use positive and negative signs to indicate direction.
 
-Efficiency $\eta$ is the ratio of useful power output ($P_{out}$) to the total power input ($P_{in}$):
-
-$$
-\eta = \frac{P_{out}}{P_{in}}
-$$
-
-In this context, the "useful" work is the increase in gravitational potential energy, while the "input" is the work done by the pulling force. The difference between the two is the power dissipated as heat due to friction.
-
-Newton's First Law states that for an object moving at a constant velocity, the net force acting on it must be zero ($\sum \vec F = 0$).
+- **Conservation of Momentum:** The total initial momentum equals the total final momentum.
+- **Conservation of Kinetic Energy:** The total initial kinetic energy equals the total final kinetic energy.
 
 ## Step-by-Step Solution
 
-### 1. Determine the pulling force $F$
+### 1. Conservation principles
 
-We define a coordinate system where the $x$-axis points up the incline. Since the velocity is constant, the acceleration is zero ($a = 0$).
+Let $u_1$ and $u_2$ be the initial velocities, and $v_1$ and $v_2$ be the final velocities after the collision.
 
-**Step 1: Identify forces in the y-direction (perpendicular to the plane)**
+The conservation of momentum equation is:
+
+$$
+m_1 u_1 + m_2 u_2 = m_1 v_1 + m_2 v_2
+$$
+
+The conservation of kinetic energy equation is:
+
+$$
+\frac{1}{2}m_1 u_1^2 + \frac{1}{2}m_2 u_2^2 = \frac{1}{2}m_1 v_1^2 + \frac{1}{2}m_2 v_2^2
+$$
+
+### 2. Determine the velocities after the collision
+
+To solve for $v_1$ and $v_2$, we first rearrange both equations to group the masses together. 
+
+From momentum:
+
+$$
+m_1(u_1 - v_1) = m_2(v_2 - u_2)
+$$
+
+From kinetic energy (multiplying by 2 to remove the fractions):
+
+$$
+m_1(u_1^2 - v_1^2) = m_2(v_2^2 - u_2^2)
+$$
+
+Using the difference of squares factorization on the kinetic energy equation:
+
+$$
+m_1(u_1 - v_1)(u_1 + v_1) = m_2(v_2 - u_2)(v_2 + u_2)
+$$
+
+We can divide the factored energy equation by the rearranged momentum equation (assuming a non-trivial collision where $u_1 \neq v_1$):
+
+$$
+\frac{m_1(u_1 - v_1)(u_1 + v_1)}{m_1(u_1 - v_1)} = \frac{m_2(v_2 - u_2)(v_2 + u_2)}{m_2(v_2 - u_2)}
+$$
+
+This simplifies dramatically to the relative velocity equation:
+
+$$
+u_1 + v_1 = v_2 + u_2
+$$
+
+Rearranging this gives:
+
+$$
+u_1 - u_2 = -(v_1 - v_2)
+$$
+
+This states that the relative velocity of approach equals the relative velocity of separation. Now we can express $v_2$ in terms of $v_1$:
+
+$$
+v_2 = u_1 + v_1 - u_2
+$$
+
+Substitute this back into the original momentum equation:
 
 $$
 \begin{align}
-\sum F_y &= N - mg \cos \alpha = 0 \\
-N &= mg \cos \alpha
+m_1 u_1 + m_2 u_2 &= m_1 v_1 + m_2 (u_1 + v_1 - u_2) \\
+m_1 u_1 + m_2 u_2 &= m_1 v_1 + m_2 u_1 + m_2 v_1 - m_2 u_2 \\
+m_1 u_1 - m_2 u_1 + 2m_2 u_2 &= (m_1 + m_2) v_1
 \end{align}
 $$
 
-**Step 2: Identify forces in the x-direction (parallel to the plane)**
+Solving for $v_1$:
 
-The forces acting along the incline are the pulling force $F$ (up), the component of gravity $mg \sin \alpha$ (down), and the friction force $F_f = \mu N$ (down).
+$$
+v_1 = \frac{m_1 - m_2}{m_1 + m_2} u_1 + \frac{2m_2}{m_1 + m_2} u_2
+$$
+
+By symmetry (swapping subscripts 1 and 2), the final velocity for the second body is:
+
+$$
+v_2 = \frac{2m_1}{m_1 + m_2} u_1 + \frac{m_2 - m_1}{m_1 + m_2} u_2
+$$
+
+### 3. Case: Equal masses ($m_1 = m_2$)
+
+If the masses are equal, let $m_1 = m_2 = m$. Substitute this into the final velocity equations:
 
 $$
 \begin{align}
-\sum F_x &= F - mg \sin \alpha - F_f = 0 \\
-F &= mg \sin \alpha + \mu (mg \cos \alpha) \\
-F &= mg (\sin \alpha + \mu \cos \alpha)
+v_1 &= \frac{m - m}{m + m} u_1 + \frac{2m}{m + m} u_2 \\
+    &= 0 + \frac{2m}{2m} u_2 \\
+    &= u_2
 \end{align}
 $$
-
-**Step 3: Calculate the numerical value**
-Using $g \approx 9.81\ \text{m/s}^2$:
 
 $$
 \begin{align}
-F &= 10 \cdot 9.81 \cdot (\sin 30^\circ + 0.2 \cdot \cos 30^\circ) \\
-  &= 98.1 \cdot (0.5 + 0.2 \cdot 0.866) \\
-  &= 98.1 \cdot (0.5 + 0.1732) \\
-  &= 98.1 \cdot 0.6732 \\
-  &\approx 66.04\ \text{N}
+v_2 &= \frac{2m}{m + m} u_1 + \frac{m - m}{m + m} u_2 \\
+    &= \frac{2m}{2m} u_1 + 0 \\
+    &= u_1
 \end{align}
 $$
 
-### 2. Calculate the input power $P_{in}$
+When the masses are equal, the bodies exactly exchange their velocities.
 
-The power developed by the pulling force $F$ moving at velocity $v$:
+### 4. Limit: Massive target ($m_2 \gg m_1$)
+
+Consider the limit where $m_2$ is much larger than $m_1$. We can divide the numerator and denominator of the coefficients by $m_2$:
+
+$$
+v_1 = \frac{\frac{m_1}{m_2} - 1}{\frac{m_1}{m_2} + 1} u_1 + \frac{2}{\frac{m_1}{m_2} + 1} u_2
+$$
+
+As $m_2 \to \infty$, the fraction $\frac{m_1}{m_2} \to 0$:
 
 $$
 \begin{align}
-P_{in} &= F \cdot v \\
-       &= 66.04 \cdot 2 \\
-       &= 132.08\ \text{W}
+v_1 &\approx \frac{0 - 1}{0 + 1} u_1 + \frac{2}{0 + 1} u_2 \\
+v_1 &\approx -u_1 + 2u_2
 \end{align}
 $$
 
-### 3. Calculate the power dissipated by friction $P_{friction}$
-
-The friction force is $F_f = \mu mg \cos \alpha$:
+For $v_2$, dividing by $m_2$ gives:
 
 $$
 \begin{align}
-F_f &= 0.2 \cdot 10 \cdot 9.81 \cdot \cos 30^\circ \\
-    &= 19.62 \cdot 0.866 \\
-    &\approx 16.99\ \text{N}
+v_2 &= \frac{2\frac{m_1}{m_2}}{\frac{m_1}{m_2} + 1} u_1 + \frac{1 - \frac{m_1}{m_2}}{\frac{m_1}{m_2} + 1} u_2 \\
+v_2 &\approx \frac{0}{1} u_1 + \frac{1}{1} u_2 \\
+v_2 &\approx u_2
 \end{align}
-$$
-
-The power dissipated as heat:
-
-$$
-\begin{align}
-P_{friction} &= F_f \cdot v \\
-             &= 16.99 \cdot 2 \\
-             &= 33.98\ \text{W}
-\end{align}
-$$
-
-### 4. Determine the efficiency $\eta$
-
-Useful power ($P_{out}$) is the rate of change of potential energy:
-
-$$
-\begin{align}
-P_{out} &= \frac{d}{dt}(mgh) = mg \frac{dh}{dt} \\
-        &= mg (v \sin \alpha) \\
-        &= 10 \cdot 9.81 \cdot (2 \cdot 0.5) \\
-        &= 98.1\ \text{W}
-\end{align}
-$$
-
-Calculate efficiency:
-
-$$
-\begin{align}
-\eta &= \frac{P_{out}}{P_{in}} \\
-     &= \frac{98.1}{132.08} \\
-     &\approx 0.7427 \text{ or } 74.3\%
-\end{align}
-$$
-
-### 5. Efficiency as a function of $\alpha$
-
-Express efficiency using the formulas derived:
-
-$$
-\begin{align}
-\eta &= \frac{mgv \sin \alpha}{mg(\sin \alpha + \mu \cos \alpha)v} \\
-     &= \frac{\sin \alpha}{\sin \alpha + \mu \cos \alpha}
-\end{align}
-$$
-
-Divide numerator and denominator by $\cos \alpha$:
-
-$$
-\eta(\alpha) = \frac{\tan \alpha}{\tan \alpha + \mu}
 $$
 
 ## Final Result
 
-* Pulling force: $F \approx 66.04\ \text{N}$
-* Input Power: $P_{in} \approx 132.08\ \text{W}$
-* Dissipated Power: $P_{friction} \approx 33.98\ \text{W}$
-* Efficiency: $\eta \approx 74.3\%$
-* Efficiency Formula: $\eta = \frac{\tan \alpha}{\tan \alpha + \mu}$
+- **Conservation laws:** $m_1 u_1 + m_2 u_2 = m_1 v_1 + m_2 v_2$ and $\frac{1}{2}m_1 u_1^2 + \frac{1}{2}m_2 u_2^2 = \frac{1}{2}m_1 v_1^2 + \frac{1}{2}m_2 v_2^2$.
+- **Final velocities:** $v_1 = \frac{m_1 - m_2}{m_1 + m_2} u_1 + \frac{2m_2}{m_1 + m_2} u_2$
+  $v_2 = \frac{2m_1}{m_1 + m_2} u_1 + \frac{m_2 - m_1}{m_1 + m_2} u_2$
+- **Equal masses:** $v_1 = u_2$ and $v_2 = u_1$.
+- **Massive target ($m_2 \gg m_1$):** $v_1 \approx -u_1 + 2u_2$ and $v_2 \approx u_2$.
 
 ## Interpretation
 
+The exact exchange of velocities when $m_1 = m_2$ is a well-known phenomenon observable in Newton's Cradle. When a moving ball strikes a stationary identical ball, the first stops completely while the second moves off with the original velocity.
 
-
-The efficiency of pulling an object up an incline depends heavily on the steepness. As the angle $\alpha$ increases, the term $\tan \alpha$ grows, causing the efficiency to approach $1$ (100%). This is because at steeper angles, the normal force (and thus friction) decreases while the useful work (lifting against gravity) increases. Conversely, at very shallow angles, most of the input work is wasted overcoming friction rather than gaining height, leading to low efficiency.
+The $m_2 \gg m_1$ limit effectively describes a light object hitting a massive "wall". If the wall is stationary ($u_2 = 0$), the light object simply bounces back with exactly reversed velocity ($v_1 \approx -u_1$), while the massive wall barely moves ($v_2 \approx 0$). If the massive wall is moving toward the object, the object bounces back with significantly increased speed (e.g., a tennis ball hit by a heavy racket).

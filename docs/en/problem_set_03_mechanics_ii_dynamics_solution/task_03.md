@@ -5,10 +5,9 @@
 Given a one-dimensional force:
 
 $$
-F(x) = -kx
+F(x)=-kx
 $$
 
-The required operations are:
 1. Write down the equation of motion and solve it.
 2. Calculate the work done during the displacement from $0$ to $x_0$.
 3. Interpret the result as potential energy.
@@ -17,21 +16,21 @@ The required operations are:
 
 ## Theory
 
-Newton's Second Law for a one-dimensional system is $F = m\ddot{x}$. When the force depends on the position $x$, the equation of motion becomes a differential equation. Specifically, $F(x) = -kx$ describes a linear restoring force, characteristic of a **Hookean spring**.
+A restoring force proportional to displacement (Hooke's Law) describes a simple harmonic oscillator. The equation of motion results in a second-order linear differential equation, giving solutions involving sine and cosine functions.
 
-Work $W$ done by a variable force over a path from $x_1$ to $x_2$ is defined by the integral:
-
-$$
-W = \int_{x_1}^{x_2} F(x) \, dx
-$$
-
-In a conservative force field, the work done by an external agent against the field is stored as potential energy $U$. The change in potential energy is defined as the negative of the work done by the conservative force:
+The work done by a variable force in one dimension is found by integrating the force over the displacement:
 
 $$
-\Delta U = -W_{field} = -\int_{x_1}^{x_2} F(x) \, dx
+W = \int_{x_i}^{x_f} F(x) \, dx
 $$
 
-This leads to the fundamental relationship between force and potential:
+If the force is conservative, the work done by it is exactly equal to the negative change in potential energy $U$:
+
+$$
+\Delta U = -W
+$$
+
+This leads to the fundamental relation defining a conservative force from its potential energy field:
 
 $$
 F(x) = -\frac{dU}{dx}
@@ -39,95 +38,99 @@ $$
 
 ## Step-by-Step Solution
 
-### 1. Write and solve the equation of motion
+### 1. Equation of motion and solution
 
-**Step 1: Set up the differential equation**
-
-Substitute $F = -kx$ into Newton's Second Law $m\frac{d^2x}{dt^2} = F$:
+Using Newton's Second Law:
 
 $$
-m\frac{d^2x}{dt^2} = -kx
+m \ddot{x} = F(x)
 $$
 
-Rearrange into the standard form of a second-order linear homogeneous ODE:
+Substituting the given force:
 
 $$
-\frac{d^2x}{dt^2} + \frac{k}{m}x = 0
+m \ddot{x} = -kx
 $$
 
-**Step 2: Define the natural frequency**
+Dividing by mass $m$:
 
-Let $\omega^2 = \frac{k}{m}$. The equation becomes:
+$$
+\ddot{x} + \frac{k}{m} x = 0
+$$
+
+Let $\omega^2 = \frac{k}{m}$. This gives the standard simple harmonic oscillator equation:
 
 $$
 \ddot{x} + \omega^2 x = 0
 $$
 
-**Step 3: Provide the general solution**
-
-This is the equation for Simple Harmonic Motion (SHM). The general solution is:
+The general solution is a linear combination of trigonometric functions:
 
 $$
-x(t) = A\cos(\omega t + \phi)
+x(t) = A \cos(\omega t) + B \sin(\omega t)
 $$
 
-where $A$ is the amplitude and $\phi$ is the phase constant.
+where $A$ and $B$ are constants determined by initial conditions.
 
-### 2. Calculate the work done from $0$ to $x_0$
+### 2. Work done from $0$ to $x_0$
 
-Calculate the integral of the force $F(x) = -kx$ over the interval $[0, x_0]$:
+The work done by the force is calculated using the definite integral:
+
+$$
+W = \int_0^{x_0} F(x) \, dx
+$$
+
+Substitute $F(x) = -kx$:
 
 $$
 \begin{align}
-W &= \int_{0}^{x_0} (-kx) \, dx \\
-  &= -k \int_{0}^{x_0} x \, dx \\
-  &= -k \left[ \frac{1}{2}x^2 \right]_0^{x_0} \\
-  &= -k \left( \frac{1}{2}x_0^2 - 0 \right)
+W &= \int_0^{x_0} (-kx) \, dx \\
+  &= \left[ -\frac{1}{2} k x^2 \right]_0^{x_0} \\
+  &= -\frac{1}{2} k x_0^2 - (-0) \\
+  &= -\frac{1}{2} k x_0^2
 \end{align}
 $$
 
-$$
-W = -\frac{1}{2}kx_0^2
-$$
+### 3. Interpretation as potential energy
 
-### 3. Interpret the result as potential energy
-
-The work done *by the force* is negative because the force (pointing toward the origin) opposes the displacement (pointing away from the origin). The potential energy $U(x)$ is defined as the work required by an *external agent* to move the body, which is $-W$:
-
-$$
-U(x_0) = -W = \frac{1}{2}kx_0^2
-$$
-
-Assuming $U(0) = 0$, the potential energy function is:
-
-$$
-U(x) = \frac{1}{2}kx^2
-$$
-
-### 4. Verify the relationship $F = -dU/dx$
-
-Take the negative derivative of the potential energy function $U(x) = \frac{1}{2}kx^2$ with respect to $x$:
+Because the force is conservative, the change in potential energy is the negative of the work done by the force:
 
 $$
 \begin{align}
--\frac{dU}{dx} &= -\frac{d}{dx} \left( \frac{1}{2}kx^2 \right) \\
-               &= -\frac{1}{2}k (2x) \\
+\Delta U &= -W \\
+U(x_0) - U(0) &= -\left( -\frac{1}{2} k x_0^2 \right) \\
+U(x_0) - U(0) &= \frac{1}{2} k x_0^2
+\end{align}
+$$
+
+By standard convention, we set the potential energy at the equilibrium position to zero ($U(0) = 0$). Therefore, the potential energy function at any general position $x$ is:
+
+$$
+U(x) = \frac{1}{2} k x^2
+$$
+
+### 4. Verify the relationship $F = -\frac{dU}{dx}$
+
+Given our derived expression $U(x) = \frac{1}{2} k x^2$, calculate the negative derivative with respect to $x$:
+
+$$
+\begin{align}
+-\frac{dU}{dx} &= -\frac{d}{dx} \left( \frac{1}{2} k x^2 \right) \\
+               &= -\frac{1}{2} k (2x) \\
                &= -kx
 \end{align}
 $$
 
-Since $-kx$ is exactly the original force $F(x)$, the relationship is verified.
+This perfectly matches the original force equation $F(x) = -kx$, verifying the mathematical consistency of the potential energy definition.
 
 ## Final Result
 
-* Equation of motion: $m\ddot{x} + kx = 0$
-* General solution: $x(t) = A\cos(\sqrt{\frac{k}{m}}t + \phi)$
-* Work done by the force: $W = -\frac{1}{2}kx_0^2$
-* Potential energy: $U(x) = \frac{1}{2}kx^2$
-* Verification: $-\frac{dU}{dx} = -kx = F(x)$
+- **Equation of motion:** $m \ddot{x} + kx = 0$
+- **General solution:** $x(t) = A \cos\left(\sqrt{\frac{k}{m}} t\right) + B \sin\left(\sqrt{\frac{k}{m}} t\right)$
+- **Work ($0 \to x_0$):** $W = -\frac{1}{2} k x_0^2$
+- **Potential Energy:** $U(x) = \frac{1}{2} k x^2$
+- **Verification:** $-\frac{dU}{dx} = -kx = F(x)$
 
 ## Interpretation
 
-
-
-The linear restoring force $F(x) = -kx$ leads to a quadratic potential energy $U(x) = \frac{1}{2}kx^2$, often called a **potential well**. In this well, the origin $x=0$ is a point of stable equilibrium because it represents the minimum of the potential energy. If the particle is displaced, the force always acts to push it back toward this minimum. The negative work calculated indicates that as the particle moves away from equilibrium, kinetic energy is being converted into stored potential energy.
+The negative sign of the work done indicates that the restoring force acts in the opposite direction to the displacement, extracting kinetic energy from the particle and storing it. This stored energy exactly defines the potential energy field $U(x)$, which takes the shape of an upward-opening parabola. Because the potential energy is quadratic, the force (its negative derivative) must be linear.

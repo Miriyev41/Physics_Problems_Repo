@@ -2,120 +2,108 @@
 
 ## Problem Statement
 
-The equation of motion for a particle is given by:
+The equation of motion is given:
 
 $$
 x(t) = x_0 + v_0 t + \frac{1}{2} a t^2
 $$
 
-The required operations are:
-
-1. Determine the velocity $v(t)$ and acceleration $a(t)$ by differentiation.
-2. Given the parameters $x_0 = 0$, $v_0 = 5\ \text{m/s}$, and $a = -2\ \text{m/s}^2$, calculate:
-    - The stopping time $t_s$.
-    - The maximum displacement $x_{max}$.
-    - The behavior of velocity depending on the time and the sign of the acceleration.
-3. Visualize the kinematic variables $x(t)$, $v(t)$, and $a(t)$.
+1. Determine the velocity $v(t)$ and acceleration $a(t)$.
+2. For the given parameters $x_0=0$, $v_0=5\ \text{m/s}$, $a=-2\ \text{m/s}^2$:
+   * calculate the stopping time,
+   * calculate the maximum velocity depending on the time and the sign of the acceleration,
+   * calculate the maximum displacement.
+3. Visualize $x(t)$, $v(t)$, $a(t)$.
 
 ## Theory
 
-In kinematics, the state of a particle is described by its position $x(t)$. The velocity $v(t)$ is defined as the first derivative of the position with respect to time:
+Kinematics describes motion through the fundamental relationships between position, velocity, and acceleration. Velocity is defined as the first time derivative of position, representing the rate of change of displacement. Acceleration is defined as the first time derivative of velocity, or the second time derivative of position, representing the rate of change of velocity.
 
-$$
-v(t) = \frac{dx}{dt}
-$$
-
-The acceleration $a(t)$ is the first derivative of the velocity, or the second derivative of the position, with respect to time:
-
-$$
-a(t) = \frac{dv}{dt} = \frac{d^2x}{dt^2}
-$$
-
-For uniformly accelerated motion, the acceleration is constant. A "stopping time" refers to the instant $t_s$ when the instantaneous velocity reaches zero ($v(t_s) = 0$). This point often corresponds to a local extremum in the position function, such as the maximum displacement before the particle reverses direction.
+A fundamental property of calculus is that a continuous, differentiable function reaches a local extremum (maximum or minimum) when its first derivative is equal to zero. Therefore, a particle reaches its maximum displacement precisely at the moment when its velocity is zero (the turning point).
 
 ## Step-by-Step Solution
 
-### 1. Derive velocity and acceleration
+### 1. General expressions for velocity and acceleration
 
-Start with the position equation:
-
-$$
-x(t) = x_0 + v_0 t + \frac{1}{2} a t^2
-$$
-
-Differentiate with respect to $t$ to find velocity:
+To determine the velocity $v(t)$, compute the first derivative of the position function $x(t)$ with respect to time $t$:
 
 $$
 \begin{align}
-v(t) &= \frac{d}{dt} \left( x_0 + v_0 t + \frac{1}{2} a t^2 \right) \\
+v(t) &= \frac{dx}{dt} \\
+     &= \frac{d}{dt} \left( x_0 + v_0 t + \frac{1}{2} a t^2 \right) \\
      &= 0 + v_0 + \frac{1}{2} a (2t) \\
-     &= v_0 + at
+     &= v_0 + a t
 \end{align}
 $$
 
-Differentiate velocity with respect to $t$ to find acceleration:
+To determine the acceleration $a(t)$, compute the derivative of the velocity function $v(t)$ with respect to time $t$:
 
 $$
 \begin{align}
-a(t) &= \frac{d}{dt} (v_0 + at) \\
-     &= 0 + a \\
+a(t) &= \frac{dv}{dt} \\
+     &= \frac{d}{dt} (v_0 + a t) \\
      &= a
 \end{align}
 $$
 
-This confirms that the motion is uniformly accelerated, as the acceleration is independent of time.
+This confirms that the constant $a$ in the polynomial represents the constant acceleration of the object.
 
-### 2. Calculations with given parameters
+### 2. Analysis with specific parameters
 
-Given: $x_0 = 0$, $v_0 = 5\ \text{m/s}$, $a = -2\ \text{m/s}^2$.
-
-**Step 1: Calculate the stopping time $t_s$**
-
-The particle stops when $v(t) = 0$:
+Substitute the given values $x_0 = 0$, $v_0 = 5$, and $a = -2$ into the kinematic equations:
 
 $$
-0 = v_0 + at_s
+x(t) = 5t - t^2
 $$
 
-Substitute the parameters:
+$$
+v(t) = 5 - 2t
+$$
+
+$$
+a(t) = -2
+$$
+
+**Stopping time:**
+The object stops when its velocity reaches zero. Set $v(t) = 0$ and solve for $t$:
 
 $$
 \begin{align}
-0 &= 5 + (-2)t_s \\
-2t_s &= 5 \\
-t_s &= 2.5\ \text{s}
+5 - 2t &= 0 \\
+2t &= 5 \\
+t &= 2.5\ \text{s}
 \end{align}
 $$
 
-**Step 2: Calculate the maximum displacement $x_{max}$**
+The stopping time is $t = 2.5\ \text{s}$.
 
-The maximum displacement occurs at the stopping time $t_s = 2.5\ \text{s}$. Substitute this into the position equation:
+**Maximum velocity:**
+Assuming the analysis begins at $t = 0\ \text{s}$, the acceleration is negative ($a = -2\ \text{m/s}^2$). Because the acceleration is constant and strictly negative, the velocity decreases linearly over time. Therefore, the maximum velocity occurs exactly at the initial moment $t = 0$:
+
+$$
+v_{max} = v(0) = 5\ \text{m/s}
+$$
+
+**Maximum displacement:**
+The maximum displacement in the positive direction occurs at the turning point, which corresponds to the stopping time $t = 2.5\ \text{s}$ derived earlier. Substitute this time back into the position equation $x(t)$:
 
 $$
 \begin{align}
 x_{max} &= x(2.5) \\
-        &= 0 + 5(2.5) + \frac{1}{2}(-2)(2.5)^2 \\
-        &= 12.5 - (6.25) \\
+        &= 5(2.5) - (2.5)^2 \\
+        &= 12.5 - 6.25 \\
         &= 6.25\ \text{m}
 \end{align}
 $$
 
-**Step 3: Analyze velocity behavior**
-
-The velocity equation is $v(t) = 5 - 2t$. 
-
-- At $t=0$, the velocity is positive ($5\ \text{m/s}$).
-- Because the acceleration is negative ($a = -2\ \text{m/s}^2$), the velocity decreases linearly over time.
-- After the stopping time ($t > 2.5\ \text{s}$), the velocity becomes negative, meaning the particle has reversed its direction of motion.
-
 ## Final Result
 
-- Velocity: $v(t) = v_0 + at$
-- Acceleration: $a(t) = a$
-- Stopping time: $t_s = 2.5\ \text{s}$
-- Maximum displacement: $x_{max} = 6.25\ \text{m}$
+- **Velocity equation:** $v(t) = v_0 + at$
+- **Acceleration equation:** $a(t) = a$
+- **Stopping time:** $2.5\ \text{s}$
+- **Maximum velocity:** $5\ \text{m/s}$ (at $t=0$)
+- **Maximum displacement:** $6.25\ \text{m}$
 
 ## Interpretation
 
-
-In this scenario, the particle acts as if it is thrown upward or sliding against friction. The negative acceleration acts as a "deceleration" relative to the initial positive velocity. The position graph is a downward-opening parabola, where the vertex represents the point of maximum displacement and zero velocity. The linear decrease of velocity reflects the constant "drain" on the particle's speed by the uniform acceleration field. Once $v(t)$ crosses the horizontal axis, the particle moves back toward its starting position, eventually crossing $x=0$ again at $t = 5\ \text{s}$.
+The negative acceleration indicates that the force acting on the body opposes its initial velocity, characteristic of a braking process or motion under a uniform opposing force (such as an object sliding to a halt under kinetic friction). The object travels forward, decelerating linearly until it comes to a complete, instantaneous stop at $2.5\ \text{s}$, having covered a total distance of $6.25\ \text{m}$. If the equations are allowed to continue past this point without assuming a physical barrier, the negative velocity implies the object will reverse direction and accelerate back towards the origin.

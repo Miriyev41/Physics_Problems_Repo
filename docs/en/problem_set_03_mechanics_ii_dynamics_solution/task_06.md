@@ -1,154 +1,141 @@
-# Task 06 – Motion with air resistance (Drag force)
+# Task 06 – Motion with linear drag
 
 ## Problem Statement
 
-A body of mass $m$ is moving horizontally with an initial velocity $v(0) = v_0$ at position $x(0) = 0$. The only horizontal force acting on the body is a linear drag force:
+The drag force is given by the formula:
 
 $$
-F_d = -kv
+F = -kv
 $$
 
-The required operations are:
-1. Write down the equation of motion and solve it to find $v(t)$.
-2. Solve the equation to find the position $x(t)$.
-3. Investigate the limit $\lim_{t \to \infty} v(t)$.
-4. Determine the maximum distance the body can travel.
-5. Compare the results with motion without drag.
+Initial conditions: $v(0)=v_0$, $x(0)=0$.
+
+1. Write down the equation of motion and solve it.
+2. Investigate the limit $\lim_{t\to\infty} v(t)$.
+3. Compare with motion without drag.
 
 ## Theory
 
-Newton's Second Law states that the net force equals the mass times acceleration:
+When an object moves through a fluid at relatively low speeds, it experiences a resistive drag force that is linearly proportional to its velocity. This is commonly known as Stokes' drag. The negative sign indicates that the force always acts in the opposite direction to the velocity, thereby decelerating the object.
 
-$$
-F = m \frac{dv}{dt}
-$$
-
-In this problem, the net force is the drag force $F_d = -kv$. The negative sign indicates that the force acts in the opposite direction of the velocity, causing the body to slow down.
-
-This leads to a first-order linear differential equation. To solve it, we use the method of **separation of variables**. Once the velocity $v(t)$ is known, the position $x(t)$ is found by integrating the velocity with respect to time:
-
-$$
-x(t) = x(0) + \int_{0}^{t} v(\tau) \, d\tau
-$$
+To solve for the velocity and position as functions of time, we set up Newton's Second Law as a first-order separable differential equation in terms of velocity, solve for $v(t)$, and then integrate the result to find position $x(t)$.
 
 ## Step-by-Step Solution
 
-### 1. Solve for velocity $v(t)$
+### 1. Equation of motion and solution
 
-**Step 1: Set up the differential equation**
+Applying Newton's Second Law ($\sum F = ma$):
 
 $$
 m \frac{dv}{dt} = -kv
 $$
 
-**Step 2: Separate the variables**
-
-Divide by $v$ and multiply by $dt/m$:
+This is a separable ordinary differential equation. We separate the variables $v$ and $t$:
 
 $$
-\frac{1}{v} \, dv = -\frac{k}{m} \, dt
+\frac{dv}{v} = -\frac{k}{m} dt
 $$
 
-**Step 3: Integrate both sides**
-
-Integrate from the initial state $(v_0, 0)$ to an arbitrary state $(v, t)$:
+Integrate both sides:
 
 $$
-\int_{v_0}^{v} \frac{1}{\bar{v}} \, d\bar{v} = -\frac{k}{m} \int_{0}^{t} \, d\tau
+\int \frac{1}{v} \, dv = \int -\frac{k}{m} \, dt
 $$
 
 $$
-\ln|v| - \ln|v_0| = -\frac{k}{m} t
+\ln|v| = -\frac{k}{m}t + C
 $$
 
-Using logarithm properties:
+Exponentiate both sides to solve for $v$:
 
 $$
-\ln\left( \frac{v}{v_0} \right) = -\frac{k}{m} t
+v(t) = e^C e^{-\frac{k}{m}t}
 $$
 
-**Step 4: Solve for $v(t)$**
-
-Exponentiate both sides:
-
-$$
-\frac{v(t)}{v_0} = e^{-\frac{k}{m} t}
-$$
-
-$$
-v(t) = v_0 e^{-\frac{k}{m} t}
-$$
-
-### 2. Solve for position $x(t)$
-
-**Step 1: Set up the integral**
-
-$$
-x(t) = \int_{0}^{t} v(\tau) \, d\tau = \int_{0}^{t} v_0 e^{-\frac{k}{m} \tau} \, d\tau
-$$
-
-**Step 2: Perform the integration**
+Let $A = e^C$. Apply the initial condition $v(0) = v_0$:
 
 $$
 \begin{align}
-x(t) &= v_0 \left[ -\frac{m}{k} e^{-\frac{k}{m} \tau} \right]_0^t \\
-     &= -\frac{mv_0}{k} \left( e^{-\frac{k}{m} t} - e^0 \right) \\
-     &= -\frac{mv_0}{k} \left( e^{-\frac{k}{m} t} - 1 \right)
+v(0) &= A e^{0} \\
+v_0 &= A
 \end{align}
 $$
 
-Rearranging the terms:
+So the velocity function is:
 
 $$
-x(t) = \frac{mv_0}{k} \left( 1 - e^{-\frac{k}{m} t} \right)
+v(t) = v_0 e^{-\frac{k}{m}t}
 $$
 
-### 3. Investigate the limit $\lim_{t \to \infty} v(t)$
-
-Analyze the behavior of the velocity as time approaches infinity:
-
-$$
-\lim_{t \to \infty} v(t) = \lim_{t \to \infty} v_0 e^{-\frac{k}{m} t}
-$$
-
-Since the exponent is negative, the term $e^{-\infty}$ approaches zero:
-
-$$
-\lim_{t \to \infty} v(t) = 0
-$$
-
-The body eventually comes to a complete stop.
-
-### 4. Determine maximum distance
-
-The maximum distance $x_{max}$ is the limit of the position as $t \to \infty$:
+Now, to find the position $x(t)$, we integrate the velocity function with respect to time:
 
 $$
 \begin{align}
-x_{max} &= \lim_{t \to \infty} \frac{mv_0}{k} \left( 1 - e^{-\frac{k}{m} t} \right) \\
-        &= \frac{mv_0}{k} (1 - 0) \\
-        &= \frac{mv_0}{k}
+x(t) &= \int v(t) \, dt \\
+     &= \int v_0 e^{-\frac{k}{m}t} \, dt \\
+     &= v_0 \left( -\frac{m}{k} \right) e^{-\frac{k}{m}t} + C'
 \end{align}
 $$
 
-Even though the body theoretically takes an infinite amount of time to stop, it covers a finite distance.
+Apply the initial condition $x(0) = 0$ to find the integration constant $C'$:
 
-### 5. Compare with motion without drag
+$$
+\begin{align}
+0 &= -\frac{mv_0}{k} e^0 + C' \\
+C' &= \frac{mv_0}{k}
+\end{align}
+$$
 
-In the case without drag ($k = 0$):
-- **Velocity:** $v(t) = v_0$ (Constant).
-- **Position:** $x(t) = v_0 t$ (Increases linearly without bound).
-- **Stopping:** The body never stops.
+Substitute $C'$ back into the position equation:
 
+$$
+\begin{align}
+x(t) &= -\frac{mv_0}{k} e^{-\frac{k}{m}t} + \frac{mv_0}{k} \\
+     &= \frac{mv_0}{k} \left( 1 - e^{-\frac{k}{m}t} \right)
+\end{align}
+$$
 
+### 2. Investigate the limit $\lim_{t\to\infty} v(t)$
+
+Take the limit of the velocity function as time approaches infinity:
+
+$$
+\begin{align}
+\lim_{t \to \infty} v(t) &= \lim_{t \to \infty} \left( v_0 e^{-\frac{k}{m}t} \right) \\
+                         &= v_0 \cdot 0 \\
+                         &= 0
+\end{align}
+$$
+
+Let us also look at the limit of the position $x(t)$ as $t \to \infty$:
+
+$$
+\begin{align}
+\lim_{t \to \infty} x(t) &= \lim_{t \to \infty} \left( \frac{mv_0}{k} \left( 1 - e^{-\frac{k}{m}t} \right) \right) \\
+                         &= \frac{mv_0}{k} (1 - 0) \\
+                         &= \frac{mv_0}{k}
+\end{align}
+$$
+
+### 3. Compare with motion without drag
+
+Without drag, the net horizontal force on the object is zero ($F = 0$). By Newton's First Law, an object in motion will stay in motion with a constant velocity.
+
+- **Velocity without drag:** $v_{nodrag}(t) = v_0$ (Constant)
+- **Position without drag:** $x_{nodrag}(t) = v_0 t$ (Grows infinitely)
+
+With linear drag:
+- **Velocity with drag:** Decays exponentially toward zero.
+- **Position with drag:** Increases, but asymptotically approaches a finite maximum distance $x_{max} = \frac{mv_0}{k}$. It never goes beyond this distance.
 
 ## Final Result
 
-* Velocity: $v(t) = v_0 e^{-\frac{k}{m} t}$
-* Position: $x(t) = \frac{mv_0}{k} \left( 1 - e^{-\frac{k}{m} t} \right)$
-* Terminal velocity: $0$
-* Maximum distance: $x_{max} = \frac{mv_0}{k}$
+- **Equation of Motion:** $m \frac{dv}{dt} = -kv$
+- **Velocity:** $v(t) = v_0 e^{-\frac{k}{m}t}$
+- **Position:** $x(t) = \frac{mv_0}{k} \left( 1 - e^{-\frac{k}{m}t} \right)$
+- **Limit:** $\lim_{t \to \infty} v(t) = 0$. The object eventually stops.
+- **Comparison:** Without drag, velocity is constant and distance is infinite. With drag, velocity decays exponentially, and the object travels only a finite stopping distance $\frac{mv_0}{k}$.
 
 ## Interpretation
 
-The linear drag force creates an exponential decay in velocity. This is physically intuitive: as the body slows down, the drag force decreases, which in turn reduces the rate of deceleration. This "weakening" of the stopping force allows the body to creep forward for an infinite time, yet the rapidly diminishing speed ensures the total displacement is limited to $mv_0/k$. This model is applicable to objects moving at low speeds through viscous fluids (Stokes' drag).
+The parameter $\tau = \frac{m}{k}$ has units of time and serves as the "time constant" of the system. It represents the time it takes for the velocity to drop to roughly $37\%$ ($1/e$) of its initial value. The stopping distance $x_{max} = v_0 \tau$ illustrates a fascinating consequence of fluid resistance: no matter how much time passes, an unpowered object experiencing linear drag will never travel infinitely far. It will smoothly bleed off all its kinetic energy into the surrounding fluid as heat, coming to rest at exactly $\frac{mv_0}{k}$.

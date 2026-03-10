@@ -3,140 +3,264 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task 07 - Work Line Integral & Riemann Sum</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Task 07 - Work Line Integral</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        h1, h2 { color: #333; }
-        .control-panel { margin-bottom: 20px; padding: 15px; background-color: #eef; border-radius: 6px; }
-        label { font-weight: bold; margin-right: 10px; }
-        input[type="number"] { padding: 5px; width: 100px; }
-        button { padding: 8px 15px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        button:hover { background-color: #218838; }
-        .results { margin-top: 15px; padding: 15px; background-color: #f4f4f4; border-left: 4px solid #28a745; }
-        .chart-container { margin-top: 30px; }
-        canvas { max-height: 400px; }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 20px;
+            background-color: #f9fafb;
+            color: #1f2937;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1, h2 { color: #111827; }
+        .flex-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .left-col, .right-col {
+            flex: 1;
+            min-width: 300px;
+        }
+        canvas {
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            width: 100%;
+            height: auto;
+        }
+        .controls {
+            margin: 20px 0;
+            padding: 15px;
+            background: #eff6ff;
+            border-radius: 6px;
+            border-left: 4px solid #3b82f6;
+        }
+        input[type="number"] {
+            padding: 6px;
+            width: 100px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 8px 16px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { background: #2563eb; }
+        .results {
+            font-family: monospace;
+            background: #1f2937;
+            color: #10b981;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+        }
+        .label-note { font-size: 0.85em; color: #6b7280; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Numerical Riemann Sum Calculator for Work</h1>
-    <p>Function to integrate: <strong>f(t) = F(t) · v(t) = 5t²</strong> for t ∈ [0, 1]</p>
-    
-    <div class="control-panel">
-        <label for="n-input">Number of Rectangles (N):</label>
-        <input type="number" id="n-input" value="50" min="1" max="100000">
-        <button onclick="runAnalysis()">Calculate Riemann Sum</button>
+    <h1>Numerical Integration: Work of a Force</h1>
+    <p>Calculating the line integral of force <strong>F(x,y) = (y, 2x)</strong> along the trajectory <strong>x=t, y=t²</strong>.</p>
+
+    <div class="controls">
+        <label for="divisions">Riemann sum divisions (N): </label>
+        <input type="number" id="divisions" value="50" min="1" max="100000">
+        <button onclick="compute()">Calculate Work</button>
+        <p class="label-note">Try N=10, 100, 1000 to see convergence.</p>
     </div>
 
-    <div class="results" id="results-box">
+    <div class="results" id="results">
         </div>
 
-    <div class="chart-container">
-        <h2>Riemann Sum Error Convergence</h2>
-        <canvas id="errorChart"></canvas>
+    <div class="flex-container">
+        <div class="left-col">
+            <h3>Force Field & Trajectory</h3>
+            <canvas id="vectorCanvas" width="400" height="400"></canvas>
+            <p class="label-note">Blue curve: trajectory. Red arrows: Force vectors F(x,y) evaluated along the curve.</p>
+        </div>
+        <div class="right-col">
+            <h3>Power vs. Time</h3>
+            <canvas id="powerCanvas" width="400" height="400"></canvas>
+            <p class="label-note">Plot of the dot product F·v = 5t² over time. The integral (area under curve) equals the total work.</p>
+        </div>
     </div>
 </div>
 
 <script>
-    // Exact analytical value calculated in the derivations
-    const EXACT_WORK = 5 / 3;
+    const ANALYTICAL_WORK = 5 / 3;
 
-    // The integrand function: f(t) = F · v = 5t^2
-    function powerFunction(t) {
+    // Power function (integrand): F dot v = 5t^2
+    function integrand(t) {
         return 5 * t * t;
     }
 
-    // Right Riemann Sum implementation
-    function rightRiemannSum(N) {
-        const a = 0;
-        const b = 1;
-        const dt = (b - a) / N;
+    // Left Riemann Sum implementation
+    function riemannSum(N) {
+        let dt = 1.0 / N;
         let sum = 0;
-        
-        for (let i = 1; i <= N; i++) {
-            let ti = a + i * dt; // Right endpoint
-            sum += powerFunction(ti);
+        for (let i = 0; i < N; i++) {
+            let t = i * dt;
+            sum += integrand(t) * dt;
         }
-        
-        return sum * dt;
+        return sum;
     }
 
-    let errChartInstance = null;
+    function drawVectorField() {
+        const canvas = document.getElementById('vectorCanvas');
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    function runAnalysis() {
-        const maxN = parseInt(document.getElementById('n-input').value);
-        if (isNaN(maxN) || maxN < 1) {
-            alert("Please enter a valid positive integer for N.");
-            return;
+        const margin = 40;
+        const width = canvas.width - 2 * margin;
+        const height = canvas.height - 2 * margin;
+
+        function mapX(x) { return margin + x * width; }
+        function mapY(y) { return canvas.height - margin - y * height; }
+
+        // Axes
+        ctx.strokeStyle = '#9ca3af';
+        ctx.beginPath();
+        ctx.moveTo(mapX(0), mapY(0)); ctx.lineTo(mapX(1.1), mapY(0));
+        ctx.moveTo(mapX(0), mapY(0)); ctx.lineTo(mapX(0), mapY(1.1));
+        ctx.stroke();
+
+        // Trajectory
+        ctx.strokeStyle = '#3b82f6';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for(let t = 0; t <= 1; t += 0.01) {
+            let x = t;
+            let y = t * t;
+            if(t === 0) ctx.moveTo(mapX(x), mapY(y));
+            else ctx.lineTo(mapX(x), mapY(y));
+        }
+        ctx.stroke();
+
+        // Draw Force vectors along the trajectory
+        ctx.strokeStyle = '#ef4444';
+        ctx.fillStyle = '#ef4444';
+        ctx.lineWidth = 1.5;
+        
+        // Draw 10 representative vectors
+        for(let t = 0.1; t <= 1; t += 0.1) {
+            let x = t;
+            let y = t * t;
+            
+            // F(x,y) = (y, 2x) = (t^2, 2t)
+            let fx = y;
+            let fy = 2 * x;
+            
+            // Scale vectors for visual clarity
+            let scale = 0.2; 
+            
+            let startX = mapX(x);
+            let startY = mapY(y);
+            let endX = mapX(x + fx * scale);
+            let endY = mapY(y + fy * scale);
+
+            // Draw line
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(endX, endY);
+            ctx.stroke();
+
+            // Draw arrowhead
+            let angle = Math.atan2(endY - startY, endX - startX);
+            ctx.beginPath();
+            ctx.moveTo(endX, endY);
+            ctx.lineTo(endX - 6 * Math.cos(angle - Math.PI/6), endY - 6 * Math.sin(angle - Math.PI/6));
+            ctx.lineTo(endX - 6 * Math.cos(angle + Math.PI/6), endY - 6 * Math.sin(angle + Math.PI/6));
+            ctx.fill();
+        }
+    }
+
+    function drawPowerPlot(N) {
+        const canvas = document.getElementById('powerCanvas');
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const margin = 40;
+        const width = canvas.width - 2 * margin;
+        const height = canvas.height - 2 * margin;
+
+        function mapT(t) { return margin + t * width; }
+        function mapP(p) { return canvas.height - margin - (p / 5.0) * height; } // Max power is 5 at t=1
+
+        // Axes
+        ctx.strokeStyle = '#9ca3af';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(mapT(0), mapP(0)); ctx.lineTo(mapT(1.1), mapP(0)); // t axis
+        ctx.moveTo(mapT(0), mapP(0)); ctx.lineTo(mapT(0), mapP(5.5)); // p axis
+        ctx.stroke();
+
+        // Draw Riemann Rectangles
+        ctx.fillStyle = 'rgba(59, 130, 246, 0.3)';
+        ctx.strokeStyle = '#2563eb';
+        let dt = 1.0 / N;
+        
+        // Only draw rectangles if N isn't massive (for performance/visual reasons)
+        if(N <= 100) {
+            for(let i = 0; i < N; i++) {
+                let t = i * dt;
+                let p = integrand(t);
+                let x = mapT(t);
+                let y = mapP(p);
+                let rectWidth = width * dt;
+                let rectHeight = mapP(0) - y;
+                
+                ctx.fillRect(x, y, rectWidth, rectHeight);
+                ctx.strokeRect(x, y, rectWidth, rectHeight);
+            }
         }
 
-        // 1. Calculate Single Result for requested N
-        const numResult = rightRiemannSum(maxN);
-        const errorVal = Math.abs(numResult - EXACT_WORK);
+        // Draw exact curve
+        ctx.strokeStyle = '#10b981'; // Green
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for(let t = 0; t <= 1; t += 0.01) {
+            let p = integrand(t);
+            if(t === 0) ctx.moveTo(mapT(t), mapP(p));
+            else ctx.lineTo(mapT(t), mapP(p));
+        }
+        ctx.stroke();
+    }
 
-        // Update Results Box
-        document.getElementById('results-box').innerHTML = `
-            <p><strong>Exact Analytical Work:</strong> ${EXACT_WORK.toFixed(10)} (approx 1.666666...)</p>
-            <p><strong>Numerical Work (Riemann Sum, N=${maxN}):</strong> ${numResult.toFixed(10)}</p>
-            <p><strong>Absolute Error:</strong> ${errorVal.toExponential(4)}</p>
+    function compute() {
+        let nInput = document.getElementById('divisions').value;
+        let N = parseInt(nInput);
+        if(isNaN(N) || N < 1) N = 50;
+
+        let numericalWork = riemannSum(N);
+        let error = Math.abs(ANALYTICAL_WORK - numericalWork);
+
+        document.getElementById('results').innerHTML = `
+            <div>Analytical Work (exact) : ${ANALYTICAL_WORK.toFixed(8)} (${(5/3).toFixed(5)}...)</div>
+            <div>Numerical Work (N=${N})  : ${numericalWork.toFixed(8)}</div>
+            <div>Absolute Error          : ${error.toExponential(4)}</div>
         `;
 
-        // 2. Generate Data for Error Convergence Chart
-        const nValues = [];
-        const errorData = [];
-        
-        let step = Math.max(1, Math.floor(maxN / 50)); 
-
-        for (let n = 1; n <= maxN; n += step) {
-            let res = rightRiemannSum(n);
-            let err = Math.abs(res - EXACT_WORK);
-            nValues.push(n);
-            errorData.push(err);
-        }
-
-        if (nValues[nValues.length - 1] !== maxN) {
-            nValues.push(maxN);
-            errorData.push(errorVal);
-        }
-
-        // Update Error Chart
-        const errCtx = document.getElementById('errorChart').getContext('2d');
-        
-        if (errChartInstance) {
-            errChartInstance.destroy();
-        }
-
-        errChartInstance = new Chart(errCtx, {
-            type: 'line',
-            data: {
-                labels: nValues,
-                datasets: [{
-                    label: 'Absolute Error of Right Riemann Sum',
-                    data: errorData,
-                    borderColor: '#ffc107',
-                    backgroundColor: 'rgba(255, 193, 7, 0.2)',
-                    fill: true,
-                    tension: 0.1
-                }]
-            },
-            options: {
-                scales: {
-                    x: { title: { display: true, text: 'Number of Rectangles (N)' } },
-                    y: { 
-                        type: 'logarithmic', 
-                        title: { display: true, text: 'Log Absolute Error' } 
-                    }
-                }
-            }
-        });
+        drawVectorField();
+        drawPowerPlot(N);
     }
 
-    window.onload = () => {
-        runAnalysis();
-    };
+    window.onload = compute;
 </script>
 
 </body>

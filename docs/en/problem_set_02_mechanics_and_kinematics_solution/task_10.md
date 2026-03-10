@@ -2,167 +2,123 @@
 
 ## Problem Statement
 
-For the measurement data $x(t) = t + \frac{1}{20}t^2$ on the interval $t \in [0, 10]$.
+For the measurement data $x(t)=t+\frac{1}{20}t^2$ on the interval $t\in[0,10]$ with a time step of $\Delta t=0.1$:
 
-The required operations are:
-1. Determine the exact velocity $v(t)$ and acceleration $a(t)$ using differentiation.
-2. Calculate the average velocity $\bar{v}$ over the entire interval $[0, 10]$.
-3. Use a numerical approach to estimate velocity at $t = 5$ using the symmetric difference quotient:
-   $$
-   v_{num}(t) = \frac{x(t + \Delta t) - x(t - \Delta t)}{2\Delta t}
-   $$
-   for $\Delta t = 1$ and $\Delta t = 0.1$.
-4. Compare the numerical results with the exact value $v(5)$.
+1. Approximate the velocity using the finite difference method.
+2. Approximate the acceleration using the finite difference method.
+3. Compare with the analytical solution (if known).
+4. Investigate the effect of the time step on accuracy.
 
 ## Theory
 
-The instantaneous velocity $v(t)$ is the derivative of the position function $x(t)$ with respect to time:
+When the position of an object is known only at discrete time steps $t_i$ separated by a constant interval $\Delta t$, derivatives such as velocity and acceleration cannot be calculated using continuous calculus. Instead, we use numerical approximations called finite differences.
 
-$$
-v(t) = \frac{dx}{dt} = \lim_{\Delta t \to 0} \frac{x(t + \Delta t) - x(t)}{\Delta t}
-$$
+**Velocity (First Derivative):**
+1. **Forward Difference:** Approximates the velocity at time $t_i$ by looking ahead to the next point.
+   $$
+   v_{\text{forward}}(t_i) \approx \frac{x(t_{i+1}) - x(t_i)}{\Delta t}
+   $$
+2. **Central Difference:** Approximates the velocity by looking at the points directly before and after, providing a more symmetric and generally more accurate result.
+   $$
+   v_{\text{central}}(t_i) \approx \frac{x(t_{i+1}) - x(t_{i-1})}{2\Delta t}
+   $$
 
-The average velocity $\bar{v}$ over an interval $[t_1, t_2]$ is the total displacement divided by the total time:
-
+**Acceleration (Second Derivative):**
+Using the central difference applied twice, the second derivative at time $t_i$ can be approximated directly from position data:
 $$
-\bar{v} = \frac{x(t_2) - x(t_1)}{t_2 - t_1}
+a(t_i) \approx \frac{x(t_{i+1}) - 2x(t_i) + x(t_{i-1})}{(\Delta t)^2}
 $$
-
-In experimental physics, we often lack a continuous function and must estimate derivatives from discrete data points. The **Symmetric Difference Quotient** (or central difference) is a common numerical method that provides a more accurate approximation of the derivative at a point than the forward or backward difference:
-
-$$
-v_{num}(t) \approx \frac{x(t + \Delta t) - x(t - \Delta t)}{2\Delta t}
-$$
-
-The error in this approximation generally decreases as the time step $\Delta t$ becomes smaller.
 
 ## Step-by-Step Solution
 
-### 1. Determine exact velocity and acceleration
+### 1. Analytical Solution
 
-**Step 1: Differentiate $x(t)$ to find $v(t)$**
+Before performing the numerical approximation, we establish the exact analytical solution to serve as a baseline for comparison.
 
-Given:
+Given the position function:
 $$
-x(t) = t + \frac{1}{20}t^2
+x(t) = t + 0.05t^2
 $$
 
-Differentiate with respect to $t$:
-
+The exact velocity is the first time-derivative:
 $$
 \begin{align}
-v(t) &= \frac{d}{dt} \left( t + \frac{1}{20}t^2 \right) \\
-     &= 1 + \frac{1}{20}(2t) \\
-     &= 1 + \frac{t}{10}
+v(t) &= \frac{dx}{dt} \\
+     &= 1 + 2(0.05)t \\
+     &= 1 + 0.1t
 \end{align}
 $$
 
-**Step 2: Differentiate $v(t)$ to find $a(t)$**
-
+The exact acceleration is the second time-derivative:
 $$
 \begin{align}
-a(t) &= \frac{d}{dt} \left( 1 + \frac{t}{10} \right) \\
-     &= 0 + \frac{1}{10} \\
+a(t) &= \frac{dv}{dt} \\
      &= 0.1
 \end{align}
 $$
 
-### 2. Calculate average velocity $\bar{v}$ on $[0, 10]$
+### 2. Numerical Velocity (Forward Difference)
 
-**Step 1: Calculate positions at the boundaries**
-
-At $t_1 = 0$:
-$$
-x(0) = 0 + \frac{1}{20}(0)^2 = 0
-$$
-
-At $t_2 = 10$:
-$$
-x(10) = 10 + \frac{1}{20}(10)^2 = 10 + \frac{100}{20} = 10 + 5 = 15
-$$
-
-**Step 2: Calculate the average**
+Let's evaluate the forward difference approximation for velocity analytically to see its dependence on $\Delta t$:
 
 $$
 \begin{align}
-\bar{v} &= \frac{x(10) - x(0)}{10 - 0} \\
-        &= \frac{15 - 0}{10} \\
-        &= 1.5
+v_{\text{num}}(t) &= \frac{x(t + \Delta t) - x(t)}{\Delta t} \\
+                  &= \frac{(t + \Delta t) + 0.05(t + \Delta t)^2 - (t + 0.05t^2)}{\Delta t} \\
+                  &= \frac{t + \Delta t + 0.05(t^2 + 2t\Delta t + (\Delta t)^2) - t - 0.05t^2}{\Delta t} \\
+                  &= \frac{\Delta t + 0.1t\Delta t + 0.05(\Delta t)^2}{\Delta t} \\
+                  &= 1 + 0.1t + 0.05\Delta t
 \end{align}
 $$
 
-### 3. Numerical estimation of velocity at $t = 5$
+### 3. Numerical Acceleration (Central Difference)
 
-The exact value at $t=5$ is:
-$$
-v(5) = 1 + \frac{5}{10} = 1.5
-$$
-
-**Case A: $\Delta t = 1$**
-
-We need $x(5+1)$ and $x(5-1)$:
-
-$$
-x(6) = 6 + \frac{36}{20} = 6 + 1.8 = 7.8
-$$
-
-$$
-x(4) = 4 + \frac{16}{20} = 4 + 0.8 = 4.8
-$$
-
-Apply the formula:
+Now, let's evaluate the central difference approximation for the second derivative (acceleration):
 
 $$
 \begin{align}
-v_{num} &= \frac{x(6) - x(4)}{2(1)} \\
-        &= \frac{7.8 - 4.8}{2} \\
-        &= \frac{3}{2} \\
-        &= 1.5
+a_{\text{num}}(t) &= \frac{x(t + \Delta t) - 2x(t) + x(t - \Delta t)}{(\Delta t)^2} \\
+                  &= \frac{(t + \Delta t + 0.05(t + \Delta t)^2) - 2(t + 0.05t^2) + (t - \Delta t + 0.05(t - \Delta t)^2)}{(\Delta t)^2}
 \end{align}
 $$
 
-**Case B: $\Delta t = 0.1$**
-
-We need $x(5.1)$ and $x(4.9)$:
-
-$$
-x(5.1) = 5.1 + \frac{(5.1)^2}{20} = 5.1 + \frac{26.01}{20} = 5.1 + 1.3005 = 6.4005
-$$
-
-$$
-x(4.9) = 4.9 + \frac{(4.9)^2}{20} = 4.9 + \frac{24.01}{20} = 4.9 + 1.2005 = 6.1005
-$$
-
-Apply the formula:
-
+Expanding the squares:
 $$
 \begin{align}
-v_{num} &= \frac{6.4005 - 6.1005}{2(0.1)} \\
-        &= \frac{0.3}{0.2} \\
-        &= 1.5
+a_{\text{num}}(t) &= \frac{t + \Delta t + 0.05(t^2 + 2t\Delta t + \Delta t^2) - 2t - 0.1t^2 + t - \Delta t + 0.05(t^2 - 2t\Delta t + \Delta t^2)}{(\Delta t)^2} \\
+                  &= \frac{0.1t^2 - 0.1t^2 + 0.1t\Delta t - 0.1t\Delta t + 0.1\Delta t^2}{(\Delta t)^2} \\
+                  &= \frac{0.1(\Delta t)^2}{(\Delta t)^2} \\
+                  &= 0.1
 \end{align}
 $$
 
-### 4. Comparison of results
+### 4. Comparison and Effect of Time Step ($\Delta t$)
 
-| Method | $\Delta t$ | Velocity at $t=5$ |
-| :--- | :--- | :--- |
-| **Exact** | - | $1.5$ |
-| **Numerical** | $1.0$ | $1.5$ |
-| **Numerical** | $0.1$ | $1.5$ |
+**Velocity Comparison:**
+* Exact: $v(t) = 1 + 0.1t$
+* Numerical (Forward): $v_{\text{num}}(t) = 1 + 0.1t + 0.05\Delta t$
+* Error: $\epsilon_v = |v_{\text{num}}(t) - v(t)| = 0.05\Delta t$
 
-In this specific case, the numerical approximation matches the exact value perfectly for both steps.
+For the given $\Delta t = 0.1$, the error in velocity is exactly $0.05(0.1) = 0.005\ \text{m/s}$. The error is directly proportional to the size of the time step. A smaller $\Delta t$ yields a smaller error, confirming linear convergence $O(\Delta t)$.
+
+**Acceleration Comparison:**
+* Exact: $a(t) = 0.1$
+* Numerical (Central): $a_{\text{num}}(t) = 0.1$
+* Error: $\epsilon_a = 0$
+
+The central difference method for the second derivative produces zero error, regardless of the size of $\Delta t$. This is a known property of the central difference approximation: it perfectly computes the second derivative for any polynomial of degree 2 or less.
 
 ## Final Result
 
-* Exact velocity: $v(t) = 1 + 0.1t$
-* Exact acceleration: $a(t) = 0.1$
-* Average velocity on $[0, 10]$: $\bar{v} = 1.5$
-* Numerical velocity at $t=5$ ($\Delta t = 1$): $v_{num} = 1.5$
-* Numerical velocity at $t=5$ ($\Delta t = 0.1$): $v_{num} = 1.5$
+- **Analytical Velocity:** $v(t) = 1 + 0.1t$
+- **Analytical Acceleration:** $a(t) = 0.1$
+- **Numerical Velocity (Forward):** $v_{\text{num}}(t) = 1 + 0.1t + 0.05\Delta t$
+- **Numerical Acceleration (Central):** $a_{\text{num}}(t) = 0.1$
+- **Error in Velocity:** Scales linearly with $\Delta t$ ($0.05\Delta t$).
+- **Error in Acceleration:** Exactly $0$ for this specific quadratic function.
 
 ## Interpretation
 
+The finite difference method relies on discrete samples to approximate the local slope of the function. For the forward difference velocity, the slope is measured between $t$ and $t+\Delta t$. Because the true velocity is continuously increasing (due to positive acceleration), the forward secant line always has a slightly steeper slope than the true tangent line at $t$. This leads to a systematic overestimation of the velocity, heavily dependent on how wide the gap ($\Delta t$) is. 
 
-
-The reason the symmetric difference quotient provided an exact result even with a large $\Delta t = 1$ is that the position function $x(t)$ is a quadratic polynomial. For any quadratic function $f(t) = At^2 + Bt + C$, the central difference approximation of the first derivative is mathematically exact. This is because the "secant line" passing through $(t-\Delta t)$ and $(t+\Delta t)$ on a parabola is always perfectly parallel to the "tangent line" at the midpoint $t$. In real-world data containing noise or higher-order terms (like $t^3$), smaller $\Delta t$ values would be required to minimize the approximation error.
+Conversely, the second derivative of a parabola is a constant. Because a parabola curves uniformly, the symmetric nature of the standard central difference formula perfectly captures the constant curvature without any truncation error, completely independent of the sampling rate.

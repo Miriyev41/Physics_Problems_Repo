@@ -2,46 +2,54 @@
 
 ## Problem Statement
 
-Earth (Z) and Mars (M) move in circular orbits around the Sun (S) in the same direction. The heliocentric positions are given by:
+Earth and Mars move in circles around the Sun in the same direction.
+
+Assume the model (heliocentric system): 
 
 $$
-\vec r_Z(t) = R_Z \bigl( \cos(\omega_Z t), \sin(\omega_Z t) \bigr)
+\vec r_Z(t) = R_Z\,\bigl(\cos(\omega_Z t),\sin(\omega_Z t)\bigr)
 $$
 
 $$
-\vec r_M(t) = R_M \bigl( \cos(\omega_M t), \sin(\omega_M t) \bigr)
+\vec r_M(t) = R_M\,\bigl(\cos(\omega_M t),\sin(\omega_M t)\bigr)
 $$
 
-The required operations are:
-1. Draw both motions in the heliocentric system (Sun at the center).
-2. Determine the position of Mars relative to Earth (geocentric system): $\vec r_{M/Z}(t) = \vec r_M(t) - \vec r_Z(t)$.
-3. Explicitly write down the components $x_{M/Z}(t)$ and $y_{M/Z}(t)$.
-4. Create an interactive animation with two panels showing heliocentric vs. geocentric motion.
+1. Draw both motions in the heliocentric system (Sun in the center).
+2. Determine the position of Mars relative to Earth (geocentric system):
+   $$
+   \vec r_{M/Z}(t)=\vec r_M(t)-\vec r_Z(t)
+   $$
+   Explicitly write down the components $x_{M/Z}(t)$, $y_{M/Z}(t)$.
+3. Create an animation with two panels:
+   - panel A: heliocentric motion (Earth and Mars on circles),
+   - panel B: trajectory of Mars as seen from Earth (trace of $\vec r_{M/Z}(t)$).
 
 ## Theory
 
-The **Heliocentric model** (Copernican) places the Sun at the origin of the coordinate system. In this frame, planets move in nearly circular paths (approximated here as perfect circles).
+[Image of retrograde motion of Mars]
 
-The **Geocentric description** shifts the origin to the Earth. This is a non-inertial reference frame. To find the position of a celestial body (Mars) as seen from Earth, we use the vector subtraction of their heliocentric positions:
+The observation of planets from Earth inherently places the observer in a moving reference frame. In the heliocentric (Copernican) model, both Earth and Mars orbit the Sun in roughly circular paths, but at different distances ($R_M > R_Z$) and different angular velocities ($\omega_M < \omega_Z$, per Kepler's Third Law).
 
-$$
-\vec r_{M/Z} = \vec r_M - \vec r_Z
-$$
-
-Because Earth moves faster than Mars ($\omega_Z > \omega_M$), Earth periodically "overtakes" Mars. From the perspective of an observer on Earth, Mars appears to slow down, stop, and move backward against the background of fixed stars. This phenomenon is known as **retrograde motion**.
+To describe the motion of Mars as seen from Earth (the geocentric perspective), we must shift our origin from the Sun to the Earth. The relative position vector $\vec r_{M/Z}(t)$ points from Earth to Mars and is found by vector subtraction. Because Earth moves faster on its inner orbit, it periodically "overtakes" Mars. During this overtaking phase, Mars appears to move backward against the background stars, a phenomenon known as **apparent retrograde motion**.
 
 ## Step-by-Step Solution
 
-### 1. Heliocentric positions
+### 1. Heliocentric model
 
-The positions of Earth and Mars relative to the Sun are:
+In the heliocentric reference frame, the Sun is at the origin $(0,0)$. 
+The position vector of Earth is:
 
 $$
 \vec r_Z(t) = 
 \begin{pmatrix}
 R_Z \cos(\omega_Z t) \\
 R_Z \sin(\omega_Z t)
-\end{pmatrix}, \qquad
+\end{pmatrix}
+$$
+
+The position vector of Mars is:
+
+$$
 \vec r_M(t) = 
 \begin{pmatrix}
 R_M \cos(\omega_M t) \\
@@ -49,28 +57,36 @@ R_M \sin(\omega_M t)
 \end{pmatrix}
 $$
 
-### 2. Determine the relative position $\vec r_{M/Z}(t)$
+### 2. Relative position (Geocentric model)
 
-Subtract the Earth's position vector from Mars's position vector:
+To find the position of Mars relative to Earth, we subtract the position vector of Earth from the position vector of Mars:
 
 $$
 \begin{align}
 \vec r_{M/Z}(t) &= \vec r_M(t) - \vec r_Z(t) \\
-                &= \begin{pmatrix} R_M \cos(\omega_M t) \\ R_M \sin(\omega_M t) \end{pmatrix} - \begin{pmatrix} R_Z \cos(\omega_Z t) \\ R_Z \sin(\omega_Z t) \end{pmatrix}
+                &= 
+\begin{pmatrix}
+R_M \cos(\omega_M t) \\
+R_M \sin(\omega_M t)
+\end{pmatrix}
+- 
+\begin{pmatrix}
+R_Z \cos(\omega_Z t) \\
+R_Z \sin(\omega_Z t)
+\end{pmatrix} \\
+                &= 
+\begin{pmatrix}
+R_M \cos(\omega_M t) - R_Z \cos(\omega_Z t) \\
+R_M \sin(\omega_M t) - R_Z \sin(\omega_Z t)
+\end{pmatrix}
 \end{align}
 $$
 
-### 3. Explicit components $x_{M/Z}(t)$ and $y_{M/Z}(t)$
-
-By performing the subtraction component-wise, we obtain the coordinates of Mars in the geocentric frame:
-
-First component ($x$):
+Explicitly writing down the components:
 
 $$
 x_{M/Z}(t) = R_M \cos(\omega_M t) - R_Z \cos(\omega_Z t)
 $$
-
-Second component ($y$):
 
 $$
 y_{M/Z}(t) = R_M \sin(\omega_M t) - R_Z \sin(\omega_Z t)
@@ -78,12 +94,14 @@ $$
 
 ## Final Result
 
-* Heliocentric positions are simple circles of radii $R_Z$ and $R_M$.
-* Geocentric position: $\vec r_{M/Z}(t) = \bigl( R_M \cos(\omega_M t) - R_Z \cos(\omega_Z t), R_M \sin(\omega_M t) - R_Z \sin(\omega_Z t) \bigr)$.
-* The resulting path in the geocentric frame exhibits loops (epicycles) caused by the relative difference in orbital speeds.
+- **Heliocentric equations:** $\vec r_Z(t) = (R_Z \cos(\omega_Z t), R_Z \sin(\omega_Z t))$
+  $\vec r_M(t) = (R_M \cos(\omega_M t), R_M \sin(\omega_M t))$
+- **Geocentric equations (Mars relative to Earth):**
+  $x_{M/Z}(t) = R_M \cos(\omega_M t) - R_Z \cos(\omega_Z t)$
+  $y_{M/Z}(t) = R_M \sin(\omega_M t) - R_Z \sin(\omega_Z t)$
 
 ## Interpretation
 
-[Image of retrograde motion of Mars from Earth's perspective]
+The resulting parametric equations for $x_{M/Z}(t)$ and $y_{M/Z}(t)$ describe an epitrochoid-like curve. When plotted over time, this trace forms looping patterns. Ancient astronomers, holding to a strictly geocentric model of the universe, observed these loops in the night sky and had to invent complex systems of "epicycles" (circles rolling on circles) to explain them mathematically. 
 
-In the heliocentric system, the motion is geometrically simple: two concentric circles. However, when we transform this to the geocentric system, the trajectory of Mars becomes complex. Because $R_M > R_Z$ and $\omega_Z > \omega_M$, Earth completes its orbit faster than Mars. When Earth passes between the Sun and Mars (opposition), Mars appears to move in the opposite direction relative to the stars. This "looping" trajectory was the primary observation that ancient astronomers tried to explain using complex systems of epicycles and deferents in the Ptolemaic model, whereas the Copernican model explains it naturally as a simple change of reference frame.
+The Copernican heliocentric model elegantly shows that these complex geocentric trajectories are merely an optical illusion—a mathematical artifact of observing a slower outer planet from a faster inner planet. The relative vector mathematics natively generate the epicycles without needing them to physically exist.

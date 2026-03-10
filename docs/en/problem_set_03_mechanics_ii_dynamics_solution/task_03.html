@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 03 - Hooke's Law: Force and Potential</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 20px;
+            background-color: #f9fafb;
+            color: #1f2937;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1, h2 { color: #111827; }
+        .controls {
+            margin: 20px 0;
+            padding: 15px;
+            background: #eff6ff;
+            border-radius: 6px;
+            border-left: 4px solid #3b82f6;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-grow: 1;
+        }
+        label { font-weight: bold; }
+        input[type="range"] { flex-grow: 1; }
+        span.value-display {
+            min-width: 60px;
+            text-align: right;
+            font-family: monospace;
+            font-size: 1.1em;
+        }
+        .canvas-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .canvas-box {
+            flex: 1;
+            min-width: 300px;
+            background: #f3f4f6;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        canvas {
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Restoring Force & Potential Energy</h1>
+    <p>Visualizing <strong>F(x) = -kx</strong> and <strong>U(x) = 0.5kx²</strong>.</p>
+
+    <div class="controls">
+        <div class="control-group">
+            <label for="kSlider">Spring Constant (k):</label>
+            <input type="range" id="kSlider" min="1" max="10" step="0.5" value="5">
+            <span class="value-display" id="kValue">5.0 N/m</span>
+        </div>
+    </div>
+
+    <div class="canvas-container">
+        <div class="canvas-box">
+            <h3 style="color:#ef4444;">Force F(x)</h3>
+            <canvas id="fCanvas" width="350" height="300"></canvas>
+        </div>
+        <div class="canvas-box">
+            <h3 style="color:#3b82f6;">Potential U(x)</h3>
+            <canvas id="uCanvas" width="350" height="300"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    const fCanvas = document.getElementById('fCanvas');
+    const fCtx = fCanvas.getContext('2d');
+    const uCanvas = document.getElementById('uCanvas');
+    const uCtx = uCanvas.getContext('2d');
+
+    const kSlider = document.getElementById('kSlider');
+    const kValue = document.getElementById('kValue');
+
+    function drawPlots() {
+        const k = parseFloat(kSlider.value);
+        kValue.innerText = k.toFixed(1) + " N/m";
+
+        const xMin = -5;
+        const xMax = 5;
+        
+        // --- Draw Force Plot ---
+        fCtx.clearRect(0, 0, fCanvas.width, fCanvas.height);
+        
+        const fMaxAbs = 10 * 5; // Max k=10, Max x=5
+        
+        function mapX_F(x) { return (fCanvas.width / 2) + (x / xMax) * (fCanvas.width / 2 - 20); }
+        function mapY_F(y) { return (fCanvas.height / 2) - (y / fMaxAbs) * (fCanvas.height / 2 - 20); }
+
+        // Axes
+        fCtx.strokeStyle = '#9ca3af';
+        fCtx.lineWidth = 1;
+        fCtx.beginPath();
+        fCtx.moveTo(0, fCanvas.height/2); fCtx.lineTo(fCanvas.width, fCanvas.height/2);
+        fCtx.moveTo(fCanvas.width/2, 0); fCtx.lineTo(fCanvas.width/2, fCanvas.height);
+        fCtx.stroke();
+
+        // Line
+        fCtx.strokeStyle = '#ef4444';
+        fCtx.lineWidth = 3;
+        fCtx.beginPath();
+        fCtx.moveTo(mapX_F(xMin), mapY_F(-k * xMin));
+        fCtx.lineTo(mapX_F(xMax), mapY_F(-k * xMax));
+        fCtx.stroke();
+
+        // --- Draw Potential Plot ---
+        uCtx.clearRect(0, 0, uCanvas.width, uCanvas.height);
+        
+        const uMax = 0.5 * 10 * (5*5); // Max k=10, Max x=5
+
+        function mapX_U(x) { return (uCanvas.width / 2) + (x / xMax) * (uCanvas.width / 2 - 20); }
+        function mapY_U(y) { return uCanvas.height - 20 - (y / uMax) * (uCanvas.height - 40); }
+
+        // Axes
+        uCtx.strokeStyle = '#9ca3af';
+        uCtx.beginPath();
+        uCtx.moveTo(0, uCanvas.height - 20); uCtx.lineTo(uCanvas.width, uCanvas.height - 20);
+        uCtx.moveTo(uCanvas.width/2, 0); uCtx.lineTo(uCanvas.width/2, uCanvas.height);
+        uCtx.stroke();
+
+        // Parabola
+        uCtx.strokeStyle = '#3b82f6';
+        uCtx.lineWidth = 3;
+        uCtx.beginPath();
+        for (let x = xMin; x <= xMax; x += 0.1) {
+            let u = 0.5 * k * x * x;
+            if (x === xMin) uCtx.moveTo(mapX_U(x), mapY_U(u));
+            else uCtx.lineTo(mapX_U(x), mapY_U(u));
+        }
+        uCtx.stroke();
+    }
+
+    kSlider.addEventListener('input', drawPlots);
+    drawPlots(); // Init
+</script>
+
+</body>
+</html>

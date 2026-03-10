@@ -2,130 +2,113 @@
 
 ## Problem Statement
 
-A body moves in a circle of radius $R$ with a constant angular velocity $\omega$.
+A body moves in a circle of radius $R$ with angular velocity $\omega$. 
 
-The required operations are:
-1. Determine the position vector $\vec r(t)$, the velocity vector $\vec v(t)$, and the acceleration vector $\vec a(t)$.
-2. Determine the magnitudes $|\vec r(t)|$, $|\vec v(t)|$, and $|\vec a(t)|$.
-3. Show that the acceleration is centripetal (pointing toward the center).
-4. Visualize the vectors $\vec r$, $\vec v$, and $\vec a$.
+1. Determine $\vec r(t)$, $\vec v(t)$, $\vec a(t)$.
+2. Determine $|\vec r(t)|$, $|\vec v(t)|$, $|\vec a(t)|$.
+3. Show that the acceleration is centripetal.
+4. Visualize the vectors $\vec r$, $\vec v$, $\vec a$.
 
 ## Theory
 
-Circular motion in a plane can be described using polar coordinates or Cartesian coordinates with trigonometric functions. For a circle of radius $R$ in the $xy$-plane, the position is given by:
 
-$$
-x(t) = R\cos(\phi(t)), \qquad y(t) = R\sin(\phi(t))
-$$
 
-For constant angular velocity $\omega$, the angle $\phi$ changes linearly with time: $\phi(t) = \omega t$ (assuming $\phi(0) = 0$).
+Uniform circular motion occurs when an object travels along a circular path with a constant angular velocity $\omega$. The position vector $\vec r(t)$ continuously changes direction but maintains a constant magnitude equal to the radius $R$. 
 
-The velocity is the rate of change of position, and acceleration is the rate of change of velocity. In uniform circular motion, while the speed (magnitude of velocity) remains constant, the velocity vector is constantly changing direction, which necessitates a non-zero acceleration.
+In kinematics, velocity is the first time derivative of position, and acceleration is the second time derivative. For an object to remain in a circular path, it must experience a continuous change in the direction of its velocity. This change in direction is caused by an acceleration directed exactly towards the center of the circle, known as **centripetal acceleration**. Mathematically, an acceleration is centripetal if the acceleration vector is antiparallel (points in the exact opposite direction) to the position vector when the origin is placed at the center of the circle.
 
 ## Step-by-Step Solution
 
-### 1. Determine the vectors $\vec r(t)$, $\vec v(t)$, and $\vec a(t)$
+### 1. Vector functions $\vec r(t)$, $\vec v(t)$, $\vec a(t)$
 
-**Position Vector:**
-
-$$
-\vec r(t) = 
-\begin{pmatrix}
-R\cos(\omega t) \\
-R\sin(\omega t)
-\end{pmatrix}
-$$
-
-**Velocity Vector:**
-Differentiate each component of the position vector with respect to $t$:
+Assuming the center of the circle is at the origin $(0,0)$ and the motion begins on the positive $x$-axis, the position vector as a function of time is given by basic trigonometry:
 
 $$
-v_x = \frac{d}{dt}(R\cos(\omega t)) = -R\omega\sin(\omega t)
+\vec r(t) = \bigl( R\cos(\omega t), R\sin(\omega t) \bigr)
 $$
 
-$$
-v_y = \frac{d}{dt}(R\sin(\omega t)) = R\omega\cos(\omega t)
-$$
+The velocity vector is the time derivative of the position vector:
 
 $$
-\vec v(t) = 
-\begin{pmatrix}
--R\omega\sin(\omega t) \\
-R\omega\cos(\omega t)
-\end{pmatrix}
+\begin{align}
+\vec v(t) &= \frac{d\vec r}{dt} \\
+          &= \left( \frac{d}{dt}(R\cos(\omega t)), \frac{d}{dt}(R\sin(\omega t)) \right) \\
+          &= \bigl( -R\omega\sin(\omega t), R\omega\cos(\omega t) \bigr)
+\end{align}
 $$
 
-**Acceleration Vector:**
-Differentiate each component of the velocity vector with respect to $t$:
+The acceleration vector is the time derivative of the velocity vector:
 
 $$
-a_x = \frac{d}{dt}(-R\omega\sin(\omega t)) = -R\omega^2\cos(\omega t)
+\begin{align}
+\vec a(t) &= \frac{d\vec v}{dt} \\
+          &= \left( \frac{d}{dt}(-R\omega\sin(\omega t)), \frac{d}{dt}(R\omega\cos(\omega t)) \right) \\
+          &= \bigl( -R\omega^2\cos(\omega t), -R\omega^2\sin(\omega t) \bigr)
+\end{align}
 $$
 
-$$
-a_y = \frac{d}{dt}(R\omega\cos(\omega t)) = -R\omega^2\sin(\omega t)
-$$
+### 2. Magnitudes of the vectors
+
+The magnitude of the position vector is the distance from the origin:
 
 $$
-\vec a(t) = 
-\begin{pmatrix}
--R\omega^2\cos(\omega t) \\
--R\omega^2\sin(\omega t)
-\end{pmatrix}
+\begin{align}
+|\vec r(t)| &= \sqrt{ (R\cos(\omega t))^2 + (R\sin(\omega t))^2 } \\
+            &= \sqrt{ R^2 (\cos^2(\omega t) + \sin^2(\omega t)) } \\
+            &= \sqrt{ R^2(1) } \\
+            &= R
+\end{align}
 $$
 
-### 2. Determine the magnitudes
-
-**Magnitude of Position:**
+The magnitude of the velocity vector (the linear speed) is:
 
 $$
-|\vec r(t)| = \sqrt{(R\cos\omega t)^2 + (R\sin\omega t)^2} = \sqrt{R^2(\cos^2\omega t + \sin^2\omega t)} = R
+\begin{align}
+|\vec v(t)| &= \sqrt{ (-R\omega\sin(\omega t))^2 + (R\omega\cos(\omega t))^2 } \\
+            &= \sqrt{ R^2\omega^2\sin^2(\omega t) + R^2\omega^2\cos^2(\omega t) } \\
+            &= \sqrt{ R^2\omega^2 (\sin^2(\omega t) + \cos^2(\omega t)) } \\
+            &= R\omega
+\end{align}
 $$
 
-**Magnitude of Velocity (Speed):**
+The magnitude of the acceleration vector is:
 
 $$
-|\vec v(t)| = \sqrt{(-R\omega\sin\omega t)^2 + (R\omega\cos\omega t)^2} = \sqrt{R^2\omega^2(\sin^2\omega t + \cos^2\omega t)} = R\omega
-$$
-
-**Magnitude of Acceleration:**
-
-$$
-|\vec a(t)| = \sqrt{(-R\omega^2\cos\omega t)^2 + (-R\omega^2\sin\omega t)^2} = \sqrt{R^2\omega^4(\cos^2\omega t + \sin^2\omega t)} = R\omega^2
+\begin{align}
+|\vec a(t)| &= \sqrt{ (-R\omega^2\cos(\omega t))^2 + (-R\omega^2\sin(\omega t))^2 } \\
+            &= \sqrt{ R^2\omega^4\cos^2(\omega t) + R^2\omega^4\sin^2(\omega t) } \\
+            &= \sqrt{ R^2\omega^4 (\cos^2(\omega t) + \sin^2(\omega t)) } \\
+            &= R\omega^2
+\end{align}
 $$
 
 ### 3. Show that the acceleration is centripetal
 
-We can express the acceleration vector $\vec a(t)$ in terms of the position vector $\vec r(t)$:
+To show that the acceleration is centripetal, we must demonstrate that it points directly toward the center of the circle (the origin). Let's factor out $-\omega^2$ from the components of the acceleration vector:
 
 $$
-\vec a(t) = 
-\begin{pmatrix}
--R\omega^2\cos(\omega t) \\
--R\omega^2\sin(\omega t)
-\end{pmatrix}
-= -\omega^2 
-\begin{pmatrix}
-R\cos(\omega t) \\
-R\sin(\omega t)
-\end{pmatrix}
+\begin{align}
+\vec a(t) &= \bigl( -R\omega^2\cos(\omega t), -R\omega^2\sin(\omega t) \bigr) \\
+          &= -\omega^2 \bigl( R\cos(\omega t), R\sin(\omega t) \bigr)
+\end{align}
 $$
+
+We recognize the term inside the parentheses as the position vector $\vec r(t)$:
 
 $$
 \vec a(t) = -\omega^2 \vec r(t)
 $$
 
-Since $\omega^2$ is a positive scalar, the acceleration vector $\vec a(t)$ is directly proportional to the position vector $\vec r(t)$ but points in the opposite direction (toward the origin). In circular motion, the origin is the center of the circle; therefore, the acceleration is centripetal.
+Since $\omega^2$ is a strictly positive scalar, multiplying $\vec r(t)$ by $-\omega^2$ produces a vector that is perfectly aligned with $\vec r(t)$ but points in the opposite direction. Since $\vec r(t)$ points outward from the origin to the particle, $\vec a(t)$ must point inward from the particle to the origin. Therefore, the acceleration is purely centripetal.
 
 ## Final Result
 
-* Position: $\vec r(t) = (R\cos\omega t, R\sin\omega t)$
-* Velocity: $\vec v(t) = (-R\omega\sin\omega t, R\omega\cos\omega t)$
-* Acceleration: $\vec a(t) = (-R\omega^2\cos\omega t, -R\omega^2\sin\omega t) = -\omega^2 \vec r(t)$
-* Magnitudes: $|\vec r| = R$, $|\vec v| = R\omega$, $|\vec a| = R\omega^2$
+- **Position:** $\vec r(t) = (R\cos(\omega t), R\sin(\omega t))$
+- **Velocity:** $\vec v(t) = (-R\omega\sin(\omega t), R\omega\cos(\omega t))$
+- **Acceleration:** $\vec a(t) = (-R\omega^2\cos(\omega t), -R\omega^2\sin(\omega t))$
+- **Magnitudes:** $|\vec r| = R$, $|\vec v| = R\omega$, $|\vec a| = R\omega^2$
+- **Centripetal proof:** $\vec a(t) = -\omega^2 \vec r(t)$, showing it points opposite to the radius vector towards the center.
 
 ## Interpretation
 
-
-
-In uniform circular motion, the three vectors $\vec r$, $\vec v$, and $\vec a$ maintain a rigid geometric relationship. The velocity $\vec v$ is always tangent to the circle and perpendicular to the position vector $\vec r$. The acceleration $\vec a$ is always perpendicular to the velocity and points directly toward the center. This centripetal acceleration does not change the speed of the object; its sole physical function is to continuously change the direction of the velocity vector, forcing the object to maintain its curved path rather than flying off in a straight line.
+In uniform circular motion, neither the position, nor the velocity, nor the acceleration is zero, yet their magnitudes are all strictly constant. The velocity vector is always perpendicular to the position vector (which can be proven by showing their dot product is zero: $\vec r \cdot \vec v = 0$), meaning the particle moves tangentially. The acceleration vector ensures the velocity vector rotates at a constant rate $\omega$ without changing the particle's speed.
