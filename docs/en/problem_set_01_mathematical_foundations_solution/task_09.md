@@ -118,13 +118,15 @@ This verifies that our solution satisfies the original differential equation.
 
 ## Final Result
 
-- **General solution:** $x(t) = A \cos(\omega t) + B \sin(\omega t)$
-- **Solution for initial conditions $x(0)=x_0$, $x'(0)=v_0$:**
-  $$
-  x(t) = x_0 \cos(\omega t) + \frac{v_0}{\omega} \sin(\omega t)
-  $$
-- **Velocity:** $x'(t) = -x_0\omega \sin(\omega t) + v_0 \cos(\omega t)$
-- **Acceleration:** $x''(t) = -\omega^2 x(t)$
+* **General solution:** $x(t) = A \cos(\omega t) + B \sin(\omega t)$
+* **Solution for initial conditions $x(0)=x_0$ and $x'(0)=v_0$:**
+
+$$
+x(t) = x_0 \cos(\omega t) + \frac{v_0}{\omega} \sin(\omega t)
+$$
+
+* **Velocity:** $x'(t) = -x_0 \omega \sin(\omega t) + v_0 \cos(\omega t)$
+* **Acceleration:** $x''(t) = -\omega^2 x(t)$
 
 ## Interpretation
 
