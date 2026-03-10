@@ -5,19 +5,22 @@
 A force field and a trajectory are given by:
 
 $$
-\vec F(x,y) = (y, 2x)
+\vec{F}(x,y) = (y, 2x)
 $$
 
 $$
-x(t) = t, \qquad y(t) = t^2, \qquad t \in [0,1]
+x(t) = t, \quad y(t) = t^2, \quad t \in [0,1]
 $$
 
-1. Determine the velocity vector $\vec v(t)$.
+
+
+1. Determine the velocity vector $\vec{v}(t)$.
 2. Calculate the work done by the force $\vec{F}$ along the trajectory, given by the line integral:
 
 $$
 W = \int_{C} \vec{F} \cdot d\vec{r}
 $$
+
 3. Write the integral as the limit of a Riemann sum and calculate its value numerically in an HTML/JS application, comparing it with the analytical result.
 
 ## Theory
