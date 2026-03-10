@@ -2,30 +2,36 @@
 
 ## Problem Statement
 
-## Problem 5 – Trajectory curvature and normal acceleration
+## Problem Statement
 
-For an ellipse:
+For an ellipse parameterized by:
 
 $$
-x = a\cos t, \qquad y = b\sin t
+x = a\cos t, \quad y = b\sin t
 $$
 
-1. Determine the velocity vector $\vec v(t)$ and the acceleration vector $\vec a(t)$.
-2. Determine the unit tangent vector to the trajectory
+
+
+1. Determine the velocity vector $\vec{v}(t)$ and the acceleration vector $\vec{a}(t)$.
+
+2. Determine the unit tangent vector to the trajectory:
    $$
-   \hat T(t)=\frac{\vec v(t)}{|\vec v(t)|}.
+   \hat{T}(t) = \frac{\vec{v}(t)}{|\vec{v}(t)|}
    $$
+
 3. Decompose the acceleration into tangential and normal components:
    $$
-   \vec a(t)=\vec a_t(t)+\vec a_n(t),
+   \vec{a}(t) = \vec{a}_t(t) + \vec{a}_n(t)
    $$
-   and determine the magnitude of the normal acceleration $a_n(t)=|\vec a_n(t)|$.
-4. Using the relation
+   and determine the magnitude of the normal acceleration $a_n(t) = |\vec{a}_n(t)|$.
+
+4. Using the relation:
    $$
-   a_n=\frac{v^2}{R},
+   a_n = \frac{v^2}{R}
    $$
-   determine the radius of curvature of the trajectory at point $t=0$.
-5. Compare the result with the case of a circle $a=b$.
+   determine the radius of curvature $R$ of the trajectory at point $t=0$.
+
+5. Compare the result with the case of a circle where $a=b$.
 
 ### Physical Interpretation
 
