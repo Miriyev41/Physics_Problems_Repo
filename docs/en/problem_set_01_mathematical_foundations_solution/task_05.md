@@ -2,9 +2,6 @@
 
 ## Problem Statement
 
-## Problem Statement
-
-## Problem Statement
 
 For an ellipse parameterized by:
 
