@@ -30,52 +30,28 @@ When shifting reference frames:
 
 ## Step-by-Step Solution
 
-### 1. Determine the relative velocity $\vec v_{A/B}$
+### 1. Determine the relative velocity $\vec{v}_{A/B}$
 
 Given the velocity vectors:
 
 $$
-\vec v_A = 
-\begin{pmatrix}
-3 \\
-1
-\end{pmatrix}, \qquad
-\vec v_B = 
-\begin{pmatrix}
-1 \\
--2
-\end{pmatrix}
+\vec{v}_A = \begin{pmatrix} 3 \\ 1 \end{pmatrix}, \quad \vec{v}_B = \begin{pmatrix} 1 \\ -2 \end{pmatrix}
 $$
+
+
 
 Calculate the vector difference:
 
 $$
-\begin{align}
-\vec v_{A/B} &= \vec v_A - \vec v_B \\
-             &= 
-\begin{pmatrix}
-3 \\
-1
-\end{pmatrix}
-- 
-\begin{pmatrix}
-1 \\
--2
-\end{pmatrix} \\
-             &= 
-\begin{pmatrix}
-3 - 1 \\
-1 - (-2)
-\end{pmatrix} \\
-             &= 
-\begin{pmatrix}
-2 \\
-3
-\end{pmatrix}
-\end{align}
+\begin{aligned}
+\vec{v}_{A/B} &= \vec{v}_A - \vec{v}_B \\
+&= \begin{pmatrix} 3 \\ 1 \end{pmatrix} - \begin{pmatrix} 1 \\ -2 \end{pmatrix} \\
+&= \begin{pmatrix} 3 - 1 \\ 1 - (-2) \end{pmatrix} \\
+&= \begin{pmatrix} 2 \\ 3 \end{pmatrix}
+\end{aligned}
 $$
 
-So, the relative velocity is $\vec v_{A/B} = (2, 3)$.
+So, the relative velocity is $\vec{v}_{A/B} = (2, 3)$.
 
 ### 2. Determine the direction of the relative motion
 
