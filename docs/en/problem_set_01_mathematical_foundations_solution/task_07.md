@@ -13,10 +13,11 @@ x(t) = t, \qquad y(t) = t^2, \qquad t \in [0,1]
 $$
 
 1. Determine the velocity vector $\vec v(t)$.
-2. Calculate the work done by the force $\vec F$ along the trajectory, given by the line integral:
-   $$
-   W = \int_C \vec F \cdot d\vec r
-   $$
+2. Calculate the work done by the force $\vec{F}$ along the trajectory, given by the line integral:
+
+$$
+W = \int_{C} \vec{F} \cdot d\vec{r}
+$$
 3. Write the integral as the limit of a Riemann sum and calculate its value numerically in an HTML/JS application, comparing it with the analytical result.
 
 ## Theory
