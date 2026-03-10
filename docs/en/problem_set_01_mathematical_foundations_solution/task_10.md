@@ -5,18 +5,24 @@
 Consider circular motion in the $xy$ plane given by the position vector:
 
 $$
-\vec r(t) = \bigl( R\cos(\omega t), R\sin(\omega t), 0 \bigr)
+\vec{r}(t) = ( R\cos(\omega t), R\sin(\omega t), 0 )
 $$
 
+
+
 1. Determine the velocity:
-   $$
-   \vec v(t) = \dot{\vec r}(t)
-   $$
+
+$$
+\vec{v}(t) = \dot{\vec{r}}(t)
+$$
+
 2. Calculate the angular momentum with respect to the origin:
-   $$
-   \vec L(t) = m \, \vec r(t) \times \vec v(t)
-   $$
-3. Show that the magnitude $|\vec L| = mR^2\omega$ is constant, and that the vector $\vec L$ is perpendicular to the plane of motion.
+
+$$
+\vec{L}(t) = m \vec{r}(t) \times \vec{v}(t)
+$$
+
+3. Show that the magnitude $|\vec{L}| = mR^2\omega$ is constant, and that the vector $\vec{L}$ is perpendicular to the plane of motion.
 
 ## Theory
 
