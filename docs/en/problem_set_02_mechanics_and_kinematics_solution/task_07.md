@@ -69,47 +69,28 @@ $$
 
 Written in coordinate form, the velocity vector is $\vec v(t) = (1 + 2t, -3t)$.
 
-### 2. Determine the position $\vec r(t)$
+### 2. Determine the position $\vec{r}(t)$
 
 The initial position is at the origin:
 
 $$
-\vec r_0 = 
-\begin{pmatrix}
-0 \\
-0
-\end{pmatrix}
+\vec{r}_0 = \begin{pmatrix} 0 \\ 0 \end{pmatrix}
 $$
 
 Integrating the velocity vector to find the position:
 
+
+
 $$
-\begin{align}
-\vec r(t) &= \vec r_0 + \int_0^t \vec v(\tau) \, d\tau \\
-          &= 
-\begin{pmatrix}
-0 \\
-0
-\end{pmatrix}
-+ \int_0^t 
-\begin{pmatrix}
-1 + 2\tau \\
--3\tau
-\end{pmatrix} \, d\tau \\
-          &= 
-\begin{pmatrix}
-\left[ \tau + \tau^2 \right]_0^t \\
-\left[ -\frac{3}{2}\tau^2 \right]_0^t
-\end{pmatrix} \\
-          &= 
-\begin{pmatrix}
-t + t^2 \\
--\frac{3}{2}t^2
-\end{pmatrix}
-\end{align}
+\begin{aligned}
+\vec{r}(t) &= \vec{r}_0 + \int_0^t \vec{v}(\tau) \, d\tau \\
+&= \begin{pmatrix} 0 \\ 0 \end{pmatrix} + \int_0^t \begin{pmatrix} 1 + 2\tau \\ -3\tau \end{pmatrix} \, d\tau \\
+&= \begin{pmatrix} \left[ \tau + \tau^2 \right]_0^t \\ \left[ -\frac{3}{2}\tau^2 \right]_0^t \end{pmatrix} \\
+&= \begin{pmatrix} t + t^2 \\ -\frac{3}{2}t^2 \end{pmatrix}
+\end{aligned}
 $$
 
-Written in coordinate form, the position vector is $\vec r(t) = (t + t^2, -1.5t^2)$.
+Written in coordinate form, the position vector is $\vec{r}(t) = (t + t^2, -1.5t^2)$.
 
 ## Final Result
 
