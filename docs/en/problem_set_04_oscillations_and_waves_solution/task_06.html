@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 06 - Damped Oscillator</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 20px;
+            background-color: #f9fafb;
+            color: #1f2937;
+        }
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1, h2 { color: #111827; }
+        .controls {
+            margin: 20px 0;
+            padding: 15px;
+            background: #eff6ff;
+            border-radius: 6px;
+            border-left: 4px solid #3b82f6;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        label { font-weight: bold; min-width: 140px; }
+        input[type="range"] { flex-grow: 1; }
+        span.value-display {
+            min-width: 60px;
+            text-align: right;
+            font-family: monospace;
+            font-size: 1.1em;
+        }
+        .canvas-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .canvas-box {
+            flex: 1;
+            min-width: 400px;
+            background: #f3f4f6;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        canvas {
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            width: 100%;
+        }
+        .stats {
+            margin-top: 15px;
+            padding: 15px;
+            background: #1f2937;
+            color: #10b981;
+            border-radius: 6px;
+            font-family: monospace;
+            text-align: center;
+            font-size: 1.1em;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Damped Harmonic Oscillator</h1>
+    <p>Numerical simulation using RK4 of <strong>mx'' + bx' + kx = 0</strong>.</p>
+
+    <div class="controls">
+        <div class="control-group">
+            <label for="bSlider">Damping (b):</label>
+            <input type="range" id="bSlider" min="0" max="10" step="0.1" value="0.5">
+            <span class="value-display" id="bValue">0.5 kg/s</span>
+        </div>
+        <div class="control-group">
+            <label for="mSlider">Mass (m):</label>
+            <input type="range" id="mSlider" min="0.5" max="5" step="0.5" value="1.0">
+            <span class="value-display" id="mValue">1.0 kg</span>
+        </div>
+        <div class="control-group">
+            <label for="kSlider">Spring Const (k):</label>
+            <input type="range" id="kSlider" min="1" max="20" step="0.5" value="10.0">
+            <span class="value-display" id="kValue">10.0 N/m</span>
+        </div>
+        <div class="control-group">
+            <label for="x0Slider">Initial Pos (x₀):</label>
+            <input type="range" id="x0Slider" min="-5" max="5" step="0.5" value="4">
+            <span class="value-display" id="x0Value">4.0 m</span>
+        </div>
+        <div class="control-group">
+            <label for="v0Slider">Initial Vel (v₀):</label>
+            <input type="range" id="v0Slider" min="-10" max="10" step="0.5" value="0">
+            <span class="value-display" id="v0Value">0.0 m/s</span>
+        </div>
+    </div>
+
+    <div class="stats" id="statsDisplay">
+        Critical Damping Threshold (b_crit): <span id="bcritVal">0.00</span> kg/s 
+        <span id="regimeBadge" class="badge">Regime</span>
+    </div>
+
+    <div class="canvas-container">
+        <div class="canvas-box">
+            <h3>Displacement vs. Time: x(t)</h3>
+            <canvas id="timeCanvas" width="450" height="300"></canvas>
+        </div>
+        <div class="canvas-box">
+            <h3>Phase Portrait: v(t) vs. x(t)</h3>
+            <canvas id="phaseCanvas" width="450" height="300"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    const timeCanvas = document.getElementById('timeCanvas');
+    const timeCtx = timeCanvas.getContext('2d');
+    const phaseCanvas = document.getElementById('phaseCanvas');
+    const phaseCtx = phaseCanvas.getContext('2d');
+
+    const bSlider = document.getElementById('bSlider');
+    const mSlider = document.getElementById('mSlider');
+    const kSlider = document.getElementById('kSlider');
+    const x0Slider = document.getElementById('x0Slider');
+    const v0Slider = document.getElementById('v0Slider');
+    
+    const bValue = document.getElementById('bValue');
+    const mValue = document.getElementById('mValue');
+    const kValue = document.getElementById('kValue');
+    const x0Value = document.getElementById('x0Value');
+    const v0Value = document.getElementById('v0Value');
+
+    const bcritVal = document.getElementById('bcritVal');
+    const regimeBadge = document.getElementById('regimeBadge');
+
+    function drawPlots() {
+        const b = parseFloat(bSlider.value);
+        const m = parseFloat(mSlider.value);
+        const k = parseFloat(kSlider.value);
+        const x0 = parseFloat(x0Slider.value);
+        const v0 = parseFloat(v0Slider.value);
+
+        bValue.innerText = b.toFixed(1) + " kg/s";
+        mValue.innerText = m.toFixed(1) + " kg";
+        kValue.innerText = k.toFixed(1) + " N/m";
+        x0Value.innerText = x0.toFixed(1) + " m";
+        v0Value.innerText = v0.toFixed(1) + " m/s";
+
+        const b_crit = 2 * Math.sqrt(m * k);
+        bcritVal.innerText = b_crit.toFixed(2);
+
+        if (b < b_crit - 0.05) {
+            regimeBadge.innerText = "UNDERDAMPED";
+            regimeBadge.style.backgroundColor = "#3b82f6"; // blue
+        } else if (b > b_crit + 0.05) {
+            regimeBadge.innerText = "OVERDAMPED";
+            regimeBadge.style.backgroundColor = "#ef4444"; // red
+        } else {
+            regimeBadge.innerText = "CRITICALLY DAMPED";
+            regimeBadge.style.backgroundColor = "#10b981"; // green
+        }
+
+        // RK4 Integration Simulation
+        const tMax = 15; // 15 seconds
+        const dt = 0.02; 
+        
+        let t = 0;
+        let x = x0;
+        let v = v0;
+
+        let timeData = [];
+        
+        // Derivative function for state [x, v]
+        function getDerivs(currX, currV) {
+            let dvdt = -(b / m) * currV - (k / m) * currX;
+            let dxdt = currV;
+            return { dx: dxdt, dv: dvdt };
+        }
+
+        while (t <= tMax) {
+            timeData.push({ t: t, x: x, v: v });
+
+            let k1 = getDerivs(x, v);
+            let k2 = getDerivs(x + 0.5 * dt * k1.dx, v + 0.5 * dt * k1.dv);
+            let k3 = getDerivs(x + 0.5 * dt * k2.dx, v + 0.5 * dt * k2.dv);
+            let k4 = getDerivs(x + dt * k3.dx, v + dt * k3.dv);
+
+            x = x + (dt / 6) * (k1.dx + 2 * k2.dx + 2 * k3.dx + k4.dx);
+            v = v + (dt / 6) * (k1.dv + 2 * k2.dv + 2 * k3.dv + k4.dv);
+            t += dt;
+        }
+
+        // --- Draw Time Domain x(t) ---
+        timeCtx.clearRect(0, 0, timeCanvas.width, timeCanvas.height);
+        
+        const margin = 30;
+        const wTime = timeCanvas.width - 2 * margin;
+        const hTime = timeCanvas.height - 2 * margin;
+        
+        let xMaxBound = 5;
+        
+        function mapTimeX(t_val) { return margin + (t_val / tMax) * wTime; }
+        function mapTimeY(x_val) { return timeCanvas.height / 2 - (x_val / xMaxBound) * (hTime / 2); }
+
+        // Axes for x(t)
+        timeCtx.strokeStyle = '#9ca3af';
+        timeCtx.lineWidth = 1;
+        timeCtx.beginPath();
+        timeCtx.moveTo(margin, timeCanvas.height / 2); timeCtx.lineTo(timeCanvas.width - margin, timeCanvas.height / 2);
+        timeCtx.moveTo(margin, margin); timeCtx.lineTo(margin, timeCanvas.height - margin);
+        timeCtx.stroke();
+
+        // Plot x(t)
+        timeCtx.strokeStyle = regimeBadge.style.backgroundColor;
+        timeCtx.lineWidth = 2;
+        timeCtx.beginPath();
+        for (let pt of timeData) {
+            if (pt.t === 0) timeCtx.moveTo(mapTimeX(pt.t), mapTimeY(pt.x));
+            else timeCtx.lineTo(mapTimeX(pt.t), mapTimeY(pt.x));
+        }
+        timeCtx.stroke();
+
+        // --- Draw Phase Portrait v(x) ---
+        phaseCtx.clearRect(0, 0, phaseCanvas.width, phaseCanvas.height);
+        
+        const wPhase = phaseCanvas.width - 2 * margin;
+        const hPhase = phaseCanvas.height - 2 * margin;
+        const cx = phaseCanvas.width / 2;
+        const cy = phaseCanvas.height / 2;
+        
+        let vMaxBound = 10;
+        
+        function mapPhaseX(x_val) { return cx + (x_val / xMaxBound) * (wPhase / 2); }
+        function mapPhaseY(v_val) { return cy - (v_val / vMaxBound) * (hPhase / 2); }
+
+        // Axes for phase portrait
+        phaseCtx.strokeStyle = '#9ca3af';
+        phaseCtx.lineWidth = 1;
+        phaseCtx.beginPath();
+        phaseCtx.moveTo(margin, cy); phaseCtx.lineTo(phaseCanvas.width - margin, cy);
+        phaseCtx.moveTo(cx, margin); phaseCtx.lineTo(cx, phaseCanvas.height - margin);
+        phaseCtx.stroke();
+
+        // Plot Phase Curve
+        phaseCtx.strokeStyle = regimeBadge.style.backgroundColor;
+        phaseCtx.lineWidth = 2;
+        phaseCtx.beginPath();
+        for (let i = 0; i < timeData.length; i++) {
+            let pt = timeData[i];
+            if (i === 0) phaseCtx.moveTo(mapPhaseX(pt.x), mapPhaseY(pt.v));
+            else phaseCtx.lineTo(mapPhaseX(pt.x), mapPhaseY(pt.v));
+        }
+        phaseCtx.stroke();
+        
+        // Mark initial point
+        phaseCtx.beginPath();
+        phaseCtx.arc(mapPhaseX(x0), mapPhaseY(v0), 4, 0, 2 * Math.PI);
+        phaseCtx.fillStyle = '#1f2937';
+        phaseCtx.fill();
+    }
+
+    // Attach listeners
+    bSlider.addEventListener('input', drawPlots);
+    mSlider.addEventListener('input', drawPlots);
+    kSlider.addEventListener('input', drawPlots);
+    x0Slider.addEventListener('input', drawPlots);
+    v0Slider.addEventListener('input', drawPlots);
+
+    // Initial draw
+    drawPlots();
+</script>
+
+</body>
+</html>

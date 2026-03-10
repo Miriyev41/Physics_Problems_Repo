@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 08 - Two Coupled Springs</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 20px;
+            background-color: #f9fafb;
+            color: #1f2937;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1, h2 { color: #111827; }
+        .controls {
+            margin: 20px 0;
+            padding: 15px;
+            background: #eff6ff;
+            border-radius: 6px;
+            border-left: 4px solid #3b82f6;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        label { font-weight: bold; min-width: 100px; }
+        input[type="range"] { flex-grow: 1; }
+        span.value-display {
+            min-width: 50px;
+            text-align: right;
+            font-family: monospace;
+            font-size: 1.1em;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { background-color: #2563eb; }
+        .flex-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .canvas-box {
+            background: #f3f4f6;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        canvas {
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            width: 100%;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 5px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
+        .color-box { width: 14px; height: 14px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Coupled Oscillators (Two Degrees of Freedom)</h1>
+    <p>Numerical simulation (RK4) of two masses connected by three springs.</p>
+
+    <div class="controls">
+        <div class="control-group">
+            <label for="kCouplingSlider">Coupling k₂:</label>
+            <input type="range" id="kCouplingSlider" min="0" max="10" step="0.5" value="2">
+            <span class="value-display" id="kCouplingValue">2.0</span>
+        </div>
+        <div class="control-group">
+            <label for="mSlider">Mass (m₁, m₂):</label>
+            <input type="range" id="mSlider" min="0.5" max="5" step="0.5" value="1.0">
+            <span class="value-display" id="mValue">1.0</span>
+        </div>
+        <div class="control-group">
+            <label for="x1Slider">Init x₁:</label>
+            <input type="range" id="x1Slider" min="-2" max="2" step="0.1" value="1.5">
+            <span class="value-display" id="x1Value">1.5</span>
+        </div>
+        <div class="control-group">
+            <label for="x2Slider">Init x₂:</label>
+            <input type="range" id="x2Slider" min="-2" max="2" step="0.1" value="0.0">
+            <span class="value-display" id="x2Value">0.0</span>
+        </div>
+        <div style="grid-column: span 2; display: flex; justify-content: center; gap: 10px;">
+            <button id="toggleBtn">Pause Animation</button>
+            <button id="resetBtn">Restart</button>
+            <button id="mode1Btn">Set Mode 1 (Sym)</button>
+            <button id="mode2Btn">Set Mode 2 (Anti)</button>
+        </div>
+    </div>
+
+    <div class="flex-container">
+        <div class="canvas-box">
+            <h3>Physical System Animation</h3>
+            <canvas id="animCanvas" width="800" height="150"></canvas>
+            <div class="legend">
+                <div class="legend-item"><div class="color-box" style="background:#3b82f6;"></div> Mass 1</div>
+                <div class="legend-item"><div class="color-box" style="background:#ef4444;"></div> Mass 2</div>
+            </div>
+        </div>
+
+        <div class="canvas-box">
+            <h3>Displacements vs Time</h3>
+            <canvas id="chartCanvas" width="800" height="250"></canvas>
+        </div>
+        
+        <div class="canvas-box">
+            <h3>Energy Exchange (Kinetic Energy)</h3>
+            <canvas id="energyCanvas" width="800" height="200"></canvas>
+            <div class="legend">
+                <div class="legend-item"><div class="color-box" style="background:#3b82f6;"></div> T₁ (Mass 1)</div>
+                <div class="legend-item"><div class="color-box" style="background:#ef4444;"></div> T₂ (Mass 2)</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const animCanvas = document.getElementById('animCanvas');
+    const animCtx = animCanvas.getContext('2d');
+    const chartCanvas = document.getElementById('chartCanvas');
+    const chartCtx = chartCanvas.getContext('2d');
+    const energyCanvas = document.getElementById('energyCanvas');
+    const energyCtx = energyCanvas.getContext('2d');
+
+    const kCouplingSlider = document.getElementById('kCouplingSlider');
+    const mSlider = document.getElementById('mSlider');
+    const x1Slider = document.getElementById('x1Slider');
+    const x2Slider = document.getElementById('x2Slider');
+    
+    const kCouplingValue = document.getElementById('kCouplingValue');
+    const mValue = document.getElementById('mValue');
+    const x1Value = document.getElementById('x1Value');
+    const x2Value = document.getElementById('x2Value');
+
+    const toggleBtn = document.getElementById('toggleBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const mode1Btn = document.getElementById('mode1Btn');
+    const mode2Btn = document.getElementById('mode2Btn');
+
+    let isPlaying = true;
+    let time = 0;
+    let lastTimestamp = 0;
+    
+    // State
+    let x1 = 1.5;
+    let v1 = 0;
+    let x2 = 0;
+    let v2 = 0;
+    
+    const k1 = 5; // Fixed outer spring
+    const k3 = 5; // Fixed outer spring
+    
+    let history = []; // Stores trace data
+
+    function resetSystem() {
+        x1 = parseFloat(x1Slider.value);
+        x2 = parseFloat(x2Slider.value);
+        v1 = 0;
+        v2 = 0;
+        time = 0;
+        history = [];
+    }
+
+    function setMode1() {
+        x1Slider.value = 1.5;
+        x2Slider.value = 1.5;
+        resetSystem();
+    }
+
+    function setMode2() {
+        x1Slider.value = 1.5;
+        x2Slider.value = -1.5;
+        resetSystem();
+    }
+
+    function rk4Step(dt) {
+        let m = parseFloat(mSlider.value);
+        let k2_val = parseFloat(kCouplingSlider.value);
+
+        function getDerivs(state) {
+            let dx1 = state.v1;
+            let dv1 = (-(k1 + k2_val)*state.x1 + k2_val*state.x2) / m;
+            let dx2 = state.v2;
+            let dv2 = (k2_val*state.x1 - (k2_val + k3)*state.x2) / m;
+            return { dx1, dv1, dx2, dv2 };
+        }
+
+        let s = {x1, v1, x2, v2};
+        let k1_d = getDerivs(s);
+        
+        let s2 = {
+            x1: x1 + 0.5*dt*k1_d.dx1, v1: v1 + 0.5*dt*k1_d.dv1,
+            x2: x2 + 0.5*dt*k1_d.dx2, v2: v2 + 0.5*dt*k1_d.dv2
+        };
+        let k2_d = getDerivs(s2);
+
+        let s3 = {
+            x1: x1 + 0.5*dt*k2_d.dx1, v1: v1 + 0.5*dt*k2_d.dv1,
+            x2: x2 + 0.5*dt*k2_d.dx2, v2: v2 + 0.5*dt*k2_d.dv2
+        };
+        let k3_d = getDerivs(s3);
+
+        let s4 = {
+            x1: x1 + dt*k3_d.dx1, v1: v1 + dt*k3_d.dv1,
+            x2: x2 + dt*k3_d.dx2, v2: v2 + dt*k3_d.dv2
+        };
+        let k4_d = getDerivs(s4);
+
+        x1 += (dt/6) * (k1_d.dx1 + 2*k2_d.dx1 + 2*k3_d.dx1 + k4_d.dx1);
+        v1 += (dt/6) * (k1_d.dv1 + 2*k2_d.dv1 + 2*k3_d.dv1 + k4_d.dv1);
+        x2 += (dt/6) * (k1_d.dx2 + 2*k2_d.dx2 + 2*k3_d.dx2 + k4_d.dx2);
+        v2 += (dt/6) * (k1_d.dv2 + 2*k2_d.dv2 + 2*k3_d.dv2 + k4_d.dv2);
+    }
+
+    function drawSpring(ctx, startX, startY, endX, endY) {
+        ctx.beginPath();
+        ctx.strokeStyle = '#9ca3af';
+        ctx.lineWidth = 2;
+        let coils = 15;
+        let step = (endX - startX) / coils;
+        ctx.moveTo(startX, startY);
+        for(let i=1; i<coils; i++) {
+            let yOffset = (i % 2 === 0) ? 10 : -10;
+            ctx.lineTo(startX + i * step, startY + yOffset);
+        }
+        ctx.lineTo(endX, endY);
+        ctx.stroke();
+    }
+
+    function render(timestamp) {
+        if (!lastTimestamp) lastTimestamp = timestamp;
+        let dt = (timestamp - lastTimestamp) / 1000;
+        lastTimestamp = timestamp;
+
+        // UI Updates
+        kCouplingValue.innerText = parseFloat(kCouplingSlider.value).toFixed(1);
+        mValue.innerText = parseFloat(mSlider.value).toFixed(1);
+        x1Value.innerText = parseFloat(x1Slider.value).toFixed(1);
+        x2Value.innerText = parseFloat(x2Slider.value).toFixed(1);
+
+        if (isPlaying) {
+            // Sub-stepping for RK4 stability
+            let steps = 10;
+            let subDt = dt / steps;
+            for(let i=0; i<steps; i++) {
+                rk4Step(subDt);
+                time += subDt;
+            }
+
+            // Save history
+            let m = parseFloat(mSlider.value);
+            let T1 = 0.5 * m * v1 * v1;
+            let T2 = 0.5 * m * v2 * v2;
+            history.push({ t: time, x1: x1, x2: x2, T1: T1, T2: T2 });
+            if (history.length > 400) history.shift(); // keep graph moving
+        }
+
+        // --- Draw Physical Animation ---
+        animCtx.clearRect(0, 0, animCanvas.width, animCanvas.height);
+        
+        let cy = animCanvas.height / 2;
+        let scale = 30; // pixels per meter
+        let base1 = animCanvas.width * 0.33;
+        let base2 = animCanvas.width * 0.66;
+        
+        let pos1 = base1 + x1 * scale;
+        let pos2 = base2 + x2 * scale;
+        
+        // Draw Walls
+        animCtx.fillStyle = '#6b7280';
+        animCtx.fillRect(0, cy - 30, 10, 60);
+        animCtx.fillRect(animCanvas.width - 10, cy - 30, 10, 60);
+
+        // Springs
+        drawSpring(animCtx, 10, cy, pos1 - 15, cy);
+        drawSpring(animCtx, pos1 + 15, cy, pos2 - 15, cy);
+        drawSpring(animCtx, pos2 + 15, cy, animCanvas.width - 10, cy);
+
+        // Masses
+        animCtx.beginPath(); animCtx.arc(pos1, cy, 15, 0, 2*Math.PI);
+        animCtx.fillStyle = '#3b82f6'; animCtx.fill(); animCtx.stroke();
+        
+        animCtx.beginPath(); animCtx.arc(pos2, cy, 15, 0, 2*Math.PI);
+        animCtx.fillStyle = '#ef4444'; animCtx.fill(); animCtx.stroke();
+
+
+        // --- Draw Charts (Displacement & Energy) ---
+        chartCtx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
+        energyCtx.clearRect(0, 0, energyCanvas.width, energyCanvas.height);
+
+        if(history.length > 0) {
+            let tStart = history[0].t;
+            let tEnd = history[history.length-1].t;
+            let timeSpan = Math.max(10, tEnd - tStart);
+            let tWindowStart = Math.max(0, tEnd - timeSpan);
+
+            function mapGraphX(t_val, width) { return ((t_val - tWindowStart) / timeSpan) * width; }
+            function mapGraphY(val, maxVal, height) { return height / 2 - (val / maxVal) * (height / 2 - 10); }
+
+            // Displacement Chart
+            chartCtx.strokeStyle = '#e5e7eb';
+            chartCtx.beginPath(); chartCtx.moveTo(0, chartCanvas.height/2); chartCtx.lineTo(chartCanvas.width, chartCanvas.height/2); chartCtx.stroke();
+            
+            chartCtx.lineWidth = 2;
+            chartCtx.beginPath(); chartCtx.strokeStyle = '#3b82f6';
+            history.forEach((pt, i) => { if(pt.t >= tWindowStart) { let px = mapGraphX(pt.t, chartCanvas.width); let py = mapGraphY(pt.x1, 3, chartCanvas.height); if(i===0) chartCtx.moveTo(px,py); else chartCtx.lineTo(px,py); }});
+            chartCtx.stroke();
+
+            chartCtx.beginPath(); chartCtx.strokeStyle = '#ef4444';
+            history.forEach((pt, i) => { if(pt.t >= tWindowStart) { let px = mapGraphX(pt.t, chartCanvas.width); let py = mapGraphY(pt.x2, 3, chartCanvas.height); if(i===0) chartCtx.moveTo(px,py); else chartCtx.lineTo(px,py); }});
+            chartCtx.stroke();
+
+            // Energy Chart
+            let maxE = 15; // rough scale
+            function mapEnergyY(val) { return energyCanvas.height - 10 - (val / maxE) * (energyCanvas.height - 20); }
+
+            energyCtx.strokeStyle = '#e5e7eb';
+            energyCtx.beginPath(); energyCtx.moveTo(0, energyCanvas.height - 10); energyCtx.lineTo(energyCanvas.width, energyCanvas.height - 10); energyCtx.stroke();
+
+            energyCtx.lineWidth = 2;
+            energyCtx.beginPath(); energyCtx.strokeStyle = '#3b82f6'; // T1
+            history.forEach((pt, i) => { if(pt.t >= tWindowStart) { let px = mapGraphX(pt.t, energyCanvas.width); let py = mapEnergyY(pt.T1); if(i===0) energyCtx.moveTo(px,py); else energyCtx.lineTo(px,py); }});
+            energyCtx.stroke();
+
+            energyCtx.beginPath(); energyCtx.strokeStyle = '#ef4444'; // T2
+            history.forEach((pt, i) => { if(pt.t >= tWindowStart) { let px = mapGraphX(pt.t, energyCanvas.width); let py = mapEnergyY(pt.T2); if(i===0) energyCtx.moveTo(px,py); else energyCtx.lineTo(px,py); }});
+            energyCtx.stroke();
+        }
+
+        requestAnimationFrame(render);
+    }
+
+    toggleBtn.addEventListener('click', () => {
+        isPlaying = !isPlaying;
+        toggleBtn.innerText = isPlaying ? "Pause Animation" : "Play Animation";
+        if (isPlaying) lastTimestamp = performance.now();
+    });
+
+    resetBtn.addEventListener('click', resetSystem);
+    mode1Btn.addEventListener('click', setMode1);
+    mode2Btn.addEventListener('click', setMode2);
+    
+    // Auto reset on parameter change so results are clear
+    x1Slider.addEventListener('input', resetSystem);
+    x2Slider.addEventListener('input', resetSystem);
+
+    resetSystem();
+    requestAnimationFrame(render);
+</script>
+
+</body>
+</html>

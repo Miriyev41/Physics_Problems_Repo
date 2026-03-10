@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 09 - Chain of N Springs</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 20px;
+            background-color: #f9fafb;
+            color: #1f2937;
+        }
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1, h2 { color: #111827; }
+        .controls {
+            margin: 20px 0;
+            padding: 15px;
+            background: #eff6ff;
+            border-radius: 6px;
+            border-left: 4px solid #3b82f6;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        label { font-weight: bold; min-width: 140px; }
+        input[type="range"], select { flex-grow: 1; padding: 4px; }
+        span.value-display {
+            min-width: 60px;
+            text-align: right;
+            font-family: monospace;
+            font-size: 1.1em;
+        }
+        .btn-group {
+            grid-column: span 2;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { background-color: #2563eb; }
+        button.action-btn { background-color: #ef4444; }
+        button.action-btn:hover { background-color: #dc2626; }
+        .canvas-box {
+            background: #f3f4f6;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        canvas {
+            background: #111827; /* Dark background for better visibility of the wave */
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            width: 100%;
+        }
+        .stats {
+            margin-top: 15px;
+            padding: 15px;
+            background: #1f2937;
+            color: #10b981;
+            border-radius: 6px;
+            font-family: monospace;
+            text-align: center;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Chain of N Springs (Discrete Wave Model)</h1>
+    <p>Simulating the 1D transverse wave propagation in a discrete mass-spring lattice.</p>
+
+    <div class="controls">
+        <div class="control-group">
+            <label for="nSelect">Number of Masses (N):</label>
+            <select id="nSelect">
+                <option value="20">N = 20</option>
+                <option value="50" selected>N = 50</option>
+                <option value="100">N = 100</option>
+            </select>
+        </div>
+        <div class="control-group"></div> <div class="control-group">
+            <label for="kSlider">Spring Const (k):</label>
+            <input type="range" id="kSlider" min="10" max="200" step="10" value="100">
+            <span class="value-display" id="kValue">100 N/m</span>
+        </div>
+        <div class="control-group">
+            <label for="mSlider">Mass (m):</label>
+            <input type="range" id="mSlider" min="0.1" max="5.0" step="0.1" value="1.0">
+            <span class="value-display" id="mValue">1.0 kg</span>
+        </div>
+        
+        <div class="btn-group">
+            <button id="toggleBtn">Pause Animation</button>
+            <button id="resetBtn">Reset Chain</button>
+            <button id="pulseBtn" class="action-btn">Trigger Gaussian Pulse</button>
+            <button id="kickBtn" class="action-btn">Kick Left End</button>
+        </div>
+    </div>
+
+    <div class="stats" id="statsDisplay">
+        Theoretical Propagation Speed ∝ √(k/m): <span id="speedVal">10.00</span>
+    </div>
+
+    <div class="canvas-box">
+        <h3>Transverse Wave Animation</h3>
+        <canvas id="waveCanvas" width="900" height="300"></canvas>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('waveCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const nSelect = document.getElementById('nSelect');
+    const kSlider = document.getElementById('kSlider');
+    const mSlider = document.getElementById('mSlider');
+    
+    const kValue = document.getElementById('kValue');
+    const mValue = document.getElementById('mValue');
+    const speedVal = document.getElementById('speedVal');
+
+    const toggleBtn = document.getElementById('toggleBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const pulseBtn = document.getElementById('pulseBtn');
+    const kickBtn = document.getElementById('kickBtn');
+
+    let N = parseInt(nSelect.value);
+    let u = []; // Displacements
+    let v = []; // Velocities
+    
+    let isPlaying = true;
+
+    // Initialize the arrays
+    function initSystem() {
+        N = parseInt(nSelect.value);
+        u = new Array(N + 2).fill(0); // N masses + 2 fixed ends (0 and N+1)
+        v = new Array(N + 2).fill(0);
+    }
+
+    // Trigger a smooth Gaussian pulse in the center
+    function triggerPulse() {
+        let center = Math.floor(N / 2);
+        let width = Math.max(2, Math.floor(N / 10)); 
+        for (let i = 1; i <= N; i++) {
+            u[i] += 50 * Math.exp(-Math.pow(i - center, 2) / Math.pow(width, 2));
+        }
+    }
+
+    // Trigger a sharp velocity kick to the first mass
+    function triggerKick() {
+        v[1] += 2000; // Large velocity impulse
+    }
+
+    function resetChain() {
+        u.fill(0);
+        v.fill(0);
+    }
+
+    // Physics step
+    function updatePhysics() {
+        const k = parseFloat(kSlider.value);
+        const m = parseFloat(mSlider.value);
+        const dt = 0.01; // fixed internal time step
+        const substeps = 4; // Multiple steps per frame for stability
+
+        for (let step = 0; step < substeps; step++) {
+            let a = new Array(N + 2).fill(0);
+            
+            // Calculate accelerations
+            for (let i = 1; i <= N; i++) {
+                // F = k(u_{i+1} - u_i) - k(u_i - u_{i-1}) = k(u_{i+1} - 2u_i + u_{i-1})
+                a[i] = (k / m) * (u[i + 1] - 2 * u[i] + u[i - 1]);
+                
+                // Add a tiny bit of damping to prevent infinite chaos over time
+                a[i] -= 0.05 * v[i]; 
+            }
+
+            // Semi-implicit Euler integration
+            for (let i = 1; i <= N; i++) {
+                v[i] += a[i] * dt;
+                u[i] += v[i] * dt;
+            }
+            
+            // Enforce fixed boundary conditions
+            u[0] = 0;
+            v[0] = 0;
+            u[N + 1] = 0;
+            v[N + 1] = 0;
+        }
+    }
+
+    function render() {
+        // UI Updates
+        kValue.innerText = kSlider.value + " N/m";
+        mValue.innerText = parseFloat(mSlider.value).toFixed(1) + " kg";
+        
+        let k = parseFloat(kSlider.value);
+        let m = parseFloat(mSlider.value);
+        speedVal.innerText = Math.sqrt(k / m).toFixed(2);
+
+        if (isPlaying) {
+            updatePhysics();
+        }
+
+        // Draw Frame
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const cy = canvas.height / 2;
+        const spacing = canvas.width / (N + 1);
+
+        // Draw Equilibrium Line
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, cy);
+        ctx.lineTo(canvas.width, cy);
+        ctx.stroke();
+
+        // Draw Springs (Lines connecting masses)
+        ctx.strokeStyle = '#3b82f6';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (let i = 0; i <= N + 1; i++) {
+            let x = i * spacing;
+            let y = cy - u[i];
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        // Draw Masses
+        ctx.fillStyle = '#ef4444';
+        let radius = N > 50 ? 3 : 5; // Smaller dots for large N
+        for (let i = 1; i <= N; i++) {
+            let x = i * spacing;
+            let y = cy - u[i];
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+
+        // Draw Fixed Walls
+        ctx.fillStyle = '#6b7280';
+        ctx.fillRect(0, cy - 20, 8, 40);
+        ctx.fillRect(canvas.width - 8, cy - 20, 8, 40);
+
+        requestAnimationFrame(render);
+    }
+
+    // Event Listeners
+    nSelect.addEventListener('change', initSystem);
+    resetBtn.addEventListener('click', resetChain);
+    pulseBtn.addEventListener('click', triggerPulse);
+    kickBtn.addEventListener('click', triggerKick);
+    
+    toggleBtn.addEventListener('click', () => {
+        isPlaying = !isPlaying;
+        toggleBtn.innerText = isPlaying ? "Pause Animation" : "Play Animation";
+    });
+
+    initSystem();
+    requestAnimationFrame(render);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 10 - Anharmonic Oscillator Dynamics</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 20px;
+            background-color: #f9fafb;
+            color: #1f2937;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1, h2 { color: #111827; }
+        .controls {
+            margin: 20px 0;
+            padding: 15px;
+            background: #eff6ff;
+            border-radius: 6px;
+            border-left: 4px solid #3b82f6;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        label { font-weight: bold; min-width: 140px; }
+        input[type="range"] { flex-grow: 1; }
+        span.value-display {
+            min-width: 60px;
+            text-align: right;
+            font-family: monospace;
+            font-size: 1.1em;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            grid-column: span 2;
+        }
+        button:hover { background-color: #2563eb; }
+        .flex-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .canvas-box {
+            flex: 1;
+            min-width: 400px;
+            background: #f3f4f6;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        canvas {
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            width: 100%;
+        }
+        .stats {
+            margin-top: 15px;
+            padding: 15px;
+            background: #1f2937;
+            color: #10b981;
+            border-radius: 6px;
+            font-family: monospace;
+            text-align: center;
+            font-size: 1.1em;
+        }
+        .warning { color: #ef4444; font-weight: bold; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Anharmonic Oscillator</h1>
+    <p>Numerical simulation of motion in the potential <strong>U(x) = ½kx² + λx⁴</strong>.</p>
+
+    <div class="controls">
+        <div class="control-group">
+            <label for="x0Slider">Initial Pos (x₀):</label>
+            <input type="range" id="x0Slider" min="-3" max="3" step="0.1" value="2">
+            <span class="value-display" id="x0Value">2.0</span>
+        </div>
+        <div class="control-group">
+            <label for="v0Slider">Initial Vel (v₀):</label>
+            <input type="range" id="v0Slider" min="-5" max="5" step="0.5" value="0">
+            <span class="value-display" id="v0Value">0.0</span>
+        </div>
+        <div class="control-group">
+            <label for="kSlider">Linear Term (k):</label>
+            <input type="range" id="kSlider" min="0" max="10" step="0.5" value="2">
+            <span class="value-display" id="kValue">2.0</span>
+        </div>
+        <div class="control-group">
+            <label for="lambdaSlider">Non-linear (λ):</label>
+            <input type="range" id="lambdaSlider" min="-0.5" max="2" step="0.05" value="0.2">
+            <span class="value-display" id="lambdaValue">0.2</span>
+        </div>
+        <button id="resetBtn">Restart Simulation</button>
+    </div>
+
+    <div class="stats" id="statsDisplay">
+        Total Energy: <span id="energyVal">0.00</span> J 
+        <span class="warning" id="escapeWarning"> [PARTICLE ESCAPED!]</span>
+    </div>
+
+    <div class="flex-container">
+        <div class="canvas-box">
+            <h3>Potential U(x) & Energy</h3>
+            <canvas id="potCanvas" width="400" height="400"></canvas>
+        </div>
+        <div class="canvas-box">
+            <h3>Phase Space (x, v)</h3>
+            <canvas id="phaseCanvas" width="400" height="400"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    const potCanvas = document.getElementById('potCanvas');
+    const potCtx = potCanvas.getContext('2d');
+    const phaseCanvas = document.getElementById('phaseCanvas');
+    const phaseCtx = phaseCanvas.getContext('2d');
+
+    const x0Slider = document.getElementById('x0Slider');
+    const v0Slider = document.getElementById('v0Slider');
+    const kSlider = document.getElementById('kSlider');
+    const lambdaSlider = document.getElementById('lambdaSlider');
+    
+    const x0Value = document.getElementById('x0Value');
+    const v0Value = document.getElementById('v0Value');
+    const kValue = document.getElementById('kValue');
+    const lambdaValue = document.getElementById('lambdaValue');
+
+    const energyVal = document.getElementById('energyVal');
+    const escapeWarning = document.getElementById('escapeWarning');
+    const resetBtn = document.getElementById('resetBtn');
+
+    let x = 0;
+    let v = 0;
+    let m = 1.0; // Assume mass = 1 for simplicity
+    let E_initial = 0;
+    let trace = [];
+    let isEscaped = false;
+    
+    let animationId = null;
+
+    function getU(px, k, lambda) {
+        return 0.5 * k * px * px + lambda * Math.pow(px, 4);
+    }
+
+    function resetSim() {
+        const x0 = parseFloat(x0Slider.value);
+        const v0 = parseFloat(v0Slider.value);
+        const k = parseFloat(kSlider.value);
+        const lambda = parseFloat(lambdaSlider.value);
+
+        x = x0;
+        v = v0;
+        trace = [];
+        isEscaped = false;
+        escapeWarning.style.display = 'none';
+
+        E_initial = 0.5 * m * v * v + getU(x, k, lambda);
+        energyVal.innerText = E_initial.toFixed(3);
+        
+        phaseCtx.clearRect(0, 0, phaseCanvas.width, phaseCanvas.height);
+    }
+
+    function render() {
+        const k = parseFloat(kSlider.value);
+        const lambda = parseFloat(lambdaSlider.value);
+
+        x0Value.innerText = parseFloat(x0Slider.value).toFixed(1);
+        v0Value.innerText = parseFloat(v0Slider.value).toFixed(1);
+        kValue.innerText = k.toFixed(1);
+        lambdaValue.innerText = lambda.toFixed(2);
+
+        // Simulation parameters
+        const dt = 0.016; // 60 fps simulation
+        const stepsPerFrame = 5; // multiple steps per frame for smooth plotting
+
+        if (!isEscaped) {
+            for (let i = 0; i < stepsPerFrame; i++) {
+                // Euler-Cromer integration
+                let a = -(k / m) * x - (4 * lambda / m) * Math.pow(x, 3);
+                v += a * dt;
+                x += v * dt;
+                
+                trace.push({px: x, pv: v});
+                if (trace.length > 500) trace.shift();
+
+                // Check for escape condition (soft spring runaway)
+                if (Math.abs(x) > 10 || Math.abs(v) > 50) {
+                    isEscaped = true;
+                    escapeWarning.style.display = 'inline';
+                    break;
+                }
+            }
+        }
+
+        const currentE = 0.5 * m * v * v + getU(x, k, lambda);
+        if (!isEscaped) {
+            energyVal.innerText = currentE.toFixed(3);
+        }
+
+        // --- DRAW POTENTIAL WELL ---
+        potCtx.clearRect(0, 0, potCanvas.width, potCanvas.height);
+        
+        const xMinBound = -4, xMaxBound = 4;
+        const uMaxBound = Math.max(10, E_initial * 1.5);
+        const uMinBound = lambda < 0 ? -10 : -2;
+
+        function mapX_P(px) { return (potCanvas.width / 2) + (px / xMaxBound) * (potCanvas.width / 2); }
+        function mapY_P(py) { return potCanvas.height - ((py - uMinBound) / (uMaxBound - uMinBound)) * potCanvas.height; }
+
+        // Axes
+        potCtx.strokeStyle = '#9ca3af';
+        potCtx.lineWidth = 1;
+        potCtx.beginPath();
+        potCtx.moveTo(0, mapY_P(0)); potCtx.lineTo(potCanvas.width, mapY_P(0));
+        potCtx.moveTo(mapX_P(0), 0); potCtx.lineTo(mapX_P(0), potCanvas.height);
+        potCtx.stroke();
+
+        // Potential Curve
+        potCtx.strokeStyle = '#3b82f6';
+        potCtx.lineWidth = 3;
+        potCtx.beginPath();
+        for (let px = xMinBound; px <= xMaxBound; px += 0.05) {
+            let py = getU(px, k, lambda);
+            if (px === xMinBound) potCtx.moveTo(mapX_P(px), mapY_P(py));
+            else potCtx.lineTo(mapX_P(px), mapY_P(py));
+        }
+        potCtx.stroke();
+
+        // Total Energy Line
+        potCtx.strokeStyle = '#10b981';
+        potCtx.setLineDash([5, 5]);
+        potCtx.lineWidth = 2;
+        potCtx.beginPath();
+        potCtx.moveTo(0, mapY_P(E_initial));
+        potCtx.lineTo(potCanvas.width, mapY_P(E_initial));
+        potCtx.stroke();
+        potCtx.setLineDash([]);
+
+        // Particle Position in Well
+        potCtx.beginPath();
+        potCtx.arc(mapX_P(x), mapY_P(getU(x, k, lambda)), 8, 0, 2 * Math.PI);
+        potCtx.fillStyle = '#ef4444';
+        potCtx.fill();
+
+        // --- DRAW PHASE SPACE ---
+        phaseCtx.fillStyle = 'rgba(255, 255, 255, 0.1)'; // Fade effect
+        phaseCtx.fillRect(0, 0, phaseCanvas.width, phaseCanvas.height);
+
+        const vMaxBound = Math.max(10, Math.abs(v0) * 1.5, Math.sqrt(2 * Math.abs(E_initial)/m) * 1.2);
+
+        function mapX_PS(px) { return (phaseCanvas.width / 2) + (px / xMaxBound) * (phaseCanvas.width / 2); }
+        function mapY_PS(pv) { return (phaseCanvas.height / 2) - (pv / vMaxBound) * (phaseCanvas.height / 2); }
+
+        // Axes (only draw occasionally so they don't fade completely)
+        phaseCtx.strokeStyle = '#e5e7eb';
+        phaseCtx.lineWidth = 1;
+        phaseCtx.beginPath();
+        phaseCtx.moveTo(0, phaseCanvas.height / 2); phaseCtx.lineTo(phaseCanvas.width, phaseCanvas.height / 2);
+        phaseCtx.moveTo(phaseCanvas.width / 2, 0); phaseCtx.lineTo(phaseCanvas.width / 2, phaseCanvas.height);
+        phaseCtx.stroke();
+
+        // Trace line
+        if (trace.length > 1 && !isEscaped) {
+            phaseCtx.strokeStyle = '#3b82f6';
+            phaseCtx.lineWidth = 2;
+            phaseCtx.beginPath();
+            let pt1 = trace[trace.length - 2];
+            let pt2 = trace[trace.length - 1];
+            phaseCtx.moveTo(mapX_PS(pt1.px), mapY_PS(pt1.pv));
+            phaseCtx.lineTo(mapX_PS(pt2.px), mapY_PS(pt2.pv));
+            phaseCtx.stroke();
+        }
+
+        // Current State Point
+        if (!isEscaped) {
+            phaseCtx.beginPath();
+            phaseCtx.arc(mapX_PS(x), mapY_PS(v), 5, 0, 2 * Math.PI);
+            phaseCtx.fillStyle = '#ef4444';
+            phaseCtx.fill();
+        }
+
+        animationId = requestAnimationFrame(render);
+    }
+
+    resetBtn.addEventListener('click', resetSim);
+    
+    // Auto-reset when sliders change to show new orbit
+    x0Slider.addEventListener('input', resetSim);
+    v0Slider.addEventListener('input', resetSim);
+    kSlider.addEventListener('input', resetSim);
+    lambdaSlider.addEventListener('input', resetSim);
+
+    resetSim();
+    animationId = requestAnimationFrame(render);
+</script>
+
+</body>
+</html>

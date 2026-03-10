@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 09 - 2D Isotropic Harmonic Oscillator</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 20px;
+            background-color: #f9fafb;
+            color: #1f2937;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1, h2 { color: #111827; }
+        .controls {
+            margin: 20px 0;
+            padding: 15px;
+            background: #eff6ff;
+            border-radius: 6px;
+            border-left: 4px solid #3b82f6;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        label { font-weight: bold; min-width: 80px; }
+        input[type="range"] { flex-grow: 1; }
+        span.value-display {
+            min-width: 50px;
+            text-align: right;
+            font-family: monospace;
+            font-size: 1.1em;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            grid-column: span 2;
+        }
+        button:hover { background-color: #2563eb; }
+        canvas {
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .stats {
+            margin-top: 15px;
+            padding: 15px;
+            background: #1f2937;
+            color: #10b981;
+            border-radius: 6px;
+            font-family: monospace;
+            display: flex;
+            justify-content: space-around;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>2D Conservative Potential Well</h1>
+    <p>Visualizing motion in the potential <strong>U(x,y) = ½k(x² + y²)</strong>.</p>
+
+    <div class="controls">
+        <div class="control-group">
+            <label for="x0Slider">x₀ (m):</label>
+            <input type="range" id="x0Slider" min="-5" max="5" step="0.5" value="4">
+            <span class="value-display" id="x0Value">4.0</span>
+        </div>
+        <div class="control-group">
+            <label for="y0Slider">y₀ (m):</label>
+            <input type="range" id="y0Slider" min="-5" max="5" step="0.5" value="0">
+            <span class="value-display" id="y0Value">0.0</span>
+        </div>
+        <div class="control-group">
+            <label for="vx0Slider">v_x₀ (m/s):</label>
+            <input type="range" id="vx0Slider" min="-5" max="5" step="0.5" value="0">
+            <span class="value-display" id="vx0Value">0.0</span>
+        </div>
+        <div class="control-group">
+            <label for="vy0Slider">v_y₀ (m/s):</label>
+            <input type="range" id="vy0Slider" min="-5" max="5" step="0.5" value="3">
+            <span class="value-display" id="vy0Value">3.0</span>
+        </div>
+        <div class="control-group">
+            <label for="kSlider">k (N/m):</label>
+            <input type="range" id="kSlider" min="1" max="5" step="0.5" value="2">
+            <span class="value-display" id="kValue">2.0</span>
+        </div>
+        <div class="control-group">
+            <label for="mSlider">Mass (kg):</label>
+            <input type="range" id="mSlider" min="0.5" max="5" step="0.5" value="1.0">
+            <span class="value-display" id="mValue">1.0</span>
+        </div>
+        <button id="toggleBtn">Pause Animation</button>
+    </div>
+
+    <div class="stats" id="statsDisplay">
+        <div id="totEStat">Total Energy (E): 0.00 J</div>
+        <div id="kinEStat">Kinetic (T): 0.00 J</div>
+        <div id="potEStat">Potential (U): 0.00 J</div>
+    </div>
+
+    <canvas id="animCanvas" width="600" height="600"></canvas>
+</div>
+
+<script>
+    const canvas = document.getElementById('animCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    const x0Slider = document.getElementById('x0Slider');
+    const y0Slider = document.getElementById('y0Slider');
+    const vx0Slider = document.getElementById('vx0Slider');
+    const vy0Slider = document.getElementById('vy0Slider');
+    const kSlider = document.getElementById('kSlider');
+    const mSlider = document.getElementById('mSlider');
+    const toggleBtn = document.getElementById('toggleBtn');
+    
+    const x0Value = document.getElementById('x0Value');
+    const y0Value = document.getElementById('y0Value');
+    const vx0Value = document.getElementById('vx0Value');
+    const vy0Value = document.getElementById('vy0Value');
+    const kValue = document.getElementById('kValue');
+    const mValue = document.getElementById('mValue');
+
+    const totEStat = document.getElementById('totEStat');
+    const kinEStat = document.getElementById('kinEStat');
+    const potEStat = document.getElementById('potEStat');
+
+    let time = 0;
+    let isPlaying = true;
+    let lastTimestamp = 0;
+
+    function render(timestamp) {
+        if (!lastTimestamp) lastTimestamp = timestamp;
+        let dt = (timestamp - lastTimestamp) / 1000;
+        lastTimestamp = timestamp;
+
+        if (isPlaying) {
+            time += dt;
+        }
+
+        const x0 = parseFloat(x0Slider.value);
+        const y0 = parseFloat(y0Slider.value);
+        const vx0 = parseFloat(vx0Slider.value);
+        const vy0 = parseFloat(vy0Slider.value);
+        const k = parseFloat(kSlider.value);
+        const m = parseFloat(mSlider.value);
+
+        x0Value.innerText = x0.toFixed(1);
+        y0Value.innerText = y0.toFixed(1);
+        vx0Value.innerText = vx0.toFixed(1);
+        vy0Value.innerText = vy0.toFixed(1);
+        kValue.innerText = k.toFixed(1);
+        mValue.innerText = m.toFixed(1);
+
+        const omega = Math.sqrt(k / m);
+        
+        // Exact equations
+        const x = x0 * Math.cos(omega * time) + (vx0 / omega) * Math.sin(omega * time);
+        const y = y0 * Math.cos(omega * time) + (vy0 / omega) * Math.sin(omega * time);
+        
+        const vx = -x0 * omega * Math.sin(omega * time) + vx0 * Math.cos(omega * time);
+        const vy = -y0 * omega * Math.sin(omega * time) + vy0 * Math.cos(omega * time);
+
+        // Energies
+        const T = 0.5 * m * (vx*vx + vy*vy);
+        const U = 0.5 * k * (x*x + y*y);
+        const E = T + U;
+
+        totEStat.innerText = `Total Energy (E): ${E.toFixed(2)} J`;
+        kinEStat.innerText = `Kinetic (T): ${T.toFixed(2)} J`;
+        potEStat.innerText = `Potential (U): ${U.toFixed(2)} J`;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2;
+        
+        // Dynamic scaling based on energy bounds
+        const maxAmplitude = Math.sqrt(2 * E / k) || 1; 
+        const maxBound = Math.max(5, maxAmplitude * 1.2);
+        
+        function mapX(val) { return cx + (val / maxBound) * (canvas.width / 2 - 20); }
+        function mapY(val) { return cy - (val / maxBound) * (canvas.height / 2 - 20); } // y is up
+
+        // Draw Axes
+        ctx.strokeStyle = '#e5e7eb';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, cy); ctx.lineTo(canvas.width, cy);
+        ctx.moveTo(cx, 0); ctx.lineTo(cx, canvas.height);
+        ctx.stroke();
+
+        // Draw Potential Contours (Visual guide)
+        ctx.strokeStyle = '#d1d5db';
+        ctx.setLineDash([4, 4]);
+        for(let r = 1; r <= maxBound; r += 2) {
+            ctx.beginPath();
+            ctx.arc(cx, cy, (r / maxBound) * (canvas.width / 2 - 20), 0, 2*Math.PI);
+            ctx.stroke();
+        }
+        ctx.setLineDash([]);
+
+        // Draw Trajectory Trace
+        ctx.strokeStyle = '#3b82f6';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (let t_i = 0; t_i <= 2 * Math.PI / omega; t_i += 0.05) {
+            let px = x0 * Math.cos(omega * t_i) + (vx0 / omega) * Math.sin(omega * t_i);
+            let py = y0 * Math.cos(omega * t_i) + (vy0 / omega) * Math.sin(omega * t_i);
+            if (t_i === 0) ctx.moveTo(mapX(px), mapY(py));
+            else ctx.lineTo(mapX(px), mapY(py));
+        }
+        ctx.closePath();
+        ctx.stroke();
+
+        // Draw Particle
+        const screenX = mapX(x);
+        const screenY = mapY(y);
+        ctx.beginPath();
+        ctx.arc(screenX, screenY, 8, 0, 2*Math.PI);
+        ctx.fillStyle = '#ef4444';
+        ctx.fill();
+
+        // Draw Force Vector (points to origin)
+        ctx.beginPath();
+        ctx.strokeStyle = '#10b981';
+        ctx.lineWidth = 2;
+        ctx.moveTo(screenX, screenY);
+        // Force is proportional to position, scaled for visibility
+        let fxScale = 0.2; 
+        let fx = -k * x;
+        let fy = -k * y;
+        ctx.lineTo(screenX + fx * fxScale * (canvas.width / maxBound), screenY - fy * fxScale * (canvas.height / maxBound));
+        ctx.stroke();
+
+        requestAnimationFrame(render);
+    }
+
+    toggleBtn.addEventListener('click', () => {
+        isPlaying = !isPlaying;
+        toggleBtn.innerText = isPlaying ? "Pause Animation" : "Play Animation";
+        if (isPlaying) lastTimestamp = performance.now();
+    });
+
+    // Reset time on any slider change
+    function resetTime() { time = 0; }
+    x0Slider.addEventListener('input', resetTime);
+    y0Slider.addEventListener('input', resetTime);
+    vx0Slider.addEventListener('input', resetTime);
+    vy0Slider.addEventListener('input', resetTime);
+    kSlider.addEventListener('input', resetTime);
+    mSlider.addEventListener('input', resetTime);
+
+    requestAnimationFrame(render);
+</script>
+
+</body>
+</html>

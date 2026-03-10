@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 05 - Wave Superposition and Beats</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 20px;
+            background-color: #f9fafb;
+            color: #1f2937;
+        }
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1, h2 { color: #111827; }
+        .controls {
+            margin: 20px 0;
+            padding: 15px;
+            background: #eff6ff;
+            border-radius: 6px;
+            border-left: 4px solid #3b82f6;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        label { font-weight: bold; min-width: 130px; }
+        input[type="range"] { flex-grow: 1; }
+        span.value-display {
+            min-width: 60px;
+            text-align: right;
+            font-family: monospace;
+            font-size: 1.1em;
+        }
+        button {
+            padding: 8px 16px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            grid-column: span 2;
+        }
+        button:hover { background: #2563eb; }
+        .canvas-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .canvas-box {
+            background: #f3f4f6;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        canvas {
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            width: 100%;
+        }
+        .stats {
+            margin-top: 15px;
+            padding: 15px;
+            background: #1f2937;
+            color: #10b981;
+            border-radius: 6px;
+            font-family: monospace;
+            display: flex;
+            justify-content: space-around;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 5px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
+        .color-box { width: 14px; height: 14px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Superposition & Beats</h1>
+    <p>Visualizing <strong>y = y₁ + y₂</strong> where the waves have a frequency difference of <strong>Δω</strong>.</p>
+
+    <div class="controls">
+        <div class="control-group">
+            <label for="omegaSlider">Base Freq (ω):</label>
+            <input type="range" id="omegaSlider" min="5" max="30" step="1" value="20">
+            <span class="value-display" id="omegaValue">20.0</span>
+        </div>
+        <div class="control-group">
+            <label for="deltaOmegaSlider">Freq Diff (Δω):</label>
+            <input type="range" id="deltaOmegaSlider" min="0.5" max="5" step="0.5" value="2">
+            <span class="value-display" id="deltaOmegaValue">2.0</span>
+        </div>
+        <div class="control-group">
+            <label for="kSlider">Wave Number (k):</label>
+            <input type="range" id="kSlider" min="1" max="10" step="0.5" value="5">
+            <span class="value-display" id="kValue">5.0</span>
+        </div>
+        <button id="toggleBtn">Pause Animation</button>
+    </div>
+
+    <div class="stats" id="statsDisplay">
+        <div id="beatFreqStat">Beat Freq (f_beat): 0.00 Hz</div>
+        <div id="beatPeriodStat">Beat Period (T_beat): 0.00 s</div>
+        <div id="timeStat">Time: 0.00 s</div>
+    </div>
+
+    <div class="canvas-container">
+        <div class="canvas-box">
+            <h3>Individual Waves: y₁(x,t) and y₂(x,t)</h3>
+            <canvas id="wavesCanvas" width="800" height="150"></canvas>
+            <div class="legend">
+                <div class="legend-item"><div class="color-box" style="background:#3b82f6;"></div> y₁ (Freq: ω)</div>
+                <div class="legend-item"><div class="color-box" style="background:#10b981;"></div> y₂ (Freq: ω + Δω)</div>
+            </div>
+        </div>
+
+        <div class="canvas-box">
+            <h3>Superposition: y(x,t) = y₁ + y₂</h3>
+            <canvas id="superCanvas" width="800" height="250"></canvas>
+            <div class="legend">
+                <div class="legend-item"><div class="color-box" style="background:#8b5cf6;"></div> Resultant Wave (Carrier)</div>
+                <div class="legend-item"><div class="color-box" style="background:#ef4444;"></div> Envelope (Beats)</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const wavesCanvas = document.getElementById('wavesCanvas');
+    const wavesCtx = wavesCanvas.getContext('2d');
+    const superCanvas = document.getElementById('superCanvas');
+    const superCtx = superCanvas.getContext('2d');
+
+    const omegaSlider = document.getElementById('omegaSlider');
+    const deltaOmegaSlider = document.getElementById('deltaOmegaSlider');
+    const kSlider = document.getElementById('kSlider');
+    const toggleBtn = document.getElementById('toggleBtn');
+
+    const omegaValue = document.getElementById('omegaValue');
+    const deltaOmegaValue = document.getElementById('deltaOmegaValue');
+    const kValue = document.getElementById('kValue');
+    const beatFreqStat = document.getElementById('beatFreqStat');
+    const beatPeriodStat = document.getElementById('beatPeriodStat');
+    const timeStat = document.getElementById('timeStat');
+
+    let time = 0;
+    let isPlaying = true;
+    let lastTimestamp = 0;
+
+    function render(timestamp) {
+        if (!lastTimestamp) lastTimestamp = timestamp;
+        let dt = (timestamp - lastTimestamp) / 1000;
+        lastTimestamp = timestamp;
+
+        if (isPlaying) time += dt;
+
+        const omega = parseFloat(omegaSlider.value);
+        const dOmega = parseFloat(deltaOmegaSlider.value);
+        const k = parseFloat(kSlider.value);
+
+        omegaValue.innerText = omega.toFixed(1);
+        deltaOmegaValue.innerText = dOmega.toFixed(1);
+        kValue.innerText = k.toFixed(1);
+
+        const f_beat = dOmega / (2 * Math.PI);
+        const T_beat = 1 / f_beat;
+
+        beatFreqStat.innerText = `Beat Freq (f_beat): ${f_beat.toFixed(2)} Hz`;
+        beatPeriodStat.innerText = `Beat Period (T_beat): ${T_beat.toFixed(2)} s`;
+        timeStat.innerText = `Time: ${time.toFixed(2)} s`;
+
+        const marginX = 20;
+        const xMax = 15; // Plot range
+
+        function mapX(canvas, x) {
+            return marginX + (x / xMax) * (canvas.width - 2 * marginX);
+        }
+
+        function drawAxes(ctx, canvas, h) {
+            ctx.strokeStyle = '#9ca3af';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(marginX, h / 2);
+            ctx.lineTo(canvas.width - marginX, h / 2);
+            ctx.stroke();
+        }
+
+        // --- Draw Individual Waves ---
+        wavesCtx.clearRect(0, 0, wavesCanvas.width, wavesCanvas.height);
+        drawAxes(wavesCtx, wavesCanvas, wavesCanvas.height);
+        
+        const A1 = 30; // Amplitude for individual
+        const cy1 = wavesCanvas.height / 2;
+
+        wavesCtx.lineWidth = 2;
+        
+        // y1
+        wavesCtx.strokeStyle = 'rgba(59, 130, 246, 0.8)';
+        wavesCtx.beginPath();
+        for(let x=0; x<=xMax; x+=0.05) {
+            let y = A1 * Math.sin(k * x - omega * time);
+            if(x===0) wavesCtx.moveTo(mapX(wavesCanvas, x), cy1 - y);
+            else wavesCtx.lineTo(mapX(wavesCanvas, x), cy1 - y);
+        }
+        wavesCtx.stroke();
+
+        // y2
+        wavesCtx.strokeStyle = 'rgba(16, 185, 129, 0.8)';
+        wavesCtx.beginPath();
+        for(let x=0; x<=xMax; x+=0.05) {
+            let y = A1 * Math.sin(k * x - (omega + dOmega) * time);
+            if(x===0) wavesCtx.moveTo(mapX(wavesCanvas, x), cy1 - y);
+            else wavesCtx.lineTo(mapX(wavesCanvas, x), cy1 - y);
+        }
+        wavesCtx.stroke();
+
+
+        // --- Draw Superposition ---
+        superCtx.clearRect(0, 0, superCanvas.width, superCanvas.height);
+        drawAxes(superCtx, superCanvas, superCanvas.height);
+
+        const A2 = 60; // Max amplitude for superposition
+        const cy2 = superCanvas.height / 2;
+
+        // Draw Resultant Carrier Wave
+        superCtx.strokeStyle = '#8b5cf6';
+        superCtx.lineWidth = 2;
+        superCtx.beginPath();
+        for(let x=0; x<=xMax; x+=0.05) {
+            // using the product form: 2A cos(dOmega*t/2) * sin(kx - (omega+dOmega/2)t)
+            // But visually, for spatial envelope, if dK was non-zero it would move. Here dK=0.
+            // Wait, if dK = 0, the envelope depends ONLY on time, not x! 
+            // y(x,t) = 2A cos(-dOmega*t/2) * sin(kx - (omega + dOmega/2)t)
+            let y = 2 * A1 * Math.cos((dOmega * time) / 2) * Math.sin(k * x - (omega + dOmega / 2) * time);
+            if(x===0) superCtx.moveTo(mapX(superCanvas, x), cy2 - y);
+            else superCtx.lineTo(mapX(superCanvas, x), cy2 - y);
+        }
+        superCtx.stroke();
+
+        // Draw Envelope bounds (which depends only on time because k1 = k2)
+        // Since spatial difference is zero, the envelope is flat across space at any instant
+        // but pulses up and down.
+        let envAmp = Math.abs(2 * A1 * Math.cos((dOmega * time) / 2));
+        
+        superCtx.strokeStyle = 'rgba(239, 68, 68, 0.6)';
+        superCtx.lineWidth = 2;
+        superCtx.setLineDash([5, 5]);
+        
+        // Upper envelope
+        superCtx.beginPath();
+        superCtx.moveTo(mapX(superCanvas, 0), cy2 - envAmp);
+        superCtx.lineTo(mapX(superCanvas, xMax), cy2 - envAmp);
+        superCtx.stroke();
+        
+        // Lower envelope
+        superCtx.beginPath();
+        superCtx.moveTo(mapX(superCanvas, 0), cy2 + envAmp);
+        superCtx.lineTo(mapX(superCanvas, xMax), cy2 + envAmp);
+        superCtx.stroke();
+        
+        superCtx.setLineDash([]);
+
+        requestAnimationFrame(render);
+    }
+
+    toggleBtn.addEventListener('click', () => {
+        isPlaying = !isPlaying;
+        toggleBtn.innerText = isPlaying ? "Pause Animation" : "Play Animation";
+        if (isPlaying) lastTimestamp = performance.now();
+    });
+
+    requestAnimationFrame(render);
+</script>
+
+</body>
+</html>

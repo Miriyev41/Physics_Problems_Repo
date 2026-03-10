@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 08 - Harmonic Oscillator Phase Space</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 20px;
+            background-color: #f9fafb;
+            color: #1f2937;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1, h2 { color: #111827; }
+        .controls {
+            margin: 20px 0;
+            padding: 15px;
+            background: #eff6ff;
+            border-radius: 6px;
+            border-left: 4px solid #3b82f6;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        label { font-weight: bold; min-width: 140px; }
+        input[type="range"] { flex-grow: 1; }
+        span.value-display {
+            min-width: 60px;
+            text-align: right;
+            font-family: monospace;
+            font-size: 1.1em;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            grid-column: span 2;
+        }
+        button:hover { background-color: #2563eb; }
+        .flex-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .canvas-box {
+            flex: 1;
+            min-width: 400px;
+            background: #f3f4f6;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        canvas {
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            width: 100%;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
+        .color-box { width: 14px; height: 14px; border-radius: 3px; }
+        
+        /* Bar Chart Styles */
+        .energy-bars {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            height: 150px;
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        .bar-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            width: 30%;
+            height: 100%;
+        }
+        .bar {
+            width: 50px;
+            border-radius: 4px 4px 0 0;
+            transition: height 0.1s linear;
+        }
+        .bar-label {
+            margin-top: 5px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Harmonic Oscillator Dynamics</h1>
+    <p>Visualizing Phase Space and Energy Conservation.</p>
+
+    <div class="controls">
+        <div class="control-group">
+            <label for="x0Slider">Initial Pos (x₀):</label>
+            <input type="range" id="x0Slider" min="-5" max="5" step="0.5" value="4">
+            <span class="value-display" id="x0Value">4.0 m</span>
+        </div>
+        <div class="control-group">
+            <label for="v0Slider">Initial Vel (v₀):</label>
+            <input type="range" id="v0Slider" min="-10" max="10" step="1" value="0">
+            <span class="value-display" id="v0Value">0.0 m/s</span>
+        </div>
+        <div class="control-group">
+            <label for="kSlider">Spring Const (k):</label>
+            <input type="range" id="kSlider" min="1" max="10" step="0.5" value="5">
+            <span class="value-display" id="kValue">5.0 N/m</span>
+        </div>
+        <div class="control-group">
+            <label for="mSlider">Mass (m):</label>
+            <input type="range" id="mSlider" min="0.5" max="5" step="0.5" value="2.0">
+            <span class="value-display" id="mValue">2.0 kg</span>
+        </div>
+        <button id="toggleBtn">Pause Animation</button>
+    </div>
+
+    <div class="flex-container">
+        <div class="canvas-box">
+            <h3>Phase Space: v vs x</h3>
+            <canvas id="phaseCanvas" width="400" height="400"></canvas>
+            <div class="legend">
+                <div class="legend-item"><div class="color-box" style="background:#d1d5db;"></div> Orbit Trajectory</div>
+                <div class="legend-item"><div class="color-box" style="background:#ef4444;"></div> Current State (x,v)</div>
+            </div>
+        </div>
+        <div class="canvas-box">
+            <h3>Energy Conservation</h3>
+            <div class="energy-bars">
+                <div class="bar-container">
+                    <div class="bar" id="kinBar" style="background: #10b981; height: 0%;"></div>
+                    <div class="bar-label">Kinetic (T)</div>
+                </div>
+                <div class="bar-container">
+                    <div class="bar" id="potBar" style="background: #3b82f6; height: 100%;"></div>
+                    <div class="bar-label">Potential (U)</div>
+                </div>
+                <div class="bar-container">
+                    <div class="bar" id="totBar" style="background: #6366f1; height: 100%;"></div>
+                    <div class="bar-label">Total (E)</div>
+                </div>
+            </div>
+            <p style="font-family:monospace; margin-top:20px; text-align:center;" id="energyText">
+                E = 0.00 J | T = 0.00 J | U = 0.00 J
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+    const phaseCanvas = document.getElementById('phaseCanvas');
+    const phaseCtx = phaseCanvas.getContext('2d');
+
+    const x0Slider = document.getElementById('x0Slider');
+    const v0Slider = document.getElementById('v0Slider');
+    const kSlider = document.getElementById('kSlider');
+    const mSlider = document.getElementById('mSlider');
+    const toggleBtn = document.getElementById('toggleBtn');
+    
+    const x0Value = document.getElementById('x0Value');
+    const v0Value = document.getElementById('v0Value');
+    const kValue = document.getElementById('kValue');
+    const mValue = document.getElementById('mValue');
+
+    const kinBar = document.getElementById('kinBar');
+    const potBar = document.getElementById('potBar');
+    const totBar = document.getElementById('totBar');
+    const energyText = document.getElementById('energyText');
+
+    let time = 0;
+    let isPlaying = true;
+    let lastTimestamp = 0;
+
+    function render(timestamp) {
+        if (!lastTimestamp) lastTimestamp = timestamp;
+        let dt = (timestamp - lastTimestamp) / 1000;
+        lastTimestamp = timestamp;
+
+        if (isPlaying) {
+            time += dt;
+        }
+
+        const x0 = parseFloat(x0Slider.value);
+        const v0 = parseFloat(v0Slider.value);
+        const k = parseFloat(kSlider.value);
+        const m = parseFloat(mSlider.value);
+
+        x0Value.innerText = x0.toFixed(1) + " m";
+        v0Value.innerText = v0.toFixed(1) + " m/s";
+        kValue.innerText = k.toFixed(1) + " N/m";
+        mValue.innerText = m.toFixed(1) + " kg";
+
+        const omega0 = Math.sqrt(k / m);
+        
+        // Exact equations derived from IVP: x(0)=x0, v(0)=v0
+        // x(t) = x0*cos(wt) + (v0/w)*sin(wt)
+        const x = x0 * Math.cos(omega0 * time) + (v0 / omega0) * Math.sin(omega0 * time);
+        const v = -x0 * omega0 * Math.sin(omega0 * time) + v0 * Math.cos(omega0 * time);
+
+        // Energies
+        const T = 0.5 * m * v * v;
+        const U = 0.5 * k * x * x;
+        const E = T + U;
+
+        // Energy Bar UI Updates
+        const maxE = Math.max(0.5 * k * 25 + 0.5 * m * 100, E * 1.5); // Fixed scale baseline relative to max possible slider inputs
+        const currentE_Max = E === 0 ? 1 : E; // avoid div by zero
+        
+        kinBar.style.height = `${(T / currentE_Max) * 100}%`;
+        potBar.style.height = `${(U / currentE_Max) * 100}%`;
+        totBar.style.height = `100%`;
+
+        energyText.innerText = `E = ${E.toFixed(2)} J | T = ${T.toFixed(2)} J | U = ${U.toFixed(2)} J`;
+
+        // Phase Space Plot
+        phaseCtx.clearRect(0, 0, phaseCanvas.width, phaseCanvas.height);
+        
+        const cx = phaseCanvas.width / 2;
+        const cy = phaseCanvas.height / 2;
+        
+        // Dynamic bounding for the phase plot to always fit the ellipse beautifully
+        const A = Math.sqrt(x0*x0 + (v0/omega0)*(v0/omega0)); // Amplitude
+        const xMaxBound = Math.max(5, A * 1.2);
+        const vMaxBound = Math.max(10, A * omega0 * 1.2);
+
+        function mapX(val) { return cx + (val / xMaxBound) * (phaseCanvas.width / 2 - 20); }
+        function mapY(val) { return cy - (val / vMaxBound) * (phaseCanvas.height / 2 - 20); } // Y is inverted
+
+        // Draw Axes
+        phaseCtx.strokeStyle = '#9ca3af';
+        phaseCtx.lineWidth = 1;
+        phaseCtx.beginPath();
+        phaseCtx.moveTo(0, cy); phaseCtx.lineTo(phaseCanvas.width, cy); // x axis
+        phaseCtx.moveTo(cx, 0); phaseCtx.lineTo(cx, phaseCanvas.height); // v axis
+        phaseCtx.stroke();
+        
+        // Axis Labels
+        phaseCtx.fillStyle = '#6b7280';
+        phaseCtx.font = '12px sans-serif';
+        phaseCtx.fillText('x (Position)', phaseCanvas.width - 70, cy - 5);
+        phaseCtx.fillText('v (Velocity)', cx + 5, 15);
+
+        // Draw Full Ellipse Orbit
+        phaseCtx.strokeStyle = '#d1d5db';
+        phaseCtx.lineWidth = 3;
+        phaseCtx.beginPath();
+        for (let t_i = 0; t_i <= 2 * Math.PI / omega0; t_i += 0.05) {
+            let px = x0 * Math.cos(omega0 * t_i) + (v0 / omega0) * Math.sin(omega0 * t_i);
+            let pv = -x0 * omega0 * Math.sin(omega0 * t_i) + v0 * Math.cos(omega0 * t_i);
+            if (t_i === 0) phaseCtx.moveTo(mapX(px), mapY(pv));
+            else phaseCtx.lineTo(mapX(px), mapY(pv));
+        }
+        phaseCtx.closePath();
+        phaseCtx.stroke();
+
+        // Draw Current State Point
+        phaseCtx.beginPath();
+        phaseCtx.arc(mapX(x), mapY(v), 7, 0, 2*Math.PI);
+        phaseCtx.fillStyle = '#ef4444';
+        phaseCtx.fill();
+        phaseCtx.strokeStyle = '#991b1b';
+        phaseCtx.lineWidth = 2;
+        phaseCtx.stroke();
+
+        requestAnimationFrame(render);
+    }
+
+    toggleBtn.addEventListener('click', () => {
+        isPlaying = !isPlaying;
+        toggleBtn.innerText = isPlaying ? "Pause Animation" : "Play Animation";
+        if (isPlaying) lastTimestamp = performance.now();
+    });
+
+    // Handle slider changes by resetting time to show the exact new initial conditions clearly
+    function resetTime() { time = 0; }
+    x0Slider.addEventListener('input', resetTime);
+    v0Slider.addEventListener('input', resetTime);
+    kSlider.addEventListener('input', resetTime);
+    mSlider.addEventListener('input', resetTime);
+
+    requestAnimationFrame(render);
+</script>
+
+</body>
+</html>

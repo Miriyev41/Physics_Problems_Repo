@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 07 - Forced Oscillator and Resonance</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 20px;
+            background-color: #f9fafb;
+            color: #1f2937;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1, h2 { color: #111827; }
+        .controls {
+            margin: 20px 0;
+            padding: 15px;
+            background: #eff6ff;
+            border-radius: 6px;
+            border-left: 4px solid #3b82f6;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        label { font-weight: bold; min-width: 150px; }
+        input[type="range"] { flex-grow: 1; }
+        span.value-display {
+            min-width: 60px;
+            text-align: right;
+            font-family: monospace;
+            font-size: 1.1em;
+        }
+        .canvas-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .canvas-box {
+            flex: 1;
+            min-width: 450px;
+            background: #f3f4f6;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        canvas {
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            width: 100%;
+        }
+        .stats {
+            margin-top: 15px;
+            padding: 15px;
+            background: #1f2937;
+            color: #10b981;
+            border-radius: 6px;
+            font-family: monospace;
+            display: flex;
+            justify-content: space-around;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
+        .color-box { width: 14px; height: 14px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Forced Oscillator & Resonance</h1>
+    <p>Visualizing the response of <strong>mx'' + bx' + kx = F₀ cos(Ωt)</strong>.</p>
+
+    <div class="controls">
+        <div class="control-group">
+            <label for="omegaSlider">Driving Freq (Ω):</label>
+            <input type="range" id="omegaSlider" min="0.1" max="6.0" step="0.05" value="3.16">
+            <span class="value-display" id="omegaValue">3.16 rad/s</span>
+        </div>
+        <div class="control-group">
+            <label for="bSlider">Damping (b):</label>
+            <input type="range" id="bSlider" min="0.1" max="3.0" step="0.1" value="0.4">
+            <span class="value-display" id="bValue">0.4 kg/s</span>
+        </div>
+        <div class="control-group">
+            <label for="f0Slider">Force Amp (F₀):</label>
+            <input type="range" id="f0Slider" min="1" max="20" step="1" value="10">
+            <span class="value-display" id="f0Value">10.0 N</span>
+        </div>
+        <div class="control-group">
+            <label for="kSlider">Spring Const (k):</label>
+            <input type="range" id="kSlider" min="1" max="20" step="1" value="10">
+            <span class="value-display" id="kValue">10.0 N/m</span>
+        </div>
+    </div>
+
+    <div class="stats" id="statsDisplay">
+        <div id="natFreqStat">Natural Freq (ω₀): 0.00 rad/s</div>
+        <div id="ampStat">Steady-State Amp (A): 0.00 m</div>
+        <div id="phaseStat">Phase Shift (φ): 0.00 rad</div>
+    </div>
+
+    <div class="canvas-container">
+        <div class="canvas-box">
+            <h3>Time Domain: x(t) and Driving Force</h3>
+            <canvas id="timeCanvas" width="500" height="300"></canvas>
+            <div class="legend">
+                <div class="legend-item"><div class="color-box" style="background:#3b82f6;"></div> Displacement x(t)</div>
+                <div class="legend-item"><div class="color-box" style="background:#ef4444; opacity: 0.5;"></div> Force F(t) (Scaled)</div>
+            </div>
+        </div>
+        <div class="canvas-box">
+            <h3>Resonance Curve: Amplitude A(Ω)</h3>
+            <canvas id="resCanvas" width="500" height="300"></canvas>
+            <div class="legend">
+                <div class="legend-item"><div class="color-box" style="background:#10b981;"></div> A(Ω)</div>
+                <div class="legend-item"><div class="color-box" style="background:#1f2937;"></div> Current Ω</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const timeCanvas = document.getElementById('timeCanvas');
+    const timeCtx = timeCanvas.getContext('2d');
+    const resCanvas = document.getElementById('resCanvas');
+    const resCtx = resCanvas.getContext('2d');
+
+    const omegaSlider = document.getElementById('omegaSlider');
+    const bSlider = document.getElementById('bSlider');
+    const f0Slider = document.getElementById('f0Slider');
+    const kSlider = document.getElementById('kSlider');
+
+    const omegaValue = document.getElementById('omegaValue');
+    const bValue = document.getElementById('bValue');
+    const f0Value = document.getElementById('f0Value');
+    const kValue = document.getElementById('kValue');
+
+    const natFreqStat = document.getElementById('natFreqStat');
+    const ampStat = document.getElementById('ampStat');
+    const phaseStat = document.getElementById('phaseStat');
+
+    const m = 1.0; // Fixed mass
+
+    function calculateAmplitude(W, b, k, F0) {
+        let w0_sq = k / m;
+        let gamma = b / (2 * m);
+        let f0 = F0 / m;
+        let denom = Math.sqrt(Math.pow(w0_sq - W * W, 2) + Math.pow(2 * gamma * W, 2));
+        return f0 / denom;
+    }
+
+    function calculatePhase(W, b, k) {
+        let w0_sq = k / m;
+        let gamma = b / (2 * m);
+        let num = 2 * gamma * W;
+        let den = w0_sq - W * W;
+        let phi = Math.atan2(num, den);
+        if (phi < 0) phi += Math.PI;
+        return phi;
+    }
+
+    function drawPlots() {
+        const W = parseFloat(omegaSlider.value);
+        const b = parseFloat(bSlider.value);
+        const F0 = parseFloat(f0Slider.value);
+        const k = parseFloat(kSlider.value);
+
+        omegaValue.innerText = W.toFixed(2) + " rad/s";
+        bValue.innerText = b.toFixed(1) + " kg/s";
+        f0Value.innerText = F0.toFixed(1) + " N";
+        kValue.innerText = k.toFixed(1) + " N/m";
+
+        const w0 = Math.sqrt(k / m);
+        natFreqStat.innerText = `Natural Freq (ω₀): ${w0.toFixed(2)} rad/s`;
+
+        const A = calculateAmplitude(W, b, k, F0);
+        const phi = calculatePhase(W, b, k);
+
+        ampStat.innerText = `Steady-State Amp (A): ${A.toFixed(2)} m`;
+        phaseStat.innerText = `Phase Shift (φ): ${(phi * 180 / Math.PI).toFixed(1)}°`;
+
+        // --- 1. Draw Time Domain Simulation (RK4) ---
+        timeCtx.clearRect(0, 0, timeCanvas.width, timeCanvas.height);
+        
+        let tMax = 30; // Simulate 30 seconds
+        let dt = 0.05;
+        let t = 0;
+        let x = 0; // Start at rest
+        let v = 0;
+        
+        let timeData = [];
+
+        function getDerivs(currT, currX, currV) {
+            let dx = currV;
+            let dv = (F0 * Math.cos(W * currT) - b * currV - k * currX) / m;
+            return {dx, dv};
+        }
+
+        while (t <= tMax) {
+            timeData.push({t: t, x: x, F: F0 * Math.cos(W * t)});
+            
+            let k1 = getDerivs(t, x, v);
+            let k2 = getDerivs(t + dt/2, x + k1.dx*dt/2, v + k1.dv*dt/2);
+            let k3 = getDerivs(t + dt/2, x + k2.dx*dt/2, v + k2.dv*dt/2);
+            let k4 = getDerivs(t + dt, x + k3.dx*dt, v + k3.dv*dt);
+
+            x += (dt/6) * (k1.dx + 2*k2.dx + 2*k3.dx + k4.dx);
+            v += (dt/6) * (k1.dv + 2*k2.dv + 2*k3.dv + k4.dv);
+            t += dt;
+        }
+
+        const margin = 40;
+        const wTime = timeCanvas.width - 2 * margin;
+        const hTime = timeCanvas.height - 2 * margin;
+
+        // Dynamic y-axis scaling based on resonance peak to keep it on screen
+        const maxExpectedA = calculateAmplitude(Math.sqrt(Math.max(0, w0*w0 - 2*(b/(2*m))*(b/(2*m)))), b, k, F0) || A;
+        const yBound = Math.max(A * 1.5, maxExpectedA * 1.2, 5);
+
+        function mapTx(val) { return margin + (val / tMax) * wTime; }
+        function mapTy(val) { return timeCanvas.height / 2 - (val / yBound) * (hTime / 2); }
+
+        // Axes
+        timeCtx.strokeStyle = '#9ca3af';
+        timeCtx.lineWidth = 1;
+        timeCtx.beginPath();
+        timeCtx.moveTo(margin, timeCanvas.height/2); timeCtx.lineTo(timeCanvas.width - margin, timeCanvas.height/2);
+        timeCtx.stroke();
+
+        // Draw Force (Scaled)
+        timeCtx.strokeStyle = 'rgba(239, 68, 68, 0.4)';
+        timeCtx.lineWidth = 2;
+        timeCtx.beginPath();
+        for (let pt of timeData) {
+            let scaledF = pt.F * (yBound / F0) * 0.5; // Scale force visually
+            if (pt.t === 0) timeCtx.moveTo(mapTx(pt.t), mapTy(scaledF));
+            else timeCtx.lineTo(mapTx(pt.t), mapTy(scaledF));
+        }
+        timeCtx.stroke();
+
+        // Draw Displacement x(t)
+        timeCtx.strokeStyle = '#3b82f6';
+        timeCtx.lineWidth = 2;
+        timeCtx.beginPath();
+        for (let pt of timeData) {
+            if (pt.t === 0) timeCtx.moveTo(mapTx(pt.t), mapTy(pt.x));
+            else timeCtx.lineTo(mapTx(pt.t), mapTy(pt.x));
+        }
+        timeCtx.stroke();
+
+
+        // --- 2. Draw Resonance Curve A(Ω) ---
+        resCtx.clearRect(0, 0, resCanvas.width, resCanvas.height);
+        
+        let W_max = 8.0;
+        
+        function mapRx(val) { return margin + (val / W_max) * wTime; }
+        function mapRy(val) { return resCanvas.height - margin - (val / yBound) * hTime; }
+
+        // Axes
+        resCtx.strokeStyle = '#9ca3af';
+        resCtx.lineWidth = 1;
+        resCtx.beginPath();
+        resCtx.moveTo(margin, resCanvas.height - margin); resCtx.lineTo(resCanvas.width - margin, resCanvas.height - margin); // X axis
+        resCtx.moveTo(margin, margin); resCtx.lineTo(margin, resCanvas.height - margin); // Y axis
+        resCtx.stroke();
+
+        // Draw Curve
+        resCtx.strokeStyle = '#10b981';
+        resCtx.lineWidth = 3;
+        resCtx.beginPath();
+        for (let w = 0.05; w <= W_max; w += 0.05) {
+            let amp = calculateAmplitude(w, b, k, F0);
+            if (w === 0.05) resCtx.moveTo(mapRx(w), mapRy(amp));
+            else resCtx.lineTo(mapRx(w), mapRy(amp));
+        }
+        resCtx.stroke();
+
+        // Draw Current State Dot
+        resCtx.beginPath();
+        resCtx.arc(mapRx(W), mapRy(A), 6, 0, 2*Math.PI);
+        resCtx.fillStyle = '#1f2937';
+        resCtx.fill();
+        
+        // Draw dashed line to current state
+        resCtx.strokeStyle = '#6b7280';
+        resCtx.setLineDash([4, 4]);
+        resCtx.lineWidth = 1;
+        resCtx.beginPath();
+        resCtx.moveTo(mapRx(W), resCanvas.height - margin);
+        resCtx.lineTo(mapRx(W), mapRy(A));
+        resCtx.stroke();
+        resCtx.setLineDash([]);
+    }
+
+    omegaSlider.addEventListener('input', drawPlots);
+    bSlider.addEventListener('input', drawPlots);
+    f0Slider.addEventListener('input', drawPlots);
+    kSlider.addEventListener('input', drawPlots);
+
+    drawPlots(); // Init
+</script>
+
+</body>
+</html>

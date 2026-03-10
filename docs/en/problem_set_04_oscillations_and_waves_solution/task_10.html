@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 10 - Double Pendulum Chaos</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 20px;
+            background-color: #f9fafb;
+            color: #1f2937;
+        }
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1, h2 { color: #111827; }
+        .controls {
+            margin: 20px 0;
+            padding: 15px;
+            background: #eff6ff;
+            border-radius: 6px;
+            border-left: 4px solid #3b82f6;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        label { font-weight: bold; min-width: 140px; }
+        input[type="range"] { flex-grow: 1; }
+        span.value-display {
+            min-width: 80px;
+            text-align: right;
+            font-family: monospace;
+            font-size: 1.1em;
+        }
+        .btn-group {
+            grid-column: span 2;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { background-color: #2563eb; }
+        button.action-btn { background-color: #ef4444; }
+        button.action-btn:hover { background-color: #dc2626; }
+        .canvas-box {
+            background: #111827;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            margin-top: 20px;
+            position: relative;
+        }
+        canvas {
+            background: #111827;
+            border-radius: 4px;
+            width: 100%;
+        }
+        .overlay-stats {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #10b981;
+            font-family: monospace;
+            text-align: left;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Double Pendulum Ensemble Simulation</h1>
+    <p>Visualizing deterministic chaos by simulating <strong>50 pendulums</strong> simultaneously with infinitesimally different initial conditions.</p>
+
+    <div class="controls">
+        <div class="control-group">
+            <label for="th1Slider">Base θ₁ (rad):</label>
+            <input type="range" id="th1Slider" min="-3.14" max="3.14" step="0.1" value="1.57">
+            <span class="value-display" id="th1Value">1.57</span>
+        </div>
+        <div class="control-group">
+            <label for="th2Slider">Base θ₂ (rad):</label>
+            <input type="range" id="th2Slider" min="-3.14" max="3.14" step="0.1" value="1.57">
+            <span class="value-display" id="th2Value">1.57</span>
+        </div>
+        <div class="control-group">
+            <label for="pertSlider">Perturbation Scale:</label>
+            <input type="range" id="pertSlider" min="-5" max="-1" step="1" value="-3">
+            <span class="value-display" id="pertValue">1e-3</span>
+        </div>
+        <div class="control-group">
+            <label for="speedSlider">Simulation Speed:</label>
+            <input type="range" id="speedSlider" min="1" max="5" step="1" value="2">
+            <span class="value-display" id="speedValue">2x</span>
+        </div>
+        
+        <div class="btn-group">
+            <button id="toggleBtn">Pause Simulation</button>
+            <button id="resetBtn" class="action-btn">Reset & Release</button>
+        </div>
+    </div>
+
+    <div class="canvas-box">
+        <div class="overlay-stats" id="overlayStats">
+            Time: 0.00 s<br>
+            N: 50
+        </div>
+        <canvas id="animCanvas" width="800" height="600"></canvas>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('animCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const th1Slider = document.getElementById('th1Slider');
+    const th2Slider = document.getElementById('th2Slider');
+    const pertSlider = document.getElementById('pertSlider');
+    const speedSlider = document.getElementById('speedSlider');
+    
+    const th1Value = document.getElementById('th1Value');
+    const th2Value = document.getElementById('th2Value');
+    const pertValue = document.getElementById('pertValue');
+    const speedValue = document.getElementById('speedValue');
+    const overlayStats = document.getElementById('overlayStats');
+
+    const toggleBtn = document.getElementById('toggleBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    // Physics parameters
+    const g = 9.81;
+    const m1 = 1.0;
+    const m2 = 1.0;
+    const L1 = 1.0;
+    const L2 = 1.0;
+
+    let pendulums = [];
+    const N = 50;
+    let time = 0;
+    let isPlaying = true;
+
+    function initPendulums() {
+        pendulums = [];
+        time = 0;
+        const base_th1 = parseFloat(th1Slider.value);
+        const base_th2 = parseFloat(th2Slider.value);
+        const pertScale = Math.pow(10, parseFloat(pertSlider.value));
+
+        for (let i = 0; i < N; i++) {
+            // Distribute th2 minutely
+            let offset = (i - N/2) * pertScale; 
+            pendulums.push({
+                th1: base_th1,
+                w1: 0,
+                th2: base_th2 + offset,
+                w2: 0,
+                color: `hsl(${(i * 360) / N}, 80%, 60%)` // Rainbow spread
+            });
+        }
+    }
+
+    // RK4 Derivatives for double pendulum
+    function getDerivs(state) {
+        let th1 = state.th1;
+        let th2 = state.th2;
+        let w1 = state.w1;
+        let w2 = state.w2;
+
+        let delta = th1 - th2;
+        
+        let den1 = L1 * (2*m1 + m2 - m2 * Math.cos(2*th1 - 2*th2));
+        let num1 = -g*(2*m1 + m2)*Math.sin(th1) - m2*g*Math.sin(th1 - 2*th2) - 2*Math.sin(delta)*m2*(w2*w2*L2 + w1*w1*L1*Math.cos(delta));
+        let dw1 = num1 / den1;
+
+        let den2 = L2 * (2*m1 + m2 - m2 * Math.cos(2*th1 - 2*th2));
+        let num2 = 2*Math.sin(delta)*(w1*w1*L1*(m1+m2) + g*(m1+m2)*Math.cos(th1) + w2*w2*L2*m2*Math.cos(delta));
+        let dw2 = num2 / den2;
+
+        return { dth1: w1, dw1: dw1, dth2: w2, dw2: dw2 };
+    }
+
+    function rk4Step(p, dt) {
+        let k1 = getDerivs(p);
+        
+        let s2 = { th1: p.th1 + 0.5*dt*k1.dth1, w1: p.w1 + 0.5*dt*k1.dw1, th2: p.th2 + 0.5*dt*k1.dth2, w2: p.w2 + 0.5*dt*k1.dw2 };
+        let k2 = getDerivs(s2);
+
+        let s3 = { th1: p.th1 + 0.5*dt*k2.dth1, w1: p.w1 + 0.5*dt*k2.dw1, th2: p.th2 + 0.5*dt*k2.dth2, w2: p.w2 + 0.5*dt*k2.dw2 };
+        let k3 = getDerivs(s3);
+
+        let s4 = { th1: p.th1 + dt*k3.dth1, w1: p.w1 + dt*k3.dw1, th2: p.th2 + dt*k3.dth2, w2: p.w2 + dt*k3.dw2 };
+        let k4 = getDerivs(s4);
+
+        p.th1 += (dt/6)*(k1.dth1 + 2*k2.dth1 + 2*k3.dth1 + k4.dth1);
+        p.w1 += (dt/6)*(k1.dw1 + 2*k2.dw1 + 2*k3.dw1 + k4.dw1);
+        p.th2 += (dt/6)*(k1.dth2 + 2*k2.dth2 + 2*k3.dth2 + k4.dth2);
+        p.w2 += (dt/6)*(k1.dw2 + 2*k2.dw2 + 2*k3.dw2 + k4.dw2);
+    }
+
+    function render() {
+        // UI
+        th1Value.innerText = parseFloat(th1Slider.value).toFixed(2);
+        th2Value.innerText = parseFloat(th2Slider.value).toFixed(2);
+        pertValue.innerText = "1e" + pertSlider.value;
+        speedValue.innerText = speedSlider.value + "x";
+
+        let speedMultiplier = parseInt(speedSlider.value);
+        let dt = 0.005; // fixed fine internal step for stability
+
+        if (isPlaying) {
+            for (let s = 0; s < speedMultiplier; s++) {
+                // RK4 requires small enough dt to conserve energy and prevent blowing up
+                for(let p of pendulums) {
+                    rk4Step(p, dt);
+                }
+                time += dt;
+            }
+        }
+
+        overlayStats.innerHTML = `Time: ${time.toFixed(2)} s<br>N: 50`;
+
+        // Draw
+        ctx.fillStyle = '#111827';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2.5;
+        const scale = 120; // pixels per meter
+
+        // Draw pivot
+        ctx.beginPath();
+        ctx.arc(cx, cy, 5, 0, 2*Math.PI);
+        ctx.fillStyle = 'white';
+        ctx.fill();
+
+        // Since drawing 50 lines per segment might be heavy, we just draw them. 
+        // HTML5 canvas handles this easily.
+        // We use global composite operation 'screen' or 'lighter' to make overlapping pendulums bright white.
+        ctx.globalCompositeOperation = 'lighter';
+
+        for (let p of pendulums) {
+            let x1 = cx + L1 * scale * Math.sin(p.th1);
+            let y1 = cy + L1 * scale * Math.cos(p.th1);
+
+            let x2 = x1 + L2 * scale * Math.sin(p.th2);
+            let y2 = y1 + L2 * scale * Math.cos(p.th2);
+
+            // Draw arm 1
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(x1, y1);
+            ctx.strokeStyle = `hsla(${p.color.split('(')[1].split(',')[0]}, 80%, 60%, 0.3)`;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Draw arm 2
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.strokeStyle = `hsla(${p.color.split('(')[1].split(',')[0]}, 80%, 60%, 0.5)`;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Draw mass 2 point
+            ctx.beginPath();
+            ctx.arc(x2, y2, 2, 0, 2*Math.PI);
+            ctx.fillStyle = p.color;
+            ctx.fill();
+        }
+
+        ctx.globalCompositeOperation = 'source-over'; // reset
+
+        requestAnimationFrame(render);
+    }
+
+    // Listeners
+    toggleBtn.addEventListener('click', () => {
+        isPlaying = !isPlaying;
+        toggleBtn.innerText = isPlaying ? "Pause Simulation" : "Resume Simulation";
+    });
+
+    resetBtn.addEventListener('click', () => {
+        initPendulums();
+        if (!isPlaying) {
+            isPlaying = true;
+            toggleBtn.innerText = "Pause Simulation";
+        }
+    });
+
+    // Auto update starting condition view but don't reset unless released (for fluid dragging)
+    th1Slider.addEventListener('change', initPendulums);
+    th2Slider.addEventListener('change', initPendulums);
+    pertSlider.addEventListener('change', initPendulums);
+
+    initPendulums();
+    requestAnimationFrame(render);
+</script>
+
+</body>
+</html>
